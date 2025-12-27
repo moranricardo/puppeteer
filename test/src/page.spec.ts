@@ -42,6 +42,43 @@ describe('Page', function () {
       expect(await context.pages()).toContain(page);
       expect(await browser.pages()).toContain(page);
     });
+    it('should open pages in a new window at the specified position', async () => {
+      const {context, browser} = await getTestState();
+
+      const page = await context.newPage({
+        type: 'window',
+        windowBounds: {left: 50, top: 50, width: 750, height: 550},
+      });
+
+      expect(await context.pages()).toContain(page);
+      expect(await browser.pages()).toContain(page);
+
+      const outerSize = await page.evaluate(async () => {
+        return {width: outerWidth, height: outerHeight};
+      });
+
+      expect(outerSize.width).toBe(750);
+      expect(outerSize.height).toBe(550);
+    });
+    it('should open pages in a new window in maximized state', async () => {
+      const {context, browser} = await getTestState();
+
+      const page = await context.newPage({
+        type: 'window',
+        windowBounds: {windowState: 'maximized'},
+      });
+
+      expect(await context.pages()).toContain(page);
+      expect(await browser.pages()).toContain(page);
+
+      const outerSize = await page.evaluate(async () => {
+        return {width: outerWidth, height: outerHeight};
+      });
+
+      // Should match default headless screen size 800x600.
+      expect(outerSize.width).toBe(800);
+      expect(outerSize.height).toBe(600);
+    });
   });
 
   describe('Page.close', function () {
@@ -2714,6 +2751,33 @@ describe('Page', function () {
 
       await page1.close();
       await page2.close();
+    });
+  });
+
+  describe('Page.resize', function () {
+    it('should resize the browser window to fit page content', async () => {
+      const {context} = await getTestState();
+
+      const page = await context.newPage();
+
+      // Default view port restricts window to 800x600, so remove it.
+      await page.setViewport(null);
+
+      const contentWidth = 500;
+      const contentHeight = 400;
+      const resized = page.evaluate(() => {
+        return new Promise(resolve => {
+          window.onresize = resolve;
+        });
+      });
+      await page.resize({contentWidth, contentHeight});
+      await resized;
+
+      const innerSize = await page.evaluate(() => {
+        return {width: window.innerWidth, height: window.innerHeight};
+      });
+      expect(innerSize.width).toBe(contentWidth);
+      expect(innerSize.height).toBe(contentHeight);
     });
   });
 });

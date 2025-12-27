@@ -38,9 +38,9 @@ jobs:
             suite: chrome-headful
     steps:
       - name: Check out repository
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       - name: Set up Node.js
-        uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
+        uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v6.1.0
         with:
           cache: npm
           node-version-file: '.nvmrc'
@@ -87,7 +87,7 @@ jobs:
           PUPPETEER_CHROME_HEADLESS_SHELL_VERSION: canary
           PUPPETEER_CHROME_HEADLESS_SHELL_SKIP_DOWNLOAD: true
           PUPPETEER_TEST_EXPERIMENTAL_CHROME_FEATURES: ${{ matrix.configs == 'experimental' }}
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         if: ${{ !cancelled() }}
         with:
           name: test-results-${{ matrix.os }}-${{ matrix.suite }}-${{ matrix.shard }}-${{ matrix.configs }}
@@ -114,9 +114,9 @@ jobs:
           - 4-4
     steps:
       - name: Check out repository
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       - name: Set up Node.js
-        uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
+        uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v6.1.0
         with:
           cache: npm
           node-version-file: '.nvmrc'
@@ -154,7 +154,7 @@ jobs:
         run: xvfb-run --auto-servernum npm run test -- --ignore-unexpectedly-passing --shard '${{ matrix.shard }}' --test-suite ${{ matrix.suite }} --save-stats-to /tmp/artifacts/${{ github.event_name }}_INSERTID.json
         env:
           PUPPETEER_FIREFOX_VERSION: nightly
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         if: ${{ !cancelled() }}
         with:
           name: test-results-${{ matrix.os }}-${{ matrix.suite }}-${{ matrix.shard }}
@@ -169,9 +169,9 @@ jobs:
     if: ${{ !cancelled() }}
     steps:
       - name: Checkout
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       - name: Set up Node.js
-        uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
+        uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v6.1.0
         with:
           cache: npm
           node-version-file: '.nvmrc'
@@ -185,8 +185,7 @@ jobs:
         id: genearate-comment-body
         run: node tools/build_daily_comment.mjs
         env:
-          CHROME_RUN_STATUS: ${{ needs.chrome-canary-tests.result }}
-          FIREFOX_RUN_STATUS: ${{ needs.firefox-nightly-tests.result }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Find Comment
         uses: peter-evans/find-comment@b30e6a3c0ed37e7c023ccd3f1db5c6c0b0c23aad # v4.0.0
         id: find-comment
