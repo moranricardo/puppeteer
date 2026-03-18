@@ -1,5 +1,46 @@
 # Changelog
 
+## [2.13.0](https://github.com/puppeteer/puppeteer/compare/browsers-v2.12.1...browsers-v2.13.0) (2026-02-18)
+
+
+### 🎉 Features
+
+* allow configuring the output of @puppeteer/browsers install ([#14657](https://github.com/puppeteer/puppeteer/issues/14657)) ([1ce908e](https://github.com/puppeteer/puppeteer/commit/1ce908e424aff2e9a04250c26822ff66dedb636b))
+
+## [2.12.1](https://github.com/puppeteer/puppeteer/compare/browsers-v2.12.0...browsers-v2.12.1) (2026-02-13)
+
+
+### 🛠️ Fixes
+
+* **wsl:** check for linux locations first ([#14681](https://github.com/puppeteer/puppeteer/issues/14681)) ([11f01ef](https://github.com/puppeteer/puppeteer/commit/11f01efebcb1b0febfdeb5fb1a4d52f0155732df))
+
+## [2.12.0](https://github.com/puppeteer/puppeteer/compare/browsers-v2.11.2...browsers-v2.12.0) (2026-02-04)
+
+
+### 🎉 Features
+
+* **core:** support AbortSignal in launch ([#14616](https://github.com/puppeteer/puppeteer/issues/14616)) ([d02459c](https://github.com/puppeteer/puppeteer/commit/d02459c8b9a522ccb142109dda5807790c69becc))
+* pluggable browser providers ([#14552](https://github.com/puppeteer/puppeteer/issues/14552)) ([f4c9fee](https://github.com/puppeteer/puppeteer/commit/f4c9feef9972dc9f93a21e61e2876e4517316d13))
+
+
+### 🛠️ Fixes
+
+* do not write metadata when uninstalling ([#14645](https://github.com/puppeteer/puppeteer/issues/14645)) ([1339379](https://github.com/puppeteer/puppeteer/commit/13393790116a35f8ef3ac3938cba42b98fd3a446))
+
+## [2.11.2](https://github.com/puppeteer/puppeteer/compare/browsers-v2.11.1...browsers-v2.11.2) (2026-01-27)
+
+
+### 🛠️ Fixes
+
+* typo in the config path in getConfigHomeLinux ([#14600](https://github.com/puppeteer/puppeteer/issues/14600)) ([c95d1bf](https://github.com/puppeteer/puppeteer/commit/c95d1bfd4be847d07f81b4a8c819786d3f51534d))
+
+## [2.11.1](https://github.com/puppeteer/puppeteer/compare/browsers-v2.11.0...browsers-v2.11.1) (2026-01-12)
+
+
+### 🛠️ Fixes
+
+* **firefox:** set preference dismiss_file_pickers to true ([#14540](https://github.com/puppeteer/puppeteer/issues/14540)) ([cc67588](https://github.com/puppeteer/puppeteer/commit/cc67588466777a272d46ed00347093f861cdfa9a))
+
 ## [2.11.0](https://github.com/puppeteer/puppeteer/compare/browsers-v2.10.13...browsers-v2.11.0) (2025-12-03)
 
 
