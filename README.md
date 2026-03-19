@@ -1,6 +1,6 @@
- # Puppeteer
 
-[![<!DOCTYPE html>
+ # Puppeteer
+[!]<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
