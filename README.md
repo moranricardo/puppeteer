@@ -412,4 +412,4 @@ const fullTitle = await textSelector?.evaluate(el => el.textContent);
 console.log('The title of this blog post is "%s".', fullTitle);
 
 await browser.close();
-``` 
+```
