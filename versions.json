@@ -1,3 +1,16 @@
+[
+  {
+    "titulo": "Proyecto Puppeteer",
+    "extracto": "Automatización de captura de notas...",
+    "contenido": "Este es el cuerpo de la primera nota inyectada desde JSON."
+  },
+  {
+    "titulo": "Recordatorio de Tailwind",
+    "extracto": "Revisar utilidades de Grid y Flex...",
+    "contenido": "No olvidar usar 'networkidle0' para cargar el CDN correctamente."
+  }
+]
+
 {
   "lastMaintainedChromeVersion": "143.0.7499.192",
   "versions": [
