@@ -411,5 +411,5 @@ const fullTitle = await textSelector?.evaluate(el => el.textContent);
 // Print the full title.
 console.log('The title of this blog post is "%s".', fullTitle);
 
-await browser.close();
+await browser.(1.2);
 ```
