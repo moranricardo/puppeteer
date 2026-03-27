@@ -260,30 +260,24 @@
                 stats: [4, 10, 3, 7, 10]
             }
         ];
-
         const paraData = {
             proyectos: "Series de tareas vinculadas a un objetivo con una fecha límite. <br><em>Ejemplo: 'Escribir reporte anual'</em>",
             areas: "Esferas de actividad con un estándar que mantener a lo largo del tiempo. <br><em>Ejemplo: 'Salud', 'Finanzas'</em>",
             recursos: "Temas o intereses continuos que podrían ser útiles en el futuro. <br><em>Ejemplo: 'Diseño Web', 'Recetas'</em>",
             archivo: "Elementos de las otras tres categorías que ya no están activos. <br><em>Ejemplo: 'Proyecto completado 2023'</em>"
         };
-
         // --- CHART INSTANCES ---
         let radarChartInstance = null;
         let timelineChartInstance = null;
-
-        // --- INIT ---
-        document.addEventListener('DOMContentLoaded', () => {
+        // --- INIT ---      document.addEventListener('DOMContentLoaded', () => {
             renderSoftwareCards();
             // Select first tool by default
             selectTool(0);
         });
-
         // --- NAVIGATION ---
         function switchTab(tabId) {
             // Update styles
-            ['software', 'visual', 'tips'].forEach(t => {
-                document.getElementById(`tab-${t}`).className = t === tabId ? 
+            ['software', 'visual', 'tips'].forEach(t => {               document.getElementById(`tab-${t}`).className = t === tabId ? 
                     'active-tab py-4 px-6 text-lg transition-colors duration-200' : 
                     'inactive-tab py-4 px-6 text-lg transition-colors duration-200';
                 
@@ -295,13 +289,11 @@
                 }
             });
         }
-
         // --- SECTION 1: SOFTWARE LOGIC ---
         function renderSoftwareCards() {
             const container = document.getElementById('software-cards-container');
-            container.innerHTML = softwareData.map((tool, index) => `
-                <div onclick="selectTool(${index})" 
-                     class="bg-white p-6 rounded-xl shadow-sm border border-stone-200 cursor-pointer card-hover group h-full flex flex-col justify-between">
+            container.innerHTML = softwareData.map((tool, index) => '
+                <div onclick="selectTool(${index})"                     class="bg-white p-6 rounded-xl shadow-sm border border-stone-200 cursor-pointer card-hover group h-full flex flex-col justify-between">
                     <div class="flex items-center mb-4">
                         <div class="w-10 h-10 rounded-lg ${tool.color} flex items-center justify-center font-bold text-lg mr-3 shadow-md">
                             ${tool.icon}
@@ -315,101 +307,66 @@
                 </div>
             `).join('');
         }
-
         function selectTool(index) {
-            const tool = softwareData[index];
-            
-            // Update Text
-            document.getElementById('software-detail-title').textContent = tool.name;
-            document.getElementById('software-detail-tag').textContent = tool.focus;
-            document.getElementById('software-detail-desc').textContent = `"${tool.feature}"`;
-            
+            const tool = softwareData[index];            
+            // Update Text            document.getElementById('software-detail-title').textContent = tool.name;            document.getElementById('software-detail-tag').textContent = tool.focus;            document.getElementById('software-detail-desc').textContent = `"${tool.feature}"`;            
             // Update Chart
-            updateRadarChart(tool);
+          updateRadarChart(tool);
         }
-
         function updateRadarChart(tool) {
-            const ctx = document.getElementById('softwareChart').getContext('2d');
-            
-            if (radarChartInstance) {
-                radarChartInstance.destroy();
+            const ctx = document.getElementById('softwareChart').getContext('2d');          
+            if (radarChartInstance) {            radarChartInstance.destroy();
             }
-
             radarChartInstance = new Chart(ctx, {
                 type: 'radar',
                 data: {
                     labels: ['Flexibilidad', 'Facilidad', 'Estructura', 'Búsqueda', 'Velocidad'],
                     datasets: [{
                         label: tool.name,
-                        data: tool.stats,
-                        backgroundColor: 'rgba(217, 119, 6, 0.2)', // Amber-600 with opacity
-                        borderColor: 'rgba(217, 119, 6, 1)',
-                        pointBackgroundColor: '#fff',
-                        pointBorderColor: 'rgba(217, 119, 6, 1)',
-                        pointHoverBackgroundColor: '#fff',
-                        pointHoverBorderColor: 'rgba(217, 119, 6, 1)'
+                        data: tool.stats,              backgroundColor: 'rgba(217, 119, 6, 0.2)', // Amber-600 with opacity                       borderColor: 'rgba(217, 119, 6, 1)',                      pointBackgroundColor: '#fff',                        pointBorderColor: 'rgba(217, 119, 6, 1)',                       pointHoverBackgroundColor: '#fff',                       pointHoverBorderColor: 'rgba(217, 119, 6, 1)'
                     }]
                 },
                 options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
+                    responsive: true,                   maintainAspectRatio: false,
  ](https://github.com/puppeteer/puppeteer/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/puppeteer/puppeteer/actions/workflows/ci.yml)
 [![npm puppeteer package](https://img.shields.io/npm/v/puppeteer.svg)](https://npmjs.org/package/puppeteer)
-
 <img src="https://user-images.githubusercontent.com/10379601/29446482-04f7036a-841f-11e7-9872-91d1fc2ea683.png" height="200" align="right"/>
-
 > Puppeteer is a JavaScript library which provides a high-level API to control
 > Chrome or Firefox over the
 > [DevTools Protocol](https://chromedevtools.github.io/devtools-protocol/) or [WebDriver BiDi](https://pptr.dev/webdriver-bidi).
 > Puppeteer runs in the headless (no visible UI) by default
-
 ## [Get started](https://pptr.dev/docs) | [API](https://pptr.dev/api) | [FAQ](https://pptr.dev/faq) | [Contributing](https://pptr.dev/contributing) | [Troubleshooting](https://pptr.dev/troubleshooting)
-
 ## Installation
-
 ```bash npm2yarn
 npm i puppeteer # Downloads compatible Chrome during installation.
 npm i puppeteer-core # Alternatively, install as a library, without downloading Chrome.
 ```
-
 ## MCP
-
 Install [`chrome-devtools-mcp`](https://github.com/ChromeDevTools/chrome-devtools-mcp),
 a Puppeteer-based MCP server for browser automation and debugging.
-
 ## Example
-
 ```ts
 import puppeteer from 'puppeteer';
 // Or import puppeteer from 'puppeteer-core';
-
 // Launch the browser and open a new blank page.
 const browser = await puppeteer.launch();
 const page = await browser.newPage();
-
 // Navigate the page to a URL.
 await page.goto('https://developer.chrome.com/');
-
 // Set screen size.
 await page.setViewport({width: 1080, height: 1024});
-
 // Open the search menu using the keyboard.
 await page.keyboard.press('/');
-
 // Type into search box using accessible input name.
 await page.locator('::-p-aria(Search)').fill('automate beyond recorder');
-
 // Wait and click on first result.
 await page.locator('.devsite-result-item-link').click();
-
 // Locate the full title with a unique string.
 const textSelector = await page
   .locator('::-p-text(Customize and automate)')
   .waitHandle();
 const fullTitle = await textSelector?.evaluate(el => el.textContent);
-
 // Print the full title.
 console.log('The title of this blog post is "%s".', fullTitle);
-
-await browser.close();
+await browser.closwd();
 ``` 
