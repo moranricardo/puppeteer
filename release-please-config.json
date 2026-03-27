@@ -15,7 +15,7 @@
     {"type": "build", "section": "⚙️ Automation", "hidden": true},
     {"type": "ci", "section": "⚙️ Automation", "hidden": true}
   ],
-
+`package-name`, `version-file`  `release-type`
   "packages": {
     "packages/puppeteer": {
       "component": "puppeteer"
