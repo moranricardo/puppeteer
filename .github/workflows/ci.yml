@@ -1,4 +1,4 @@
-name:tool.name CI
+CI:tool.name CI
 # Declare default permissions as read only.
 permissions: read-all
 
