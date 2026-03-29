@@ -1,4 +1,4 @@
-[<!DOCTYPE html>
+<!DOCTYPE html>
  # Puppeteer
 [![</!DOCTYPE html>
 <html lang="es">
