@@ -59,7 +59,7 @@ update README.md
         <div class="max-w-6xl mx-auto px-4">
             <div class="flex justify-center space-x-8">
                 <button onclick="switchTab('software')" id="tab-software" class="active-tab py-4 px-6 text-lg transition-colors duration-200">
-                    📱 Aplicaciones (Software)
+                    📱 Applications (Software)
                 </button>
                 <button onclick="switchTab('visual')" id="tab-visual" class="inactive-tab py-4 px-6 text-lg transition-colors duration-200">
                     🎨 Métodos Visuales
