@@ -1,4 +1,4 @@
-actualizar README.md
+update README.md
 <!DOCTYPE html>
 
 [!]</!DOCTYPE html>
