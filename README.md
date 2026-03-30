@@ -62,10 +62,10 @@ update README.md
                     📱 Applications (Software)
                 </button>
                 <button onclick="switchTab('visual')" id="tab-visual" class="inactive-tab py-4 px-6 text-lg transition-colors duration-200">
-                    🎨 Métodos Visuales
+                    🎨 Visual Methods
                 </button>
                 <button onclick="switchTab('tips')" id="tab-tips" class="inactive-tab py-4 px-6 text-lg transition-colors duration-200">
-                    💡 Consejos & P.A.R.A.
+                    💡 Tips & P.A.R.A.
                 </button>
             </div>
         </div>
@@ -79,8 +79,8 @@ update README.md
             <div class="text-center max-w-3xl mx-auto mb-10">
                 <h2 class="text-2xl font-bold text-gray-800 mb-3">Gestión Digital de Notas</h2>
                 <p class="text-gray-600">
-                    Estas herramientas permiten almacenar, buscar y categorizar información de manera digital. 
-                    Selecciona una tarjeta para analizar sus fortalezas en el gráfico comparativo.
+                    These tools allow you to store, search, and categorize information digitally.
+Select a card to analyze its strengths in the comparison chart.
                 </p>
             </div>
 
