@@ -109,7 +109,7 @@ Select a card to analyze its strengths in the comparison chart.
                     <div class="chart-container bg-stone-50 rounded-xl p-4">
                         <canvas id="softwareChart"></canvas>
                     </div>
-                    <p class="text-xs text-center text-gray-400 mt-2">Valores estimados basados en funcionalidad y curva de aprendizaje.</p>
+                    <p class="text-xs text-center text-gray-400 mt-2">Estimated values based on functionality and learning curve.</p>
                 </div>
             </div>
         </div>
@@ -119,8 +119,8 @@ Select a card to analyze its strengths in the comparison chart.
             <div class="text-center max-w-3xl mx-auto mb-10">
                 <h2 class="text-2xl font-bold text-gray-800 mb-3">Organizadores Gráficos</h2>
                 <p class="text-gray-600">
-                    Métodos ideales para la fase de aprendizaje, planificación o síntesis. 
-                    Interactúa con los botones para visualizar la estructura de cada método.
+                    Ideal methods for the learning, planning, or synthesis phases.
+Interact with the buttons to view the structure of each method.
                 </p>
             </div>
 
@@ -129,7 +129,7 @@ Select a card to analyze its strengths in the comparison chart.
                 <div class="md:w-1/3 space-y-4">
                     <button onclick="renderVisualMethod('mental')" class="w-full text-left p-4 rounded-xl border border-stone-200 hover:bg-amber-50 hover:border-amber-300 transition-all group focus:outline-none focus:ring-2 focus:ring-amber-500">
                         <div class="flex items-center justify-between">
-                            <span class="font-bold text-gray-800 group-hover:text-amber-700">🧠 Mapas Mentales</span>
+                            <span class="font-bold text-gray-800 group-hover:text-amber-700">🧠 Mind Maps</span>
                             <span class="text-stone-400">→</span>
                         </div>
                         <p class="text-sm text-gray-500 mt-1">Lluvia de ideas y creatividad.</p>
@@ -137,10 +137,10 @@ Select a card to analyze its strengths in the comparison chart.
                     
                     <button onclick="renderVisualMethod('synoptic')" class="w-full text-left p-4 rounded-xl border border-stone-200 hover:bg-amber-50 hover:border-amber-300 transition-all group focus:outline-none focus:ring-2 focus:ring-amber-500">
                         <div class="flex items-center justify-between">
-                            <span class="font-bold text-gray-800 group-hover:text-amber-700">🌳 Cuadros Sinópticos</span>
+                            <span class="font-bold text-gray-800 group-hover:text-amber-700">🌳 Synoptic Charts</span>
                             <span class="text-stone-400">→</span>
                         </div>
-                        <p class="text-sm text-gray-500 mt-1">Jerarquía y desglose de temas.</p>
+                        <p class="text-sm text-gray-500 mt-1">Hierarchy and breakdown of topics.</p>
                     </button>
 
                     <button onclick="renderVisualMethod('timeline')" class="w-full text-left p-4 rounded-xl border border-stone-200 hover:bg-amber-50 hover:border-amber-300 transition-all group focus:outline-none focus:ring-2 focus:ring-amber-500">
