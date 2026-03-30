@@ -145,7 +145,7 @@ Interact with the buttons to view the structure of each method.
 
                     <button onclick="renderVisualMethod('timeline')" class="w-full text-left p-4 rounded-xl border border-stone-200 hover:bg-amber-50 hover:border-amber-300 transition-all group focus:outline-none focus:ring-2 focus:ring-amber-500">
                         <div class="flex items-center justify-between">
-                            <span class="font-bold text-gray-800 group-hover:text-amber-700">⏳ Líneas de Tiempo</span>
+                            <span class="font-bold text-gray-800 group-hover:text-amber-700">⏳ Timelines</span>
                             <span class="text-stone-400">→</span>
                         </div>
                         <p class="text-sm text-gray-500 mt-1">Cronología y evolución.</p>
