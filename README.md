@@ -148,7 +148,7 @@ Interact with the buttons to view the structure of each method.
                             <span class="font-bold text-gray-800 group-hover:text-amber-700">⏳ Timelines</span>
                             <span class="text-stone-400">→</span>
                         </div>
-                        <p class="text-sm text-gray-500 mt-1">Cronología y evolución.</p>
+                        <p class="text-sm text-gray-500 mt-1">Chronology and evolution.</p>
                     </button>
                 </div>
 
@@ -173,12 +173,12 @@ Interact with the buttons to view the structure of each method.
             <!-- General Tips Cards -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
                 <div class="bg-amber-50 p-6 rounded-xl border border-amber-100">
-                    <h3 class="font-bold text-amber-800 text-lg mb-2">🏷️ Etiquetado (Tags)</h3>
-                    <p class="text-gray-700">Usa etiquetas transversales para encontrar notas de diferentes libretas que compartan un tema. Evita las carpetas profundas si puedes usar tags.</p>
+                    <h3 class="font-bold text-amber-800 text-lg mb-2">🏷️ Labeled (Tags)</h3>
+                    <p class="text-gray-700">Use cross-tabs to find notes from different notebooks that share a theme. Avoid deep folders if you can use tags.</p>
                 </div>
                 <div class="bg-amber-50 p-6 rounded-xl border border-amber-100">
-                    <h3 class="font-bold text-amber-800 text-lg mb-2">🧹 Revisiones Periódicas</h3>
-                    <p class="text-gray-700">Dedica tiempo semanal a limpiar y archivar notas. Una nota que no se revisa se convierte en basura digital.</p>
+                    <h3 class="font-bold text-amber-800 text-lg mb-2">🧹 Periodic Checkups</h3>
+                    <p class="text-gray-700">Set aside time each week to clean up and archive notes. A note that isn't reviewed becomes digital clutter.</p>
                 </div>
             </div>
 
@@ -199,17 +199,17 @@ Interact with the buttons to view the structure of each method.
                     <div onclick="showParaInfo('recursos')" class="para-card bg-stone-50 p-6 rounded-lg text-center border-2 border-transparent hover:border-amber-400 group">
                         <div class="text-3xl mb-2">📚</div>
                         <h4 class="font-bold text-gray-800 group-hover:text-amber-700">Recursos</h4>
-                        <p class="text-xs text-gray-500 mt-2">Intereses futuros</p>
+                        <p class="text-xs text-gray-500 mt-2">Future Interests</p>
                     </div>
                     <div onclick="showParaInfo('archivo')" class="para-card bg-stone-50 p-6 rounded-lg text-center border-2 border-transparent hover:border-amber-400 group">
                         <div class="text-3xl mb-2">📦</div>
-                        <h4 class="font-bold text-gray-800 group-hover:text-amber-700">Archivo</h4>
-                        <p class="text-xs text-gray-500 mt-2">Inactivos</p>
+                        <h4 class="font-bold text-gray-800 group-hover:text-amber-700">Archive</h4>
+                        <p class="text-xs text-gray-500 mt-2">Inactive</p>
                     </div>
                 </div>
                 
                 <div id="para-description" class="mt-8 p-6 bg-amber-50 rounded-xl text-center transition-all duration-300">
-                    <p class="text-gray-800 font-medium">Haz clic en una categoría arriba para ver su definición.</p>
+                    <p class="text-gray-800 font-medium">Click on a category above to see its definition.</p>
                 </div>
             </div>
         </div>
@@ -217,7 +217,7 @@ Interact with the buttons to view the structure of each method.
     </main>
 
     <footer class="bg-stone-900 text-stone-400 py-8 text-center mt-auto">
-        <p>© 2024 Guía de Organización de Notas. Basado en el reporte de productividad.</p>
+        <p>© 2024 Note Organization Guide. Based on the productivity report.</p>
     </footer>
 
     <!-- LOGIC -->
@@ -227,8 +227,8 @@ Interact with the buttons to view the structure of each method.
             {
                 id: 'notion',
                 name: 'Notion',
-                focus: 'Todo en uno',
-                feature: 'Bases de datos, wikis y bloques modulares.',
+                focus: 'All in one',
+                feature: 'Databases, wikis, and modular blocks.',
                 icon: 'N',
                 color: 'bg-black text-white',
                 stats: [9, 6, 9, 8, 5] // [Flexibility, Simplicity, Structure, Search, Speed]
