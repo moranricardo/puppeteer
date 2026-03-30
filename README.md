@@ -155,7 +155,7 @@ Interact with the buttons to view the structure of each method.
                 <!-- Visualization Stage -->
                 <div class="md:w-2/3 bg-white rounded-2xl shadow-lg border border-stone-100 p-8 min-h-[400px] flex flex-col justify-center items-center relative overflow-hidden">
                     <div id="visual-content-area" class="w-full h-full flex flex-col items-center justify-center">
-                        <p class="text-gray-400 text-lg">Selecciona un método para ver su estructura.</p>
+                        <p class="text-gray-400 text-lg">Select a method to view its structure.</p>
                     </div>
                 </div>
             </div>
