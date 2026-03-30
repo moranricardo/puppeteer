@@ -49,7 +49,7 @@ update README.md
             <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4 tracking-tight">Organizador de Información</h1>
             <p class="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
                 Transform simple notes into to <span class="text-amber-600 font-semibold">useful knowledge system</span>. 
-                Explora las mejores herramientas digitales y métodos visuales para estructurar tus ideas.
+                Explore the best digital tools and visual methods for structuring your ideas.
             </p>
         </div>
     </header>
