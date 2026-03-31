@@ -117,7 +117,7 @@ Select a card to analyze its strengths in the comparison chart.
         <!-- SECTION 2: VISUAL METHODS -->
         <div id="view-visual" class="hidden fade-in space-y-12">
             <div class="text-center max-w-3xl mx-auto mb-10">
-                <h2 class="text-2xl font-bold text-gray-800 mb-3">Organizadores Gráficos</h2>
+                <h2 class="text-2xl font-bold text-gray-800 mb-3">Graphic Organizers</h2>
                 <p class="text-gray-600">
                     Ideal methods for the learning, planning, or synthesis phases.
 Interact with the buttons to view the structure of each method.
@@ -132,7 +132,7 @@ Interact with the buttons to view the structure of each method.
                             <span class="font-bold text-gray-800 group-hover:text-amber-700">🧠 Mind Maps</span>
                             <span class="text-stone-400">→</span>
                         </div>
-                        <p class="text-sm text-gray-500 mt-1">Lluvia de ideas y creatividad.</p>
+                        <p class="text-sm text-gray-500 mt-1">Brainstorming and creativity.</p>
                     </button>
                     
                     <button onclick="renderVisualMethod('synoptic')" class="w-full text-left p-4 rounded-xl border border-stone-200 hover:bg-amber-50 hover:border-amber-300 transition-all group focus:outline-none focus:ring-2 focus:ring-amber-500">
@@ -164,9 +164,9 @@ Interact with the buttons to view the structure of each method.
         <!-- SECTION 3: TIPS & PARA -->
         <div id="view-tips" class="hidden fade-in space-y-12">
             <div class="text-center max-w-3xl mx-auto mb-10">
-                <h2 class="text-2xl font-bold text-gray-800 mb-3">Estrategias de Organización</h2>
+                <h2 class="text-2xl font-bold text-gray-800 mb-3">Organizational Strategies</h2>
                 <p class="text-gray-600">
-                    No basta con tener las herramientas; necesitas un sistema. El método P.A.R.A. y buenos hábitos son clave.
+                    Having the tools isn't enough; you need a system. The P.A.R.A. method and good habits are key.
                 </p>
             </div>
 
@@ -194,7 +194,7 @@ Interact with the buttons to view the structure of each method.
                     <div onclick="showParaInfo('areas')" class="para-card bg-stone-50 p-6 rounded-lg text-center border-2 border-transparent hover:border-amber-400 group">
                         <div class="text-3xl mb-2">🏔️</div>
                         <h4 class="font-bold text-gray-800 group-hover:text-amber-700">Áreas</h4>
-                        <p class="text-xs text-gray-500 mt-2">Largo plazo</p>
+                        <p class="text-xs text-gray-500 mt-2">Long term</p>
                     </div>
                     <div onclick="showParaInfo('recursos')" class="para-card bg-stone-50 p-6 rounded-lg text-center border-2 border-transparent hover:border-amber-400 group">
                         <div class="text-3xl mb-2">📚</div>
@@ -236,8 +236,8 @@ Interact with the buttons to view the structure of each method.
             {
                 id: 'evernote',
                 name: 'Evernote / OneNote',
-                focus: 'Archivador digital',
-                feature: 'Organización jerárquica en libretas, secciones y páginas.',
+                focus: 'Digital filing cabinet',
+                feature: 'Hierarchical organization in notebooks, sections and pages.',
                 icon: 'E',
                 color: 'bg-green-600 text-white',
                 stats: [6, 7, 8, 9, 7]
@@ -245,8 +245,8 @@ Interact with the buttons to view the structure of each method.
             {
                 id: 'obsidian',
                 name: 'Obsidian',
-                focus: 'Segundo Cerebro',
-                feature: 'Archivos locales y enlaces bidireccionales (Gráfico de conocimiento).',
+                focus: 'Second Brain',
+                feature: 'Local files and bidirectional links (Knowledge graph)).',
                 icon: 'O',
                 color: 'bg-purple-600 text-white',
                 stats: [9, 5, 7, 8, 10]
@@ -254,8 +254,8 @@ Interact with the buttons to view the structure of each method.
             {
                 id: 'keep',
                 name: 'Google Keep',
-                focus: 'Captura rápida',
-                feature: 'Notas visuales tipo post-it con recordatorios y etiquetas.',
+                focus: 'Quick Capture',
+                feature: 'Post-it style visual notes with reminders and labels.',
                 icon: 'K',
                 color: 'bg-yellow-500 text-white',
                 stats: [4, 10, 3, 7, 10]
@@ -263,149 +263,6 @@ Interact with the buttons to view the structure of each method.
         ];
 
         const paraData = {
-            proyectos: "Series de tareas vinculadas a un objetivo con una fecha límite. <br><em>Ejemplo: 'Escribir reporte anual'</em>",
-            areas: "Esferas de actividad con un estándar que mantener a lo largo del tiempo. <br><em>Ejemplo: 'Salud', 'Finanzas'</em>",
-            recursos: "Temas o intereses continuos que podrían ser útiles en el futuro. <br><em>Ejemplo: 'Diseño Web', 'Recetas'</em>",
-            archivo: "Elementos de las otras tres categorías que ya no están activos. <br><em>Ejemplo: 'Proyecto completado 2023'</em>"
-        };
+            Projects: "A A series of tasks linked to a goal with a deadline. <br><em>Example: 'Write annual report'</em>”,
 
-        // --- CHART INSTANCES ---
-        let radarChartInstance = null;
-        let timelineChartInstance = null;
-
-        // --- INIT ---
-        document.addEventListener('DOMContentLoaded', () => {
-            renderSoftwareCards();
-            // Select first tool by default
-            selectTool(0);
-        });
-
-        // --- NAVIGATION ---
-        function switchTab(tabId) {
-            // Update styles
-            ['software', 'visual', 'tips'].forEach(t => {
-                document.getElementById(`tab-${t}`).className = t === tabId ? 
-                    'active-tab py-4 px-6 text-lg transition-colors duration-200' : 
-                    'inactive-tab py-4 px-6 text-lg transition-colors duration-200';
-                
-                const view = document.getElementById(`view-${t}`);
-                if (t === tabId) {
-                    view.classList.remove('hidden');
-                } else {
-                    view.classList.add('hidden');
-                }
-            });
-        }
-
-        // --- SECTION 1: SOFTWARE LOGIC ---
-        function renderSoftwareCards() {
-            const container = document.getElementById('software-cards-container');
-            container.innerHTML = softwareData.map((tool, index) => `
-                <div onclick="selectTool(${index})" 
-                     class="bg-white p-6 rounded-xl shadow-sm border border-stone-200 cursor-pointer card-hover group h-full flex flex-col justify-between">
-                    <div class="flex items-center mb-4">
-                        <div class="w-10 h-10 rounded-lg ${tool.color} flex items-center justify-center font-bold text-lg mr-3 shadow-md">
-                            ${tool.icon}
-                        </div>
-                        <h4 class="font-bold text-gray-800 group-hover:text-amber-600 transition-colors">${tool.name}</h4>
-                    </div>
-                    <div>
-                        <span class="text-xs uppercase tracking-wider text-gray-400 font-semibold">Enfoque</span>
-                        <p class="text-sm font-medium text-gray-600 mb-2">${tool.focus}</p>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function selectTool(index) {
-            const tool = softwareData[index];
-            
-            // Update Text
-            document.getElementById('software-detail-title').textContent = tool.name;
-            document.getElementById('software-detail-tag').textContent = tool.focus;
-            document.getElementById('software-detail-desc').textContent = `"${tool.feature}"`;
-            
-            // Update Chart
-            updateRadarChart(tool);
-        }
-
-        function updateRadarChart(tool) {
-            const ctx = document.getElementById('softwareChart').getContext('2d');
-            
-            if (radarChartInstance) {
-                radarChartInstance.destroy();
-            }
-
-            radarChartInstance = new Chart(ctx, {
-                type: 'radar',
-                data: {
-                    labels: ['Flexibilidad', 'Facilidad', 'Estructura', 'Búsqueda', 'Velocidad'],
-                    datasets: [{
-                        label: tool.name,
-                        data: tool.stats,
-                        backgroundColor: 'rgba(217, 119, 6, 0.2)', // Amber-600 with opacity
-                        borderColor: 'rgba(217, 119, 6, 1)',
-                        pointBackgroundColor: '#fff',
-                        pointBorderColor: 'rgba(217, 119, 6, 1)',
-                        pointHoverBackgroundColor: '#fff',
-                        pointHoverBorderColor: 'rgba(217, 119, 6, 1)'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
- ](https://github.com/puppeteer/puppeteer/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/puppeteer/puppeteer/actions/workflows/ci.yml)
-[![npm puppeteer package](https://img.shields.io/npm/v/puppeteer.svg)](https://npmjs.org/package/puppeteer)
-
-<img src="https://user-images.githubusercontent.com/10379601/29446482-04f7036a-841f-11e7-9872-91d1fc2ea683.png" height="200" align="right"/>
-
-> Puppeteer is a JavaScript library which provides a high-level API to control
-> Chrome or Firefox over the
-> [DevTools Protocol](https://chromedevtools.github.io/devtools-protocol/) or [WebDriver BiDi](https://pptr.dev/webdriver-bidi).
-> Puppeteer runs in the headless (no visible UI) by default
-
-## [Get started](https://pptr.dev/docs) | [API](https://pptr.dev/api) | [FAQ](https://pptr.dev/faq) | [Contributing](https://pptr.dev/contributing) | [Troubleshooting](https://pptr.dev/troubleshooting)
-
-## Installation
-
-```bash npm2yarn
-npm i puppeteer # Downloads compatible Chrome during installation.
-npm i puppeteer-core # Alternatively, install as a library, without downloading Chrome.
-```
-
-## Example
-
-```ts
-import puppeteer from 'puppeteer';
-// Or import puppeteer from 'puppeteer-core';
-
-// Launch the browser and open a new blank page.
-const browser = await puppeteer.launch();
-const page = await browser.newPage();
-
-// Navigate the page to a URL.
-await page.goto('https://developer.chrome.com/');
-
-// Set screen size.
-await page.setViewport({width: 1080, height: 1024});
-
-// Open the search menu using the keyboard.
-await page.keyboard.press('/');
-
-// Type into search box using accessible input name.
-await page.locator('::-p-aria(Search)').fill('automate beyond recorder');
-
-// Wait and click on first result.
-await page.locator('.devsite-result-item-link').click();
-
-// Locate the full title with a unique string.
-const textSelector = await page
-  .locator('::-p-text(Customize and automate)')
-  .waitHandle();
-const fullTitle = await textSelector?.evaluate(el => el.textContent);
-
-// Print the full title.
-console.log('The title of this blog post is "%s".', fullTitle);
-
-await browser.close();
-``` 
+Areas: "Spheres of activity with a standard to maintain over time. <br><em>Axis
