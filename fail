@@ -1,0 +1,150 @@
+  578 passing (4m)
+  6 pending
+  10 failing
+
+  1) BrowserContext
+       should isolate localStorage and cookies:
+     Error: expect(received).toHaveLength(expected)
+
+Expected length: 1
+Received length: 2
+Received array:  [{"_initializedDeferred": {}, "_isClosedDeferred": {}, "_targetId": "1646BF823044E143281D0830CFB1E11C"}, {"_initializedDeferred": {}, "_isClosedDeferred": {}, "_targetId": "AA48EF1BF933193C5D3C6840035ECC8D", "pagePromise": Promise {}}]
+      at Context.<anonymous> (file:///Users/runner/work/puppeteer/puppeteer/test/src/browsercontext.spec.ts:175:32)
+
+  2) BrowserContext
+       should work across sessions:
+     Error: expect(received).toHaveLength(expected)
+
+Expected length: 1
+Received length: 9
+Received array:  [{}, {}, {}, {}, {}, {}, {}, {}, {}]
+      at Context.<anonymous> (file:///Users/runner/work/puppeteer/puppeteer/test/src/browsercontext.spec.ts:223:39)
+
+  3) Evaluation specs
+       Page.evaluate
+         should transfer RegEx:
+     Error: expect(received).toBe(expected) // Object.is equality
+
+Expected: "World!"
+Received: undefined
+      at Context.<anonymous> (file:///Users/runner/work/puppeteer/puppeteer/test/src/evaluation.spec.ts:92:22)
+
+  4) Evaluation specs
+       Page.evaluate
+         should replace symbols with undefined:
+     Error: expect(received).toEqual(expected) // deep equality
+
+Expected: [undefined, "foo"]
+Received: undefined
+      at Context.<anonymous> (file:///Users/runner/work/puppeteer/puppeteer/test/src/evaluation.spec.ts:115:9)
+
+  5) Evaluation specs
+       Page.evaluate
+         should return RegEx:
+     Error: expect(received).toBe(expected) // Object.is equality
+
+Expected: true
+Received: false
+      at Context.<anonymous> (file:///Users/runner/work/puppeteer/puppeteer/test/src/evaluation.spec.ts:324:40)
+
+  6) Evaluation specs
+       Page.evaluate
+         should work for circular object:
+     Error: expect(received).toMatchObject(expected)
+
+Matcher error: received value must be a non-null object
+
+Received has value: undefined
+      at Context.<anonymous> (file:///Users/runner/work/puppeteer/puppeteer/test/src/evaluation.spec.ts:384:22)
+
+  7) Evaluation specs
+       Page.evaluate
+         should return properly serialize objects with unknown type fields:
+     Error: expect(received).toEqual(expected) // deep equality
+
+- Expected  - 1
++ Received  + 1
+
+  Object {
+    "a": "foo",
+-   "b": undefined,
++   "b": Object {},
+  }
+      at Context.<anonymous> (file:///Users/runner/work/puppeteer/puppeteer/test/src/evaluation.spec.ts:524:22)
+
+  8) Keyboard
+       ElementHandle.press should not support |text| option:
+     Error: expect(received).toBe(expected) // Object.is equality
+
+Expected: "a"
+Received: "ё"
+      at Context.<anonymous> (file:///Users/runner/work/puppeteer/puppeteer/test/src/keyboard.spec.ts:131:7)
+
+  9) navigation
+       Page.goto
+         should work when navigating to a URL with a client redirect:
+     Error: expect(received).toBe(expected) // Object.is equality
+
+Expected: "http://localhost:49227/client-redirect.html"
+Received: "http://localhost:49227/empty.html"
+      at Context.<anonymous> (file:///Users/runner/work/puppeteer/puppeteer/test/src/navigation.spec.ts:347:30)
+
+  10) request interception
+       Page.setRequestInterception
+         should work with keep alive redirects:
+     TimeoutError: Timed out after waiting 1000ms
+      at file:///Users/runner/work/puppeteer/puppeteer/packages/puppeteer-core/src/common/util.ts:290:17
+      at file:///Users/runner/work/puppeteer/puppeteer/packages/puppeteer-core/lib/esm/third_party/rxjs/rxjs.js:1944:31
+      at OperatorSubscriber2._this._next (file:///Users/runner/work/puppeteer/puppeteer/packages/puppeteer-core/lib/esm/third_party/rxjs/rxjs.js:1001:9)
+      at OperatorSubscriber2.Subscriber2.next (file:///Users/runner/work/puppeteer/puppeteer/packages/puppeteer-core/lib/esm/third_party/rxjs/rxjs.js:704:12)
+      at AsyncAction2.<anonymous> (file:///Users/runner/work/puppeteer/puppeteer/packages/puppeteer-core/lib/esm/third_party/rxjs/rxjs.js:2288:20)
+      at AsyncAction2._execute (file:///Users/runner/work/puppeteer/puppeteer/packages/puppeteer-core/lib/esm/third_party/rxjs/rxjs.js:1368:12)
+      at AsyncAction2.execute (file:///Users/runner/work/puppeteer/puppeteer/packages/puppeteer-core/lib/esm/third_party/rxjs/rxjs.js:1357:22)
+      at AsyncScheduler2.flush (file:///Users/runner/work/puppeteer/puppeteer/packages/puppeteer-core/lib/esm/third_party/rxjs/rxjs.js:1435:26)
+      at listOnTimeout (node:internal/timers:585:17)
+      at processTimers (node:internal/timers:521:7)
+
+
+
+Finished ["chrome","headless","cdp"]
+Add the following to TestExpectations.json to ignore the error:
+[
+  {
+    "testIdPattern": "[browsercontext.spec] BrowserContext should isolate localStorage and cookies",
+    "platforms": [
+      "darwin"
+    ],
+    "parameters": [
+      "chrome",
+      "headless",
+      "cdp"
+    ],
+    "expectations": [
+      "FAIL"
+    ]
+  },
+  {
+    "testIdPattern": "[browsercontext.spec] BrowserContext should work across sessions",
+    "platforms": [
+      "darwin"
+    ],
+    "parameters": [
+      "chrome",
+      "headless",
+      "cdp"
+    ],
+    "expectations": [
+      "FAIL"
+    ]
+  }
+]
+The recommendations are based on the following applied expectations:
+[
+  null,
+  null
+]
+Run failed: 2 unexpected result(s).
+
+❌ [test] exited with exit code 1.
+❌ 1 script failed.
+Process completed with exit code 1.
