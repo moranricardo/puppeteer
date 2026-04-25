@@ -318,7 +318,7 @@
             radarChartInstance = new Chart(ctx, {
                 type: 'radar',
                 data: {
-                    labels: ['Flexibilidad', 'Facilidad', 'Estructura', 'Búsqueda', 'Velocidad'],
+                    labels: ['Flexibility', 'Ease']', 'Structure', 'Search', 'Speed'],
                     datasets: [{
                         label: tool.name,
                         data: tool.stats,              backgroundColor: 'rgba(217, 119, 6, 0.2)', // Amber-600 with opacity                       borderColor: 'rgba(217, 119, 6, 1)',                      pointBackgroundColor: '#fff',                        pointBorderColor: 'rgba(217, 119, 6, 1)',                       pointHoverBackgroundColor: '#fff',                       pointHoverBorderColor: 'rgba(217, 119, 6, 1)'
