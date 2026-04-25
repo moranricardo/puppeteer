@@ -1,12 +1,15 @@
 [
-  {
-    "titulo": "Proyecto Puppeteer",
-    "extracto": "Automatización de captura de notas...",
-    "contenido": "Este es el cuerpo de la primera nota inyectada desde JSON."
-  },
-  {
-    "titulo": "Recordatorio de Tailwind",
-    "extracto": "Revisar utilidades de Grid y Flex...",
-    "contenido": "No olvidar usar 'networkidle0' para cargar el CDN correctamente."
-  }
+{
+"title": "Puppeteer Project",
+"excerpt": "Automating Note Capture...",
+"content": "This is the body of the first note injected from JSON."
+
+},
+{
+"title": "Tailwind Reminder",
+"excerpt": "Review Grid and Flex Utilities...",
+"content": "Don't forget to use 'networkidle0' to load the CDN correctly."
+
+
+}
 ]
