@@ -83,7 +83,6 @@ jobs:
         env:
           PUPPETEER_DEFLAKE_TESTS: '${{ inputs.tests }}'
           PUPPETEER_DEFLAKE_RETRIES: ${{ inputs.retries }}
-
   firefox-tests:
     name: Deflake test with pattern ${{ inputs.tests }} on ${{ inputs.os }}
     runs-on: ${{ inputs.os }}
