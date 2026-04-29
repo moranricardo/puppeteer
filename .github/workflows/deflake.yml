@@ -1,12 +1,9 @@
 name: Deflake Puppeteer test
-
 # Declare default permissions as read only.
 permissions: read-all
-
 concurrency:
   group: deflake-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
-
 on:
   workflow_dispatch:
     inputs:
@@ -38,7 +35,6 @@ on:
         required: false
         default: 100
         type: number
-
 jobs:
   chrome-deflake:
     name: Deflake test with pattern ${{ inputs.tests }} on ${{ inputs.os }}
