@@ -22,3 +22,14 @@ jobs:
         run: npx puppeteer browsers install chrome
       - name: Run Scraper
         run: node index.js
+      - name: 📦 Install dependencies
+        run: npm install
+      - name: 🚀 Ejecutar Dona Adiamantada (818)
+        run: node index.js
+      - name: 💎 Persistir Núcleo
+        run: |
+          git config --global user.name "Diamond-Bot"
+          git config --global user.email "bot@818.com"
+          git add diamond_core.json
+          git commit -m "TrimCache: Núcleo actualizado [818]" || echo "Sin cambios"
+          git push
