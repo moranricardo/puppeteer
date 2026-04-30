@@ -1,54 +1,94 @@
 const puppeteer = require('puppeteer');
 const fs = require('fs');
-const path = require('path');
 
-async function renderizarNotas() {
-  const browser = await puppeteer.launch({
-  args: [
-    '--no-sandbox',
-    '--disable-setuid-sandbox',
-    '--disable-dev-shm-usage', // ESTE ES VITAL PARA MÓVILES
-    '--headless=new'
-  ]
+async function vortexToroidal818() {
+    console.log("🌀 Iniciando VÓRTICE TOROIDAL (818) - NÚCLEO ACTIVO");
 
-});
-  const page = await browser.newPage();
-  
-  // 1. Cargar el HTML y los datos
-  const htmlPath = path.resolve(__dirname, 'template.html');
-  const notas = JSON.parse(fs.readFileSync('./notas.json', 'utf8'));
-  let htmlContent = fs.readFileSync(htmlPath, 'utf8');
+    // 1. Memoria del Ciclo (Retroalimentación)
+    let memoriaPrevia = null;
+    if (fs.existsSync('diamond_core.json')) {
+        memoriaPrevia = JSON.parse(fs.readFileSync('diamond_core.json', 'utf8'));
+        console.log("♻️ Retroalimentación detectada. Calibrando con el ciclo anterior...");
+    }
 
-  await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
-
-  // 2. Inyectar las notas en el sidebar usando Evaluate
-  await page.evaluate((datosNotas) => {
-    const contenedor = document.querySelector('.lg\\:col-span-1'); // El sidebar
-    contenedor.innerHTML = ''; // Limpiar ejemplos estáticos
-
-    datosNotas.forEach(nota => {
-      const div = document.createElement('div');
-      div.className = 'p-4 bg-white rounded-xl border border-slate-200 shadow-sm mb-4';
-      div.innerHTML = `
-        <h3 class="font-bold text-slate-800">${nota.titulo}</h3>
-        <p class="text-sm text-slate-500 truncate">${nota.extracto}</p>
-      `;
-      contenedor.appendChild(div);
+    const browser = await puppeteer.launch({
+        headless: "new",
+        args: [
+            '--no-sandbox', 
+            '--disable-setuid-sandbox', 
+            '--disable-dev-shm-usage', // Evita saturar RAM en Android
+            '--single-process'         // Optimización para Termux
+        ]
     });
 
-    // Inyectar la primera nota en el visor principal
-    const visor = document.querySelector('.lg\\:col-span-2');
-    visor.innerHTML = `
-      <h2 class="text-2xl font-bold mb-4">${datosNotas[0].titulo}</h2>
-      <p class="text-slate-600">${datosNotas[0].contenido}</p>
-    `;
-  }, notas);
+    try {
+        const page = await browser.newPage();
+        
+        // 2. Fase de Expansión (Extracción)
+        console.log("🌐 Navegando a la red de datos...");
+        await page.goto('https://news.google.com', { waitUntil: 'networkidle2', timeout: 30000 });
 
-  // 3. Guardar el resultado final como PDF o Imagen
-  await page.pdf({ path: 'Mi_Organizador.pdf', format: 'A4', printBackground: true });
-  
-  console.log('✨ ¡Repositorio sincronizado! PDF generado con tus notas reales.');
-  await browser.close();
+        const nuevosDatos = await page.evaluate(() => {
+            return Array.from(document.querySelectorAll('h3'))
+                .slice(0, 10)
+                .map(t => t.innerText);
+        });
+
+        // 3. Fase de Contracción (Tallado del Diamante)
+        let pos = 0, neg = 0;
+        const filtros = {
+            positivos: ['crecimiento', 'éxito', 'sube', 'gana', 'acuerdo', 'positivo', 'avance'],
+            negativos: ['riesgo', 'caída', 'baja', 'crisis', 'alerta', 'negativo', 'deuda']
+        };
+
+        const datosPulidos = nuevosDatos.map(texto => {
+            let score = 0;
+            let t = texto.toLowerCase();
+            
+            filtros.positivos.forEach(p => { if(t.includes(p)) score++; });
+            filtros.negativos.forEach(p => { if(t.includes(p)) score--; });
+            
+            if(score > 0) pos++; 
+            else if(score < 0) neg++;
+
+            return { 
+                dato: texto, 
+                score: score,
+                clasificacion: score > 0 ? "Positivo ✨" : (score < 0 ? "Riesgo ⚠️" : "Neutro"),
+                timestamp: new Date().toISOString() 
+            };
+        });
+
+        // 4. Resultado Final (Sincronización del Núcleo)
+        const sentimientoGeneral = pos > neg ? "En Crecimiento 📈" : (neg > pos ? "En Alerta 📉" : "Estable");
+
+        const refinedCore = {
+            id: "818_CORE_VORTEX",
+            ciclo: memoriaPrevia ? (memoriaPrevia.ciclo + 1) : 1,
+            geometria: "TOROIDE",
+            status: "SYNCHRONIZED",
+            timestamp: new Date().toISOString(),
+            analisis_de_mercado: {
+                sentimiento_general: sentimientoGeneral,
+                conteo: { positivos: pos, negativos: neg },
+                detalles: datosPulidos,
+                origen_previo: memoriaPrevia ? `Ciclo_${memoriaPrevia.ciclo}` : "Punto Cero"
+            }
+        };
+
+        console.log(`📊 Ciclo ${refinedCore.ciclo} - Sentimiento: ${sentimientoGeneral}`);
+
+        // Blindaje de datos (Escritura en el tablero)
+        fs.writeFileSync('diamond_core.json', JSON.stringify(refinedCore, null, 2));
+        console.log("📁 El núcleo ha sido blindado y recirculado en 'diamond_core.json'.");
+
+    } catch (error) {
+        console.error("⚠️ Turbulencia en el núcleo cerebral:", error.message);
+    } finally {
+        // --- TRIMCACHE: Liberación Total ---
+        await browser.close();
+        console.log("🔒 Ciclo completado. Sistema hermético y memoria liberada.");
+    }
 }
 
-renderizarNotas();
+vortexToroidal818();
