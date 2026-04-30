@@ -9,24 +9,31 @@ jobs:
   build-and-run:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      -  name: Checkout code
         uses: actions/checkout@v4
-      - name: Setup Node.js
+      -  name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: 'npm'
-      - name: Install dependencies
+      -  name: Install dependencies
         run: npm install
-      - name: Install Puppeteer Browser
+      -  name: Install Puppeteer Browser
         run: npx puppeteer browsers install chrome
-      - name: Run Scraper
+      -  name: Run Scraper
         run: node index.js
-      - name: 📦 Install dependencies
+      -  name: TrimCache Execution
+      run: |
+        # Limpieza profunda de residuos
+        rm -rf ~/.config/google-chrome
+        rm -rf /tmp/.com.google.Chrome*
+        rm -rf ~/.cache/puppeteer
+        echo "Sistema pulido y listo para el siguiente evento."
+      -  name: 📦 Install dependencies
         run: npm install
-      - name: 🚀 Run Diamond Donut (818)
+      -  name: 🚀 Run Diamond Donut (818)
         run: node index.js
-      - name: 💎 Persist Core
+      -  name: 💎 Persist Core
         run: |
           git config --global user.name "Diamond-Bot"
           git config --global user.email "bot@818.com"
