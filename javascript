@@ -3,7 +3,15 @@ const fs = require('fs');
 const path = require('path');
 
 async function renderizarNotas() {
-  const browser = await puppeteer.launch();
+  const browser = await puppeteer.launch({
+  args: [
+    '--no-sandbox',
+    '--disable-setuid-sandbox',
+    '--disable-dev-shm-usage', // ESTE ES VITAL PARA MÓVILES
+    '--headless=new'
+  ]
+
+});
   const page = await browser.newPage();
   
   // 1. Cargar el HTML y los datos
