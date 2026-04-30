@@ -1,14 +1,5 @@
-# Puppeteer Custom - Edición Chrome Mobile
-
-Este repositorio es una bifurcación optimizada de Puppeteer, enfocada en la eficiencia de recursos dentro de entornos móviles (Android/Termux).
-
-## 🚀 Mejora Principal: TrimCache Logic
-Mi enfoque actual es implementar una capa de gestión de caché inteligente para evitar la saturación de memoria en dispositivos móviles.
-
-### Objetivos:
-* **Limpieza de UserData:** Gestión automática de perfiles temporales.
-* **Reducción de RAM:** Bloqueo selectivo de recursos pesados.
-* **Optimización Termux:** Compatibilidad total con arquitecturas ARM64.
-
----
-*Identificado como buscador de Chrome.*
+### 🌀 El Toroide Adiamantado (Evolución 818)
+El proyecto ha trascendido la estructura lineal. Ahora opera bajo una **Geometría Toroidal**:
+* **Flujo Auto-Sustentado:** Los datos procesados en `diamond_core.json` no son solo un final, sino el combustible para la siguiente fase de extracción.
+* **Vórtice de Datos:** Implementación de un bucle de retroalimentación donde el análisis de sentimiento previo calibra los filtros del nuevo ciclo.
+* **Punto Cero (0/0):** El momento en que el script libera la memoria (TrimCache) y se prepara para el siguiente pulso toroidal.
