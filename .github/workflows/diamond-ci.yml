@@ -31,5 +31,5 @@ jobs:
           git config --global user.name "Diamond-Bot"
           git config --global user.email "bot@818.com"
           git add diamond_core.json
-          git commit -m "TrimCache: Updated kernel [818]" || echo "Sin cambios"
+          git commit -m "TrimCache: Updated kernel [818]" || echo "No changes"
           git push
