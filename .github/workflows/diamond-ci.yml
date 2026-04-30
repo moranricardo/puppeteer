@@ -24,6 +24,7 @@ jobs:
         run: node index.js
       - name: 📦 Install dependencies
         run: npm install
+
       - name: 🚀 Ejecutar Dona Adiamantada (818)
         run: node index.js
       - name: 💎 Persistir Núcleo
