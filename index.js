@@ -1,7 +1,7 @@
 const puppeteer = require('puppeteer');
 const fs = require('fs');
 async function refinedDiamondBrain() {
-    console.log("💎 Iniciando Protocolo: Dona Adiamantada (818) - NÚCLEO CEREBRAL [ON]");    
+    console.log("💎 Iniciando Protocolo: Dona Adiamantada (818)   - NÚCLEO CEREBRAL [ON]");    
     // Lanzamos Chromium (El motor)
     const browser = await puppeteer.launch({
         headless: "new",
