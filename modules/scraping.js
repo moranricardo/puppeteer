@@ -1,28 +1,35 @@
 const puppeteer = require('puppeteer');
 
-/**
- * scrape(): launches Chromium in CI-safe mode, extracts top headlines from Google News
- * Returns: Array<string>
- */
 async function scrape() {
-  const browser = await puppeteer.launch({
-    headless: 'new',
-    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
-  });
-
-  try {
-    const page = await browser.newPage();
-    await page.goto('https://news.google.com', { waitUntil: 'networkidle2' });
-
-    const titulares = await page.evaluate(() => {
-      const nodes = Array.from(document.querySelectorAll('h3')).slice(0, 10);
-      return nodes.map(n => n.innerText || n.textContent || '');
+    console.log("🚀 Lanzando motor Chromium en Termux...");
+    
+    const browser = await puppeteer.launch({
+        headless: 'new',
+        executablePath: '/usr/bin/chromium', // La ruta que confirmamos
+        args: [
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage',
+            '--disable-gpu'
+        ]
     });
 
-    return titulares;
-  } finally {
-    await browser.close();
-  }
+    try {
+        const page = await browser.newPage();
+        console.log("🌍 Navegando a Google News...");
+        await page.goto('https://news.google.com', { waitUntil: 'networkidle2' });
+
+        const titles = await page.evaluate(() => {
+            const elements = document.querySelectorAll('h3');
+            return Array.from(elements).slice(0, 5).map(el => el.innerText);
+        });
+
+        return titles;
+    } catch (error) {
+        console.error("❌ Error en el scraping:", error);
+    } finally {
+        await browser.close();
+    }
 }
 
 module.exports = { scrape };
