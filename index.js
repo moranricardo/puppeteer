@@ -1,7 +1,7 @@
-const fs = require('fs');
-const { scrape } = require('./modules/scraping');
-const { analyze } = require('./modules/sentiment');
-const { trim } = require('./modules/cache-trim');
+import fs from 'fs';
+import { scrape } from './modules/scraping.js';
+import { analyze } from './modules/sentiment.js';
+import { trim } from './modules/cache-trim.js';
 
 function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
 
