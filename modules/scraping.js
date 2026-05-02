@@ -1,27 +1,23 @@
 const puppeteer = require('puppeteer');
 
 async function scrape() {
-    console.log("🚀 Lanzando motor Chromium en Termux...");
+    console.log("🚀 Lanzando motor Chromium...");
     
     const browser = await puppeteer.launch({
         headless: 'new',
-        executablePath: '/usr/bin/chromium', // La ruta que confirmamos
-        args: [
-            '--no-sandbox',
-            '--disable-setuid-sandbox',
-            '--disable-dev-shm-usage',
-            '--disable-gpu'
-        ]
+        executablePath: '/usr/bin/chromium',
+        args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-gpu']
     });
 
     try {
         const page = await browser.newPage();
-        console.log("🌍 Navegando a Google News...");
-        await page.goto('https://news.google.com', { waitUntil: 'networkidle2' });
+        console.log("🌍 Navegando a la página...");
+        
+        // Esta es la línea que revisamos:
+        await page.goto('https://google.com', { waitUntil: 'domcontentloaded' });
 
         const titles = await page.evaluate(() => {
-            const elements = document.querySelectorAll('h3');
-            return Array.from(elements).slice(0, 5).map(el => el.innerText);
+            return Array.from(document.querySelectorAll('h3')).slice(0, 5).map(el => el.innerText);
         });
 
         return titles;
@@ -32,4 +28,5 @@ async function scrape() {
     }
 }
 
+// ESTO ES VITAL: Si no lo pones, index.js no podrá usar la función
 module.exports = { scrape };
