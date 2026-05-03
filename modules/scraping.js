@@ -9,7 +9,6 @@ export async function scrape() {
         executablePath: '/usr/bin/chromium',
         args: ['--no-sandbox', '--disable-setuid-sandbox']
     });
-
     try {
         const page = await browser.newPage();
         console.log("🌍 Navegando...");
