@@ -22,3 +22,4 @@ export async function scrape() {
         return title;
     } catch (error) {
         console.error("❌ Error en el scraping:",
+module.exports = { scrape };
