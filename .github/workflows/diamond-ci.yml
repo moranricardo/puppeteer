@@ -31,12 +31,12 @@ jobs:
         echo "Sistema pulido y listo para el siguiente evento."
       -  name: 📦 Install dependencies
         run: npm install
-      -  name: 🚀 Run Diamond Donut (818)
-        run: node index.js
-      -  name: 💎 Persist Core
-        run: |
-          git config --global user.name "Diamond-Bot"
-          git config --global user.email "bot@818.com"
-          git add diamond_core.json
-          git commit -m "TrimCache: Updated kernel [818]" || echo "No changes"
-          git push
+# ... (parte superior del archivo igual)
+steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+- run: npm install
+# - run: node index.js  <-- COMENTA ESTA LÍNEA CON UN #
