@@ -1,3 +1,13 @@
+const { scrape } = require('./modules/scraping.js');
+
+async function vorticePrincipal() {
+    console.log("[VÓRTICE 818] Iniciando escaneo de mercados...");
+    const datos = await scrape();
+    console.log("Titulares encontrados:", datos);
+}
+
+vorticePrincipal();
+
 import puppeteer from 'puppeteer';
 
 // 1. USA 'export' al inicio (ESTO ES LO QUE BUSCA INDEX.JS)
