@@ -45,7 +45,3 @@ async function mainLoop() {
     await sleep(intervalMs);
   }
 }
-
-if (require.main === module) {
-  mainLoop();
-}
