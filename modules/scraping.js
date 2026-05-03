@@ -21,6 +21,4 @@ export async function scrape() {
 
         return title;
     } catch (error) {
-        console.error("❌ Error en el scraping:", error);
-    } finally {
-        await browser.close();
+        console.error("❌ Error en el scraping:",
