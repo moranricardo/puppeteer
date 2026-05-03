@@ -24,7 +24,3 @@ export async function scrape() {
         console.error("❌ Error en el scraping:", error);
     } finally {
         await browser.close();
-    }
-}
-
-// 2. BORRA LA LÍNEA DE 'module.exports' (ESO CAUSA EL ERROR)
