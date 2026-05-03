@@ -1,26 +1,25 @@
-const puppeteer = require('puppeteer');
+import puppeteer from 'puppeteer';
 
-async function scrape() {
+// 1. USA 'export' al inicio (ESTO ES LO QUE BUSCA INDEX.JS)
+export async function scrape() {
     console.log("🚀 Lanzando motor Chromium...");
     
     const browser = await puppeteer.launch({
         headless: 'new',
         executablePath: '/usr/bin/chromium',
-        args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-gpu']
+        args: ['--no-sandbox', '--disable-setuid-sandbox']
     });
 
     try {
         const page = await browser.newPage();
-        console.log("🌍 Navegando a la página...");
+        console.log("🌍 Navegando...");
+        await page.goto('https://www.chromium.org', { waitUntil: 'networkidle2' });
         
-        // Esta es la línea que revisamos:
-        await page.goto('https://google.com', { waitUntil: 'domcontentloaded' });
-
-        const titles = await page.evaluate(() => {
-            return Array.from(document.querySelectorAll('h3')).slice(0, 5).map(el => el.innerText);
+        const title = await page.evaluate(() => {
+            return document.querySelector('h1')?.innerText || "Sin título";
         });
 
-        return titles;
+        return title;
     } catch (error) {
         console.error("❌ Error en el scraping:", error);
     } finally {
@@ -28,5 +27,4 @@ async function scrape() {
     }
 }
 
-// ESTO ES VITAL: Si no lo pones, index.js no podrá usar la función
-module.exports = { scrape };
+// 2. BORRA LA LÍNEA DE 'module.exports' (ESO CAUSA EL ERROR)
