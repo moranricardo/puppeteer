@@ -10,7 +10,7 @@ vorticePrincipal();
 
 import puppeteer from 'puppeteer';
 
-// 1. USA 'export' al inicio (ESTO ES LO QUE BUSCA INDEX.JS)
+1. USA 'export' al inicio (ESTO ES LO QUE BUSCA INDEX.JS)
 export async function scrape() {
     console.log("🚀 Lanzando motor Chromium...");
     
