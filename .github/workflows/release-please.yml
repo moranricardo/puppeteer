@@ -1,7 +1,9 @@
 name: release-please
 
-# Declare default permissions as read only.
-permissions: read-all
+permissions:
+  contents: write
+  pull-requests: write
+
 on:
   push:
     branches:
@@ -13,6 +15,6 @@ jobs:
     steps:
       - uses: googleapis/release-please-action@v4
         with:
-          token: ${{ secrets.BROWSER_AUTOMATION_BOT_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
