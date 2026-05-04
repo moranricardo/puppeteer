@@ -1939,7 +1939,7 @@
     "platforms": ["darwin", "linux", "win32"],
     "parameters": ["cdp", "chrome", "chrome-headless-shell"],
     "expectations": ["FAIL", "PASS"
-  },
+   },
   {
     "testIdPattern": "Page.screenshot should get screenshot",
     "platforms": ["linux"],
