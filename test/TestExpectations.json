@@ -1938,13 +1938,11 @@
     "testIdPattern": "[worker.spec] Workers Page.workers",
     "platforms": ["darwin", "linux", "win32"],
     "parameters": ["cdp", "chrome", "chrome-headless-shell"],
-    "expectations": ["FAIL", "PASS"],
-    ]
+    "expectations": ["FAIL", "PASS"
   },
   {
     "testIdPattern": "Page.screenshot should get screenshot",
     "platforms": ["linux"],
     "expectations": ["FAIL"]
-    }
-  ]
-}
+  }
+]
