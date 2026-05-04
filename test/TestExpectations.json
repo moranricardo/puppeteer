@@ -1945,17 +1945,6 @@
     "testIdPattern": "Page.screenshot should get screenshot",
     "platforms": ["linux"],
     "expectations": ["FAIL"]
-  }
-]
-        "FAIL"
-      ]
-   } 
-]
-      ]
     }
   ]
-      ]
-    }
-  ]
-    }
-  ]
+}
