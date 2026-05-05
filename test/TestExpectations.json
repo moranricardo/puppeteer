@@ -1944,5 +1944,23 @@
     "testIdPattern": "Page.screenshot should get screenshot",
     "platforms": ["linux"],
     "expectations": ["FAIL"]
-  }
+  },
+  {
+     "testIdPattern": "[TargetManager.spec] TargetManager should handle targets",
+      "platforms": ["darwin"],
+      "parameters": ["chrome", "headless", "cdp"],
+      "expectations": ["FAIL"]
+    },
+    {
+      "testIdPattern": "[launcher.spec] Launcher specs Puppeteer Puppeteer.connect should support targetFilter option in puppeteer.launch",
+      "platforms": ["darwin"],
+      "parameters": ["chrome", "headless", "cdp"],
+      "expectations": ["FAIL"]
+    },
+    {
+      "testIdPattern": "[target.spec] Target should be able to use async waitForTarget",
+      "platforms": ["darwin"],
+      "parameters": ["chrome", "headless", "cdp"],
+      "expectations": ["FAIL"]
+    }
 ]
