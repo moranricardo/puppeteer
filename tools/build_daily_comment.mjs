@@ -3,7 +3,7 @@
  * Copyright 2024 Google Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
-import actions from '@actions/core';
+import * as actions from '@actions/core';
 import {resolveBuildId} from '@puppeteer/browsers';
 
 /**
@@ -61,32 +61,50 @@ const firefoxJobs = jobs.filter(job => {
 const chromeVersion = await resolveBuildId('chrome', 'linux', 'canary');
 const firefoxVersion = await resolveBuildId('firefox', 'linux', 'nightly');
 
+function getShardId(jobName) {
+  const match = jobName.match(/\((\d+-\d+)\)/);
+  return match ? match[1] : 'unknown';
+}
+
 function getAggregateStatus(jobs) {
   const allCompleted = jobs.every(job => {
     return job.status === 'completed';
   });
-  const anyFailed = jobs.some(job => {
-    return job.conclusion === 'failure';
-  });
-  const anyCancelled = jobs.some(job => {
-    return job.conclusion === 'cancelled';
+  const failedOrCancelled = jobs.filter(job => {
+    return job.conclusion === 'failure' || job.conclusion === 'cancelled';
   });
 
   if (!allCompleted) {
     return '⏳';
   }
-  if (anyFailed || anyCancelled) {
-    return '❌';
+  if (failedOrCancelled.length === 0) {
+    return '✅';
   }
-  return '✅';
+
+  // Group failures by shard ID
+  const failuresByShard = new Map();
+  for (const job of failedOrCancelled) {
+    const shardId = getShardId(job.name);
+    failuresByShard.set(shardId, (failuresByShard.get(shardId) || 0) + 1);
+  }
+
+  // If any shard failed more than once, it's a real failure.
+  for (const count of failuresByShard.values()) {
+    if (count > 1) {
+      return '❌';
+    }
+  }
+
+  // Otherwise, it's just a warning (flaky or isolated).
+  return '⚠️';
 }
 
 const table = `
-| Browser type | Status | Version |
-| ------------ | ------ | ------- |
-| Chrome Canary | ${getAggregateStatus(chromeCanaryJobs)} | ${chromeVersion} |
-| Chrome Canary BiDi | ${getAggregateStatus(chromeBidiJobs)} | ${chromeVersion} |
-| Firefox | ${getAggregateStatus(firefoxJobs)} | ${firefoxVersion} |
+| Browser type | Protocol | Status | Version |
+| ------------ | -------- | ------ | ------- |
+| Chrome Canary | CDP | ${getAggregateStatus(chromeCanaryJobs)} | ${chromeVersion} |
+| Chrome Canary | BiDi | ${getAggregateStatus(chromeBidiJobs)} | ${chromeVersion} |
+| Firefox Nightly | BiDi | ${getAggregateStatus(firefoxJobs)} | ${firefoxVersion} |
 `;
 
 const body = `
