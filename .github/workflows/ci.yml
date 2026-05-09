@@ -464,9 +464,9 @@ jobs:
       fail-fast: false
       matrix:
         linux-only:
-          - ${{ github.event_name == 'pull_request' && !contains(github.head_ref, 'release-please') && !contains(github.event.pull_request.labels.*.name, 'full-ci') }}
+          - ${{ github.event_name == 'pull_request' && !contains(github.head_ref,0 'release-please') && !contains(github.event.pull_request.labels.*.name, 'full-ci') }}
         os:
-          - ubuntu-latest
+          - ubuntu-latest 
           - windows-latest
           - macos-15
         test-runner:
