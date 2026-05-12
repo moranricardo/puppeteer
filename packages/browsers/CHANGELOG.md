@@ -1,5 +1,30 @@
 # Changelog
 
+## [2.14.0](https://github.com/moranricardo/puppeteer/compare/browsers-v2.13.0...browsers-v2.14.0) (2026-05-04)
+
+
+### 🎉 Features
+
+* add resolveDefaultUserDataDir for Chrome ([#14463](https://github.com/moranricardo/puppeteer/issues/14463)) ([bc9aa6b](https://github.com/moranricardo/puppeteer/commit/bc9aa6ba6d35b0bda3c09cc6a43d48cafaf57925))
+* allow configuring the output of @puppeteer/browsers install ([#14657](https://github.com/moranricardo/puppeteer/issues/14657)) ([1ce908e](https://github.com/moranricardo/puppeteer/commit/1ce908e424aff2e9a04250c26822ff66dedb636b))
+* **core:** support AbortSignal in launch ([#14616](https://github.com/moranricardo/puppeteer/issues/14616)) ([d02459c](https://github.com/moranricardo/puppeteer/commit/d02459c8b9a522ccb142109dda5807790c69becc))
+* pluggable browser providers ([#14552](https://github.com/moranricardo/puppeteer/issues/14552)) ([f4c9fee](https://github.com/moranricardo/puppeteer/commit/f4c9feef9972dc9f93a21e61e2876e4517316d13))
+* support channel in puppeteer.connect ([#14466](https://github.com/moranricardo/puppeteer/issues/14466)) ([bc3a521](https://github.com/moranricardo/puppeteer/commit/bc3a52185d43618756c491e9cc930ca9340f9776))
+
+
+### 🛠️ Fixes
+
+* avoid hard-coded separators in chrome.ts ([#14464](https://github.com/moranricardo/puppeteer/issues/14464)) ([372b280](https://github.com/moranricardo/puppeteer/commit/372b2806cee3893c6935afa98cc9b836b7c1cce1))
+* do not write metadata when uninstalling ([#14645](https://github.com/moranricardo/puppeteer/issues/14645)) ([1339379](https://github.com/moranricardo/puppeteer/commit/13393790116a35f8ef3ac3938cba42b98fd3a446))
+* **firefox:** set preference dismiss_file_pickers to true ([#14540](https://github.com/moranricardo/puppeteer/issues/14540)) ([cc67588](https://github.com/moranricardo/puppeteer/commit/cc67588466777a272d46ed00347093f861cdfa9a))
+* typo in the config path in getConfigHomeLinux ([#14600](https://github.com/moranricardo/puppeteer/issues/14600)) ([c95d1bf](https://github.com/moranricardo/puppeteer/commit/c95d1bfd4be847d07f81b4a8c819786d3f51534d))
+* **wsl:** check for linux locations first ([#14681](https://github.com/moranricardo/puppeteer/issues/14681)) ([11f01ef](https://github.com/moranricardo/puppeteer/commit/11f01efebcb1b0febfdeb5fb1a4d52f0155732df))
+
+
+### 📄 Documentation
+
+* fix missing supported browser versions ([#14383](https://github.com/moranricardo/puppeteer/issues/14383)) ([abf147a](https://github.com/moranricardo/puppeteer/commit/abf147ae79527abb01214ab74a02f184c827c730))
+
 ## [2.13.0](https://github.com/puppeteer/puppeteer/compare/browsers-v2.12.1...browsers-v2.13.0) (2026-02-18)
 
 
