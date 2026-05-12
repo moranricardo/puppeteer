@@ -1,3 +1,4 @@
+ feature/add-ci
 # 🌀 Puppeteer Fork: Vórtice 818
 
 <div style="background: #0f172a; color: #f8fafc; padding: 30px; border-radius: 15px; border: 1px solid #3b82f6; font-family: sans-serif;">
@@ -26,4 +27,10 @@
 ```bash
 # Ejecutar en Termux
 pkg install chromium
-node index.js
+node index.
+doc:🌀 El Toroide Adiamantado (Evolución 818)
+El proyecto ha trascendido la estructura lineal. Ahora opera bajo una **Geometría Toroidal**:
+* **Flujo Auto-Sustentado:** Los datos procesados en `diamond_core.json` no son solo un final, sino el combustible para la siguiente fase de extracción.
+* **Vórtice de Datos:** Implementación de un bucle de retroalimentación donde el análisis de sentimiento previo calibra los filtros del nuevo ciclo.
+* **Punto Cero (0/0):** El momento en que el script libera la memoria (TrimCache) y se prepara para el siguiente pulso toroidal.
+main

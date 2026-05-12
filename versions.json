@@ -1,3 +1,22 @@
+[
+  {
+    "title": "Puppeteer Project",
+
+"excerpt": "Automating Note Capture...",
+
+"content": "This is the body of the first note injected from JSON."
+
+},
+
+{
+"title": "Tailwind Reminder",
+
+"excerpt": "Review Grid and Flex Utilities...",
+
+"content": "Don't forget to use 'networkidle0' to load the CDN correctly."
+  }
+]
+
 {
   "lastMaintainedChromeVersion": "143.0.7499.192",
   "versions": [

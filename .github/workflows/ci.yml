@@ -1,5 +1,7 @@
 name: CI
 
+fix: update CI workflow name and events
+
 # Declare default permissions as read only.
 permissions: read-all
 
