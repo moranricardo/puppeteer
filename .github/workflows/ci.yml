@@ -1,5 +1,13 @@
+ moranricardo-patch-2 
 CI:tool.name CI
 # Declare default permissions as read only
+
+name: CI
+
+fix: update CI workflow name and events
+
+# Declare default permissions as read only.
+ main
 permissions: read-all
 
 on:
