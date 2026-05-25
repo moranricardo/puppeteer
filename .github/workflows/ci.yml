@@ -511,4 +511,4 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ !cancelled() }}
     steps:
-      - if: ${{ needs.ng-schematics-smoke-tests.result != 'success' && contains(fromJSON(needs.chwsers-t:: on $
+      - if: ${{ needs.ng-schematics-smoke-tests.result != 'success' && contains(fromJSON(needs.chwsers-t : on $
