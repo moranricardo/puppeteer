@@ -1,21 +1,47 @@
-    - name: Install Dependencies
-      run: npm install
+name: diamond scraper CI
 
-    - name: Install Puppeteer Browser
-      # El comando debe estar en una sola línea para evitar el error de shell
-      run: npx @puppeteer/browsers install chrome
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
 
-    - name: Wait for Data Sync
-      # Esto añade una pausa de 10 segundos antes de continuar
-      run: sleep 10
+jobs:
+  build-and-run:
+    runs-on: ubuntu-latest
+    
+    # Prevenimos descargas automáticas dobles que consumen RAM y disco innecesariamente
+    env:
+      PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: true 
 
-    - name: TrimCache Execution
-      run: |
-        # Eliminación segura de archivos temporales específicos, NO del sistema raíz
-        rm -rf ~/.config/google-chrome
-        rm -rf /tmp/.com.google.Chrome*
-        rm -rf ~/.cache/puppeteer
-        echo "Sistema pulido y listo para el siguiente evento."
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Run Script
-      run: node index.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci # Optimización CI: Instalación determinista y más ligera
+
+      - name: Install OS Dependencies for Chrome
+        # Librerías esenciales para que Chrome se ejecute en ubuntu-latest sin consumir recursos de entorno gráfico
+        run: sudo apt-get update && sudo apt-get install -y libgbm-dev libnss3 libatk-bridge2.0-0 libxcomposite1 libxrandr2 libasound2
+
+      - name: Install Puppeteer Browser
+        # Usamos el módulo oficial de navegadores para evitar conflictos con el binario de 'titiritero'
+        run: npx @puppeteer/browsers install chrome@stable
+
+      - name: TrimCache Execution
+        run: |
+          rm -rf ~/.config/google-chrome
+          rm -rf /tmp/.com.google.Chrome*
+          rm -rf ~/.cache/puppeteer
+          echo "Vórtice 818: Sistema pulido, caché purgada y listo para el siguiente evento."
+
+      # - name: Run Script
+      #   run: node index.js
