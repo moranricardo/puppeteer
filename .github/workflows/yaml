@@ -1,0 +1,19 @@
+jobs:
+  build:
+    name: "El Toroide Adiamantado (Evolución 818)"
+    runs-on: ubuntu-latest
+    env:
+      DEBUG: "puppeteer:*"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Instalar dependencias
+        run: npm install
+
+      - name: Instalar Puppeteer y Navegador
+        run: |
+          npm install puppeteer
+          npx puppeteer browsers install chrome
+
+      - name: Ejecutar pruebas
+        run: npm test
