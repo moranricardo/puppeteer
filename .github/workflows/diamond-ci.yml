@@ -21,26 +21,36 @@ jobs:
           node-version: 22
           cache: 'npm'
 
-      - name: Install dependencies
-        run: npm install
-
-      - name: Install OS Dependencies for Chrome
+      # UNIDAD DIAMANTE: Lista masiva y exhaustiva de dependencias de sistema para Chrome/Puppeteer
+      - name: Install All OS Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libgbm-dev libnss3 libatk-bridge2.0-0 libxcomposite1 libxrandr2 libasound2t64
+          sudo apt-get install -y \
+            ca-certificates fonts-liberation libasound2t64 \
+            libatk-bridge2.0-0 libatk1.0-0 libc6 libcairo2 \
+            libcups2 libdbus-1-3 libexpat1 libfontconfig1 \
+            libgbm1 libgcc1 libglib2.0-0 libgtk-3-0 libnspr4 \
+            libnss3 libpango-1.0-0 libpangocairo-1.0-0 libstdc++6 \
+            libx11-6 libx11-xcb1 libxcb1 libxcomposite1 libxcursor1 \
+            libxdamage1 libxext6 libxfixes3 libxi6 libxrandr2 \
+            libxrender1 libxss1 libxtst6 lsb-release wget xdg-utils
 
-      # Estrategia de instalación global para evitar el error 127
-      - name: Install Puppeteer Browser
+      # BLINDAJE: Forzamos la instalación de Puppeteer anulando cualquier bloqueo de descarga
+      - name: Install dependencies and Force Puppeteer
+        env:
+          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "false"
+          PUPPETEER_SKIP_DOWNLOAD: "false"
         run: |
-          npm install -g puppeteer
-          puppeteer browsers install chrome
+          npm install
+          npm install puppeteer --no-save
+          npx puppeteer browsers install chrome
 
       - name: TrimCache Execution
         run: |
           rm -rf ~/.config/google-chrome
           rm -rf /tmp/.com.google.Chrome*
           rm -rf ~/.cache/puppeteer
-          echo "Sistema pulido y listo para el siguiente evento."
+          echo "Sistema pulido. Unidad Diamante Toroidal en línea."
 
       # - name: Run Script
       #   run: node index.js
