@@ -21,11 +21,13 @@ jobs:
           node-version: 22
           cache: 'npm'
 
+      # PASO CRÍTICO: Instalar dependencias primero
       - name: Install dependencies
         run: npm install
 
+      # PASO CORREGIDO: Ahora el entorno reconoce los paquetes
       - name: Install Puppeteer Browser
-        run: npx puppeteer browsers install chrome
+        run: npx @puppeteer/browsers install chrome
 
       - name: TrimCache Execution
         run: |
@@ -34,5 +36,6 @@ jobs:
           rm -rf ~/.cache/puppeteer
           echo "Sistema pulido y listo para el siguiente evento."
 
+      # Descomenta esto para ejecutar tu script
       # - name: Run Script
       #   run: node index.js
