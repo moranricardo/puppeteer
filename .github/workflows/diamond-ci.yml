@@ -1,41 +1,21 @@
-name: Diamond Scraper CI
+    - name: Install Dependencies
+      run: npm install
 
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
-  workflow_dispatch:
+    - name: Install Puppeteer Browser
+      # El comando debe estar en una sola línea para evitar el error de shell
+      run: npx @puppeteer/browsers install chrome
 
-jobs:
-  build-and-run:
-    runs-on: ubuntu-latest
+    - name: Wait for Data Sync
+      # Esto añade una pausa de 10 segundos antes de continuar
+      run: sleep 10
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    - name: TrimCache Execution
+      run: |
+        # Eliminación segura de archivos temporales específicos, NO del sistema raíz
+        rm -rf ~/.config/google-chrome
+        rm -rf /tmp/.com.google.Chrome*
+        rm -rf ~/.cache/puppeteer
+        echo "Sistema pulido y listo para el siguiente evento."
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: 'npm'
-
-      # PASO CRÍTICO: Instalar dependencias primero
-      - name: Install dependencies
-        run: npm install
-
-      # PASO CORREGIDO: Ahora el entorno reconoce los paquetes
-      - name: Install Puppeteer Browser
-        run: npx @puppeteer/browsers install chrome
-
-      - name: TrimCache Execution
-        run: |
-          rm -rf ~/.config/google-chrome
-          rm -rf /tmp/.com.google.Chrome*
-          rm -rf ~/.cache/puppeteer
-          echo "Sistema pulido y listo para el siguiente evento."
-
-      # Descomenta esto para ejecutar tu script
-      # - name: Run Script
-      #   run: node index.js
+    - name: Run Script
+      run: node index.js
