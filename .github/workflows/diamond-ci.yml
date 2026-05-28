@@ -22,9 +22,11 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm install
+        # Añadimos la instalación explícita de puppeteer
+        run: |
+          npm install
+          npm install puppeteer
 
-      # Paso agregado y corregido para Ubuntu 24.04
       - name: Install OS Dependencies for Chrome
         run: |
           sudo apt-get update
@@ -42,3 +44,4 @@ jobs:
 
       # - name: Run Script
       #   run: node index.js
+
