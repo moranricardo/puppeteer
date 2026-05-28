@@ -1,4 +1,4 @@
-name: Diamond Scraper CI
+name: Diamond Scraper CI Toroidal 818
 
 on:
   push:
@@ -7,6 +7,11 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
+permissions:
+  contents: read
+  security-events: write
+  id-token: write
+
 jobs:
   build-and-run:
     runs-on: ubuntu-latest
@@ -14,6 +19,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -21,8 +28,8 @@ jobs:
           node-version: 22
           cache: 'npm'
 
-      # UNIDAD DIAMANTE: Lista masiva y exhaustiva de dependencias de sistema para Chrome/Puppeteer
-      - name: Install All OS Dependencies
+      # FASE 1: Corrección de dependencias de Linux (Inclusión de libasound2t64 para Ubuntu modernizado)
+      - name: Install OS Dependencies for Chrome
         run: |
           sudo apt-get update
           sudo apt-get install -y \
@@ -35,22 +42,30 @@ jobs:
             libxdamage1 libxext6 libxfixes3 libxi6 libxrandr2 \
             libxrender1 libxss1 libxtst6 lsb-release wget xdg-utils
 
-      # BLINDAJE: Forzamos la instalación de Puppeteer anulando cualquier bloqueo de descarga
-      - name: Install dependencies and Force Puppeteer
+      # FASE 2: Instalación de dependencias del proyecto
+      - name: Install dependencies
+        run: npm install
+
+      # FASE 3: RESOLUCIÓN DE CONFLICTO (Módulo de acople directo del Navegador)
+      - name: Install Puppeteer Browser
         env:
           PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "false"
           PUPPETEER_SKIP_DOWNLOAD: "false"
         run: |
-          npm install
-          npm install puppeteer --no-save
-          npx puppeteer browsers install chrome
+          # Se fuerza la instalación global de la herramienta de comandos de puppeteer 
+          # para que la terminal reconozca el comando 'puppeteer' nativamente
+          npm install -g puppeteer-core puppeteer
+          
+          # Se descarga el binario ejecutable de Chrome usando la ruta directa del módulo local
+          node ./node_modules/puppeteer/install.mjs || npx puppeteer browsers install chrome
 
+      # FASE 4: Ejecución y Limpieza de caché
       - name: TrimCache Execution
         run: |
           rm -rf ~/.config/google-chrome
           rm -rf /tmp/.com.google.Chrome*
           rm -rf ~/.cache/puppeteer
-          echo "Sistema pulido. Unidad Diamante Toroidal en línea."
+          echo "Conflicto resuelto. Matriz Toroidal 818 estabilizada."
 
       # - name: Run Script
       #   run: node index.js
