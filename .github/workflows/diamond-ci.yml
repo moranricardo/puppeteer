@@ -22,18 +22,18 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: |
-          npm install
-          npm install puppeteer
+        run: npm install
 
       - name: Install OS Dependencies for Chrome
         run: |
           sudo apt-get update
           sudo apt-get install -y libgbm-dev libnss3 libatk-bridge2.0-0 libxcomposite1 libxrandr2 libasound2t64
 
+      # Estrategia de instalación global para evitar el error 127
       - name: Install Puppeteer Browser
-        # Volvemos al comando oficial ahora que puppeteer está forzado en las dependencias
-        run: npx puppeteer browsers install chrome
+        run: |
+          npm install -g puppeteer
+          puppeteer browsers install chrome
 
       - name: TrimCache Execution
         run: |
