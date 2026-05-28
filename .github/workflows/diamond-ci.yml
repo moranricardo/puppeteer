@@ -32,8 +32,8 @@ jobs:
           sudo apt-get install -y libgbm-dev libnss3 libatk-bridge2.0-0 libxcomposite1 libxrandr2 libasound2t64
 
       - name: Install Puppeteer Browser
-        # Usamos @puppeteer/browsers con la bandera -y para evitar bloqueos interactivos
-        run: npx -y @puppeteer/browsers install chrome
+        # Volvemos al comando oficial ahora que puppeteer está forzado en las dependencias
+        run: npx puppeteer browsers install chrome
 
       - name: TrimCache Execution
         run: |
