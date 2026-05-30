@@ -1,4 +1,4 @@
-const puppeteer = require('puppeteer');
+ puppeteer = require('puppeteer');
 
 async function checkBridge() {
   console.log("Iniciando validación de puente entre octocromo y titiritero...");
