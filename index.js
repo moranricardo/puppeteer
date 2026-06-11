@@ -1,67 +1,82 @@
-import fs from 'fs';
-import { scrape } from './modules/scraping.js';
-import { analyze } from './modules/sentiment.js';
-import { trim } from './modules/cache-trim.js';
+import fs from 'fs/promises';
+import https from 'https';
 
-function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
-
-async function runCycle() {
-  console.log('💎 Iniciando ciclo: scraping -> análisis -> trim');
-
-  const datos = await scrape();
-  console.log(`🌐 Extraídos ${datos.length} items`);
-
-  const analisis = analyze(datos);
-  let sentimientoGeneral = 'Estable';
-  if (analisis.positivos > analisis.negativos) sentimientoGeneral = 'En Crecimiento 📈';
-  else if (analisis.negativos > analisis.positivos) sentimientoGeneral = 'En Alerta 📉';
-
-  const refinedCore = {
-    id: '818_CORE_ALPHA',
-    status: 'SYNCHRONIZED',
-    timestamp: new Date().toISOString(),
-    analisis_de_mercado: {
-      sentimiento_general: sentimientoGeneral,
-      detalles: analisis.detalles,
-    },
-  };
-
-  const filename = `diamond_core_${Date.now()}.json`;
-  fs.writeFileSync(filename, JSON.stringify(refinedCore, null, 2));
-  console.log(`📁 Guardado: ${filename}`);
-
-  await trim();
-}
-
-async function mainLoop() {
-  // Detecta si está corriendo dentro de GitHub Actions
-  const isCI = process.env.GITHUB_ACTIONS === 'true';
-
-  if (isCI) {
-    console.log('👷 Entorno CI detectado. Ejecutando un único ciclo de validación...');
-    try {
-      await runCycle();
-      console.log('✅ Validación del ciclo completada con éxito.');
-      process.exit(0); // Cierra el proceso limpiamente para que GitHub Actions salga en VERDE
-    } catch (err) {
-      console.error('❌ Error en ciclo de validación:', err?.message || err);
-      process.exit(1); // Detiene el proceso con error si algo falla
+const CONFIG = {
+  gerrit: {
+    host: 'gerrit.ejemplo.com',
+    port: 443,
+    path: '/changes/?q=status:open',
+    headers: {
+      'User-Agent': 'Ra-Pulse-Orchestrator/2026',
+      'Accept': 'application/json'
     }
-  }
+  },
+  telemetryFile: './state.json'
+};
 
-  // Si no es un entorno de CI (es producción local), corre el bucle infinito normal
-  const intervalMs = process.env.CYCLE_INTERVAL_MS ? Number(process.env.CYCLE_INTERVAL_MS) : 60_000;
-  console.log('🔁 Iniciando bucle continuo. Intervalo (ms):', intervalMs);
-  
-  while (true) {
+async function updatePulse(moduleName, status, extraData = {}) {
+  try {
+    let state = {};
     try {
-      await runCycle();
-    } catch (err) {
-      console.error('❌ Error en ciclo principal:', err?.message || err);
+      const data = await fs.readFile(CONFIG.telemetryFile, 'utf8');
+      state = JSON.parse(data);
+    } catch (e) {
+      // Estado limpio
     }
-    await sleep(intervalMs);
+    state[moduleName] = {
+      status: status,
+      timestamp: new Date().toISOString(),
+      ...extraData
+    };
+    await fs.writeFile(CONFIG.telemetryFile, JSON.stringify(state, null, 2));
+  } catch (err) {
+    console.error('Error en telemetria:', err.message);
   }
 }
 
-// Inicializa el motor principal
-mainLoop();
+function fetchGerritChanges() {
+  return new Promise((resolve, reject) => {
+    const options = {
+      hostname: CONFIG.gerrit.host,
+      port: CONFIG.gerrit.port,
+      path: CONFIG.gerrit.path,
+      method: 'GET',
+      headers: CONFIG.gerrit.headers
+    };
+    const req = https.request(options, (res) => {
+      let rawData = '';
+      res.on('data', (chunk) => { rawData += chunk; });
+      res.on('end', () => {
+        try {
+          const magicPrefix = ")]}'\n";
+          let cleanData = rawData;
+          if (rawData.startsWith(magicPrefix)) {
+            cleanData = rawData.slice(magicPrefix.length);
+          } else if (rawData.trim().startsWith(")]}'")) {
+            cleanData = rawData.replace(/^\s*\)\]\}\'\s*/, '');
+          }
+          const parsedJson = JSON.parse(cleanData);
+          resolve(parsedJson);
+        } catch (e) {
+          reject(new Error('Fallo al procesar JSON: ' + e.message));
+        }
+      });
+    });
+    req.on('error', (err) => { reject(err); });
+    req.end();
+  });
+}
+
+async function corePulse() {
+  console.log('Iniciando el Ciclo de Ra... Verificando componentes.');
+  try {
+    const changes = await fetchGerritChanges();
+    console.log('Conexion consolidada. Cambios detectados:', changes.length);
+    await updatePulse('GerritFetcher', 'SUCCESS', { details: 'Fetched ' + changes.length + ' changes.' });
+  } catch (error) {
+    console.error('El radio GerritFetcher ha caido.');
+    await updatePulse('GerritFetcher', 'FAILED', { error: error.message });
+  }
+}
+
+corePulse();
