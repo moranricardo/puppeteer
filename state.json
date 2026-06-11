@@ -1,7 +1,7 @@
 {
   "GerritFetcher": {
     "status": "FAILED",
-    "timestamp": "2026-06-11T21:11:37.678Z",
-    "error": "write EPROTO 805CB2C9127F0000:error:0A000458:SSL routines:ssl3_read_bytes:tlsv1 unrecognized name:../deps/openssl/openssl/ssl/record/rec_layer_s3.c:1601:SSL alert number 112\n"
+    "timestamp": "2026-06-11T23:13:33.513Z",
+    "error": "write EPROTO 807CF402E27F0000:error:0A000458:SSL routines:ssl3_read_bytes:tlsv1 unrecognized name:../deps/openssl/openssl/ssl/record/rec_layer_s3.c:1601:SSL alert number 112\n"
   }
 }
