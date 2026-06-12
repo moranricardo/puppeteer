@@ -1,7 +1,7 @@
 {
   "GerritFetcher": {
-    "status": "HEALTHY",
-    "timestamp": "2026-06-12T03:24:13.335Z",
-    "details": "Fetched 5 changes."
+    "status": "DUAT_ERROR",
+    "timestamp": "2026-06-12T07:11:54.714Z",
+    "error": "Fallo al purificar JSON del Duat: Unexpected token '<', \"<HTML><HEA\"... is not valid JSON"
   }
 }
