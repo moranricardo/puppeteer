@@ -1,39 +1,69 @@
-import fs from 'fs/promises';
 import https from 'https';
+import fs from 'fs/promises';
 
+// 1. Configuración central alineada al Toroide
 const CONFIG = {
   gerrit: {
-    host: 'gerrit.ejemplo.com',
+    host: 'chromium-review.googlesource.com',
     port: 443,
-    path: '/changes/?q=status:open',
+    path: '/changes/?q=status:open&n=5',
     headers: {
-      'User-Agent': 'Ra-Pulse-Orchestrator/2026',
+      // Inyección anónima solicitada
+      'User-Agent': 'anonymous (chrome-mobile-es-419)',
       'Accept': 'application/json'
     }
   },
   telemetryFile: './state.json'
 };
 
+/**
+ * 2. Escribe la telemetría actualizando solo el radio correspondiente
+ */
 async function updatePulse(moduleName, status, extraData = {}) {
   try {
     let state = {};
     try {
+      // Intentamos leer el estado actual del Maat
       const data = await fs.readFile(CONFIG.telemetryFile, 'utf8');
       state = JSON.parse(data);
     } catch (e) {
-      // Estado limpio
+      // Si el archivo no existe o está vacío, iniciamos limpio
     }
+    
+    // Mapeamos el latido
     state[moduleName] = {
       status: status,
       timestamp: new Date().toISOString(),
       ...extraData
     };
+    
+    // Escritura asíncrona amigable con el hardware móvil
     await fs.writeFile(CONFIG.telemetryFile, JSON.stringify(state, null, 2));
   } catch (err) {
-    console.error('Error en telemetria:', err.message);
+    console.error('❌ [Error en Telemetría]:', err.message);
   }
 }
 
+/**
+ * 3. Purifica la respuesta de Gerrit eliminando el prefijo anti-XSS
+ */
+function sanitizeGerritResponse(rawData) {
+  const MAGIC_PREFIX = ")]}'\n";
+  let cleanData = rawData;
+  
+  if (rawData.startsWith(MAGIC_PREFIX)) {
+    cleanData = rawData.slice(MAGIC_PREFIX.length);
+  } else if (rawData.trim().startsWith(")]}'")) {
+    // Respaldo por si el salto de línea cambia
+    cleanData = rawData.replace(/^\s*\)\]\}\'\s*/, '');
+  }
+  
+  return JSON.parse(cleanData);
+}
+
+/**
+ * 4. Consulta los cambios en el inframundo de Gerrit (Retorna una Promesa)
+ */
 function fetchGerritChanges() {
   return new Promise((resolve, reject) => {
     const options = {
@@ -43,40 +73,52 @@ function fetchGerritChanges() {
       method: 'GET',
       headers: CONFIG.gerrit.headers
     };
+
     const req = https.request(options, (res) => {
       let rawData = '';
+      
+      // Escuchando el flujo de datos
       res.on('data', (chunk) => { rawData += chunk; });
+      
       res.on('end', () => {
         try {
-          const magicPrefix = ")]}'\n";
-          let cleanData = rawData;
-          if (rawData.startsWith(magicPrefix)) {
-            cleanData = rawData.slice(magicPrefix.length);
-          } else if (rawData.trim().startsWith(")]}'")) {
-            cleanData = rawData.replace(/^\s*\)\]\}\'\s*/, '');
-          }
-          const parsedJson = JSON.parse(cleanData);
+          const parsedJson = sanitizeGerritResponse(rawData);
           resolve(parsedJson);
         } catch (e) {
-          reject(new Error('Fallo al procesar JSON: ' + e.message));
+          reject(new Error('Fallo al purificar JSON del Duat: ' + e.message));
         }
       });
     });
+
     req.on('error', (err) => { reject(err); });
     req.end();
   });
 }
 
+/**
+ * 5. Motor Orquestador de Ra Pulse
+ */
 async function corePulse() {
-  console.log('Iniciando el Ciclo de Ra... Verificando componentes.');
+  console.log('🔮 Iniciando el viaje de Ra Pulse en el entorno local (Termux)...');
   try {
     const changes = await fetchGerritChanges();
-    console.log('Conexion consolidada. Cambios detectados:', changes.length);
-    await updatePulse('GerritFetcher', 'SUCCESS', { details: 'Fetched ' + changes.length + ' changes.' });
+    
+    console.log('✅ [Maat] Datos purificados con éxito. Mapeando el pulso...');
+    console.log(`Cambios detectados: ${changes.length}`);
+    
+    // Mostramos el estrato superficial sin saturar memoria
+    if (changes.length > 0) {
+        const firstChange = changes[0];
+        console.log(`👉 Último cambio - ID: ${firstChange.change_id} | Asunto: ${firstChange.subject}`);
+    }
+
+    // Sellamos el éxito en el contrato de telemetría
+    await updatePulse('GerritFetcher', 'HEALTHY', { details: `Fetched ${changes.length} changes.` });
   } catch (error) {
-    console.error('El radio GerritFetcher ha caido.');
-    await updatePulse('GerritFetcher', 'FAILED', { error: error.message });
+    console.error('❌ [Apofis Detectado] El radio GerritFetcher ha caído:', error.message);
+    await updatePulse('GerritFetcher', 'DUAT_ERROR', { error: error.message });
   }
 }
 
+// Inicialización del Vórtice
 corePulse();
