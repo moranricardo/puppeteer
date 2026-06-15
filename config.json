@@ -1,0 +1,11 @@
+{
+  "gerrit": {
+    "baseUrl": "https://gerrit.ejemplo.com",
+    "query": "status:open",
+    "timeout": 5000
+  },
+  "pulse": {
+    "stateFile": "./state.json",
+    "environment": "development"
+  }
+}
