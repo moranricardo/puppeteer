@@ -1,5 +1,6 @@
 feature/add-ci
 feature/add-ci
+
 # 🌀 Puppeteer Fork: Vórtice 818
 
 <div style="background: #0f172a; color: #f8fafc; padding: 30px; border-radius: 15px; border: 1px solid #3b82f6; font-family: sans-serif;">
@@ -21,6 +22,7 @@ feature/add-ci
         <h3 style="margin: 0; color: #93c5fd; font-size: 16px;">Core: Flujo Toroidal (Vórtice 818)</h3>
         <p style="font-size: 13px; color: #cbd5e1;">Motor principal para el ciclo de rotación de datos y scraping intensivo.</p>
     </div>
+
 </div>
 
 ## 🛠️ Instalación y Uso rápido
@@ -37,3 +39,4 @@ El proyecto ha trascendido la estructura lineal. Ahora opera bajo una **Geometr�
 * **Vórtice de Datos:** Implementación de un bucle de retroalimentación donde el análisis de sentimiento previo calibra los filtros del nuevo ciclo.
 * **Punto Cero (0/0):** El momento en que el script libera la memoria (TrimCache) y se prepara para el siguiente pulso toroidal.
 main
+```
