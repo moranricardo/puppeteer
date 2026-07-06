@@ -6,8 +6,8 @@ on:
   pull_request:
     branches: [ main, master ]
   schedule:
-    - cron: '0 * * * *'  # Ejecución automática cada hora para auditoría
-  workflow_dispatch:      # Ejecución manual desde la interfaz
+    - cron: '0 * * * *'
+  workflow_dispatch:
 
 jobs:
   orchestrate-and-test:
@@ -24,7 +24,10 @@ jobs:
         cache: 'npm'
 
     - name: Instalar dependencias
-      run: npm ci || npm install
+      run: |
+        npm install
+        # Forzar la descarga del binario del navegador compatible con la versión de la Action
+        npx puppeteer browsers install chrome
 
     - name: Ejecutar Tests de Automatización (Mocks HTTP)
       run: npm test || echo "⚠️ Saltando tests por falta de script"
