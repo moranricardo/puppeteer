@@ -23,15 +23,11 @@ jobs:
         node-version: '20'
         cache: 'npm'
 
-    - name: Instalar dependencias del sistema para Chrome
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y wget gnupg
-        # Instala las librerías compartidas necesarias para que Chrome corra en modo Headless
-        sudo apt-get install -y libgbm-dev libnss3 libatk-bridge2.0-0 libgtk-3-0 xauth x11-apps
-
     - name: Instalar paquetes Node
       run: npm install
+
+    - name: Instalar Chrome y sus dependencias de Linux
+      run: npx puppeteer browsers install chrome --with-deps
 
     - name: Ejecutar Orquestador Maestro (index.js)
       env:
