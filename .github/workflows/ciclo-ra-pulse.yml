@@ -17,28 +17,26 @@ jobs:
     - name: Clonar repositorio
       uses: actions/checkout@v4
 
-    - name: Configurar Node.js (Entorno Producción)
+    - name: Configurar Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '20'
         cache: 'npm'
 
-    - name: Instalar dependencias
+    - name: Instalar dependencias del sistema para Chrome
       run: |
-        npm install
-        # Forzar la descarga del binario del navegador compatible con la versión de la Action
-        npx puppeteer browsers install chrome
+        sudo apt-get update
+        sudo apt-get install -y wget gnupg
+        # Instala las librerías compartidas necesarias para que Chrome corra en modo Headless
+        sudo apt-get install -y libgbm-dev libnss3 libatk-bridge2.0-0 libgtk-3-0 xauth x11-apps
 
-    - name: Ejecutar Tests de Automatización (Mocks HTTP)
-      run: npm test || echo "⚠️ Saltando tests por falta de script"
-      env:
-        NODE_ENV: test
+    - name: Instalar paquetes Node
+      run: npm install
 
     - name: Ejecutar Orquestador Maestro (index.js)
       env:
         GITHUB_ACTIONS: 'true'
-        CYCLE_INTERVAL_MS: '0'
-      run: node index.js || echo "⚠️ Saltando ejecución: index.js ausente o requiere configuración"
+      run: node index.js
 
     - name: Verificar cambios en la telemetría
       id: verify_changes
