@@ -17,11 +17,10 @@ jobs:
     - name: Clonar repositorio
       uses: actions/checkout@v4
 
-    - name: Configurar Node.js
+    - name: Configurar Node.js (Versión Actualizada)
       uses: actions/setup-node@v4
       with:
-        node-version: '20'
-        cache: 'npm'
+        node-version: '24' # Pasamos a la versión recomendada y nativa
 
     - name: Instalar paquetes Node
       run: npm install
