@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Orquestador ligero de Automatización para Ciclo de Ra",
   "main": "index.js",
-  "type": "module",
+  "type": "commonjs",
   "scripts": {
     "start": "node index.js",
     "test": "echo \"✅ Mocks locales validados\""

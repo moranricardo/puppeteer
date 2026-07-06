@@ -1,10 +1,9 @@
-import puppeteer from 'puppeteer';
-import fs from 'fs';
+const puppeteer = require('puppeteer');
+const fs = require('fs');
 
 async function run() {
   console.log("🚀 Iniciando el pulso del Ciclo de Ra...");
   
-  // Configuración MANDATORIA para entornos headless como GitHub Actions
   const browser = await puppeteer.launch({
     headless: true,
     args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
@@ -12,14 +11,10 @@ async function run() {
 
   try {
     const page = await browser.newPage();
-    
-    // --- TU LÓGICA DE AUTOMATIZACIÓN AQUÍ ---
-    // Ejemplo rápido: ir a una web de prueba
     await page.goto('https://example.com');
     const title = await page.title();
     console.log(`🔗 Conexión exitosa a: ${title}`);
     
-    // Actualizar la telemetría local
     const state = { lastPulse: new Date().toISOString(), status: "HEALTHY" };
     fs.writeFileSync('state.json', JSON.stringify(state, null, 2));
     console.log("📊 Telemetría actualizada en state.json");
