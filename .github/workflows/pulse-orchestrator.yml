@@ -2,9 +2,8 @@ name: Ra Pulse Orchestrator
 
 on:
   schedule:
-    # Ejecución programada (ej. cada hora)
     - cron: '0 * * * *'
-  workflow_dispatch: # Permite ejecución manual desde GitHub
+  workflow_dispatch:
 
 jobs:
   audit:
@@ -14,7 +13,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/node-latest@v4
+        uses: actions/setup-node@v4
         with:
           node-version: 24
 
@@ -23,3 +22,4 @@ jobs:
           GOOGLE_WEBHOOK_URL: ${{ secrets.GOOGLE_WEBHOOK_URL }}
         run: |
           node scripts/gerrit-client.js
+          node scripts/google-bridge.js
