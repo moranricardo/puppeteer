@@ -1,4 +1,8 @@
 {
-  "lastPulse": "2026-07-07T13:50:54.263Z",
-  "status": "HEALTHY"
+  "status": "HEALTHY",
+  "lastAlert": null,
+  "metrics": {
+    "totalChecks": 0,
+    "failures": 0
+  }
 }
