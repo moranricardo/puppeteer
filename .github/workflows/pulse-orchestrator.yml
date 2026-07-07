@@ -1,34 +1,25 @@
 name: Ra Pulse Orchestrator
 
 on:
-  workflow_dispatch:
   schedule:
-    - cron: '0 * * * *' # Ejecución horaria automatizada
+    # Ejecución programada (ej. cada hora)
+    - cron: '0 * * * *'
+  workflow_dispatch: # Permite ejecución manual desde GitHub
 
 jobs:
-  orchestrate:
+  audit:
     runs-on: ubuntu-latest
     steps:
-      - name: 📥 Clonar repositorio
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: ⚙️ Configurar Node.js (v24 Nativo)
-        uses: actions/setup-node@v4
+      - name: Setup Node.js
+        uses: actions/node-latest@v4
         with:
           node-version: 24
 
-      - name: 📦 Inicializar e Instalar Entorno Ligero
-        run: |
-          if [ -f package.json ]; then
-            npm install
-          else
-            npm init -y
-          fi
-
-      - name: 🚀 Ejecutar Cliente REST Gerrit (Filtro Anti-XSS)
-        run: node scripts/gerrit-client.js
-
-      - name: 🛰️ Disparar Puente de Telemetría a Google Workspace
+      - name: Execute Gerrit Audit
         env:
           GOOGLE_WEBHOOK_URL: ${{ secrets.GOOGLE_WEBHOOK_URL }}
-        run: node scripts/google-bridge.js
+        run: |
+          node scripts/gerrit-client.js
