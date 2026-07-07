@@ -1,0 +1,17 @@
+name: RaPulse Telemetry
+on:
+  schedule:
+    - cron: '0 * * * *' # Ejecuta el pulso cada hora
+  workflow_dispatch:
+
+jobs:
+  heartbeat:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      - name: Emit Pulse
+        run: node scripts/pulse-agent.js

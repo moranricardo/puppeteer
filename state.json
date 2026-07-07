@@ -1,8 +1,17 @@
 {
+<<<<<<< HEAD
   "status": "HEALTHY",
   "lastAlert": null,
   "metrics": {
     "totalChecks": 0,
     "failures": 0
   }
+=======
+  "event": "HEARTBEAT",
+  "payload": {
+    "status": "OPERATIONAL",
+    "load": "minimal"
+  },
+  "timestamp": "2026-07-07T21:02:22.660Z"
+>>>>>>> 0705b1498 (chore: enable automated RaPulse telemetry)
 }

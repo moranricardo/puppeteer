@@ -1,0 +1,188 @@
+[
+  {
+    "id": "LineageOS%2Flineage_wiki~493297",
+    "triplet_id": "LineageOS%2Flineage_wiki~main~I7da021204412648110d24038156ab8457c0f5266",
+    "project": "LineageOS/lineage_wiki",
+    "branch": "main",
+    "attention_set": {
+      "10067": {
+        "account": {
+          "_account_id": 10067
+        },
+        "last_update": "2026-07-05 14:24:37.000000000",
+        "reason": "Someone else replied on the change"
+      }
+    },
+    "removed_from_attention_set": {},
+    "hashtags": [],
+    "change_id": "I7da021204412648110d24038156ab8457c0f5266",
+    "subject": "wiki: Update keys list for 17",
+    "status": "NEW",
+    "created": "2026-07-05 14:22:39.000000000",
+    "updated": "2026-07-05 14:24:37.000000000",
+    "submit_type": "REBASE_IF_NECESSARY",
+    "insertions": 5,
+    "deletions": 0,
+    "total_comment_count": 0,
+    "unresolved_comment_count": 0,
+    "has_review_started": true,
+    "meta_rev_id": "df45bdb76479c0129e25a293fa7dbb0a86b1a3ff",
+    "_number": 493297,
+    "virtual_id_number": 493297,
+    "owner": {
+      "_account_id": 10067
+    },
+    "current_revision_number": 1,
+    "requirements": [],
+    "submit_records": [
+      {
+        "rule_name": "gerrit~DefaultSubmitRule",
+        "status": "NOT_READY",
+        "labels": [
+          {
+            "label": "Verified",
+            "status": "NEED"
+          },
+          {
+            "label": "Code-Review",
+            "status": "NEED"
+          },
+          {
+            "label": "CI",
+            "status": "MAY",
+            "applied_by": {
+              "_account_id": 33137
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "LineageOS%2Fandroid_device_sony_sm8550-common~493296",
+    "triplet_id": "LineageOS%2Fandroid_device_sony_sm8550-common~lineage-23.2~Id106fd035414720fd43be142ea86268d7ed035db",
+    "project": "LineageOS/android_device_sony_sm8550-common",
+    "branch": "lineage-23.2",
+    "hashtags": [],
+    "change_id": "Id106fd035414720fd43be142ea86268d7ed035db",
+    "subject": "sm8550-common: Use libcrypto-v33 for nv_updater",
+    "status": "NEW",
+    "created": "2026-07-05 14:22:01.000000000",
+    "updated": "2026-07-05 14:22:01.000000000",
+    "submit_type": "REBASE_IF_NECESSARY",
+    "insertions": 2,
+    "deletions": 0,
+    "total_comment_count": 0,
+    "unresolved_comment_count": 0,
+    "has_review_started": true,
+    "meta_rev_id": "00ccf9c2bb1e87b7a350e63f086555e6e198c3d2",
+    "_number": 493296,
+    "virtual_id_number": 493296,
+    "owner": {
+      "_account_id": 31578
+    },
+    "current_revision_number": 1,
+    "requirements": [],
+    "submit_records": [
+      {
+        "rule_name": "gerrit~DefaultSubmitRule",
+        "status": "NOT_READY",
+        "labels": [
+          {
+            "label": "Verified",
+            "status": "NEED"
+          },
+          {
+            "label": "Code-Review",
+            "status": "NEED"
+          },
+          {
+            "label": "CI",
+            "status": "MAY"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "LineageOS%2Fandroid_hardware_oplus~491129",
+    "triplet_id": "LineageOS%2Fandroid_hardware_oplus~lineage-23.2~I39daf0622751a02d880232504a14b154b1cd1c45",
+    "project": "LineageOS/android_hardware_oplus",
+    "branch": "lineage-23.2",
+    "topic": "oplus-PanelChaplin",
+    "attention_set": {
+      "10067": {
+        "account": {
+          "_account_id": 10067
+        },
+        "last_update": "2026-07-04 20:06:36.000000000",
+        "reason": "Someone else replied on the change"
+      },
+      "13648": {
+        "account": {
+          "_account_id": 13648
+        },
+        "last_update": "2026-06-20 23:40:44.000000000",
+        "reason": "Someone else replied on the change"
+      }
+    },
+    "removed_from_attention_set": {
+      "33039": {
+        "account": {
+          "_account_id": 33039
+        },
+        "last_update": "2026-07-04 20:06:36.000000000",
+        "reason": "removed on reply"
+      }
+    },
+    "hashtags": [],
+    "change_id": "I39daf0622751a02d880232504a14b154b1cd1c45",
+    "subject": "interfaces: Introduce vendor.oplus.hardware.display.MixLut3D V1",
+    "status": "NEW",
+    "created": "2026-06-20 23:40:00.000000000",
+    "updated": "2026-07-05 13:00:57.000000000",
+    "submit_type": "REBASE_IF_NECESSARY",
+    "insertions": 106,
+    "deletions": 0,
+    "total_comment_count": 2,
+    "unresolved_comment_count": 0,
+    "has_review_started": true,
+    "meta_rev_id": "335543b9b14c4c6d25c1db0916641de1ff3f2d3d",
+    "_number": 491129,
+    "virtual_id_number": 491129,
+    "owner": {
+      "_account_id": 13648
+    },
+    "current_revision_number": 2,
+    "requirements": [],
+    "submit_records": [
+      {
+        "rule_name": "gerrit~DefaultSubmitRule",
+        "status": "OK",
+        "labels": [
+          {
+            "label": "Verified",
+            "status": "OK",
+            "applied_by": {
+              "_account_id": 10067
+            }
+          },
+          {
+            "label": "Code-Review",
+            "status": "OK",
+            "applied_by": {
+              "_account_id": 10067
+            }
+          },
+          {
+            "label": "CI",
+            "status": "MAY",
+            "applied_by": {
+              "_account_id": 33039
+            }
+          }
+        ]
+      }
+    ]
+  }
+]

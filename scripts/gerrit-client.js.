@@ -1,0 +1,29 @@
+const https = require('https');
+
+const options = {
+    hostname: 'api.github.com',
+    path: '/repos/moranricardo/scaling-meme',
+    method: 'GET',
+    headers: { 
+        'User-Agent': 'Node.js-Bot' // Requerido por GitHub para peticiones públicas
+    }
+};
+
+const req = https.request(options, (res) => {
+    let data = '';
+    res.on('data', (chunk) => { data += chunk; });
+    res.on('end', () => {
+        try {
+            const json = JSON.parse(data);
+            console.log('--- Conexión Exitosa ---');
+            console.log('Repositorio:', json.full_name);
+            console.log('Estrellas:', json.stargazers_count);
+            console.log('Lenguaje:', json.language);
+        } catch (e) {
+            console.error('Error al procesar respuesta:', e.message);
+        }
+    });
+});
+
+req.on('error', (e) => console.error('Error en red:', e.message));
+req.end();

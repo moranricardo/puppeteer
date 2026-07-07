@@ -1,0 +1,20 @@
+{
+    "archivos": [
+        {
+            "path": "/data/data/com.termux/files/home/bot-factory/core/memory.py",
+            "hash": "cf9772d9d1de9a9f0462da6af38f39a4451b8a9e56874d8464b76aa74679ba6c"
+        },
+        {
+            "path": "/data/data/com.termux/files/home/bot-factory/core/health.py",
+            "hash": "542296b35e8dd115db8662709a6bb9434c86b6e70e08401016f3944536cfde09"
+        },
+        {
+            "path": "/data/data/com.termux/files/home/bot-factory/ra",
+            "hash": "b7e3ecba74e01167c53f5d6ec9f7f8c352166ab6e4c558ae9ff6a5fc3e945646"
+        },
+        {
+            "path": "/data/data/com.termux/files/home/bot-factory/knowledge/axiomas_ra.txt",
+            "hash": "ff14a8635d70514722a50741e2ef1e1e569f51ffac0d14dbb80db166d4462052"
+        }
+    ]
+}

@@ -1,0 +1,14 @@
+#!/bin/bash
+export PYTHONPATH=$PYTHONPATH:~/bot-factory/core
+case "$1" in
+    apply)
+        python3 ~/bot-factory/core/executor.py "$2"
+        python3 ~/bot-factory/core/validator.py
+        ;;
+    status)
+        python3 ~/bot-factory/core/validator.py
+        ;;
+    *)
+        echo "Uso: ra {apply|status}"
+        ;;
+esac

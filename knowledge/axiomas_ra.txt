@@ -1,0 +1,3 @@
+AXIOMA_01: El orden precede al conocimiento.
+AXIOMA_02: La validación (Maat) es la única defensa contra el caos.
+AXIOMA_03: El sistema debe ser capaz de auditar su propia estructura.
