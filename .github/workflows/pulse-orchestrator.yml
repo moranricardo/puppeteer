@@ -22,4 +22,5 @@ jobs:
           GOOGLE_WEBHOOK_URL: ${{ secrets.GOOGLE_WEBHOOK_URL }}
         run: |
           node scripts/gerrit-client.js
+          node scripts/telemetry-heart.js
           node scripts/google-bridge.js
