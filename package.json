@@ -7,8 +7,5 @@
   "scripts": {
     "start": "node index.js",
     "test": "echo \"✅ Mocks locales validados\""
-  },
-  "dependencies": {
-    "puppeteer": "^24.0.0"
   }
 }
