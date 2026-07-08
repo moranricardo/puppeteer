@@ -39,4 +39,3 @@
           print('\n--- [RA PULSE RESPUESTA COGNITIVA] ---')
           print(response.text)
           "
-
