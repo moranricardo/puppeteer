@@ -8,35 +8,43 @@
           import sys
           from google import genai
 
-          # Si no hay clave, terminamos con éxito (0) para no romper el CI
-          if not os.environ.get('GEMINI_API_KEY'):
-              print('⚠️ Advertencia: GEMINI_API_KEY no detectada. Análisis omitido.')
+          # Validación de entorno
+          api_key = os.environ.get('GEMINI_API_KEY')
+          if not api_key:
+              print('⚠️ GEMINI_API_KEY no configurada. Saltando análisis cognitivo.')
               sys.exit(0)
 
-          client = genai.Client(api_key=os.environ['GEMINI_API_KEY'])
-
+          # Validación de datos
           json_path = 'data/gerrit_payload.json'
           if not os.path.exists(json_path):
-              print(f'❌ Error: {json_path} no encontrado.')
+              print(f'⚠️ Archivo {json_path} no encontrado. Omitiendo paso.')
               sys.exit(0)
 
-          with open(json_path, 'r') as f:
-              gerrit_data = json.load(f)
+          try:
+              with open(json_path, 'r') as f:
+                  data = json.load(f)
+              
+              # Procesar solo si hay datos reales
+              if not data:
+                  print('ℹ️ Payload de Gerrit vacío. Nada que analizar.')
+                  sys.exit(0)
 
-          contexto = json.dumps(gerrit_data[:2], indent=2)
-          prompt = f'''Eres el núcleo cognitivo del proyecto Ra Pulse.
-          Analiza la siguiente telemetría de cambios extraídos del Gerrit de LineageOS.
-          Identifica parches críticos de seguridad o actualizaciones relevantes y genera una recomendación estructurada de ingeniería:
+              client = genai.Client(api_key=api_key)
+              contexto = json.dumps(data[:2], indent=2)
+              prompt = f'''Eres el núcleo cognitivo del proyecto Ra Pulse.
+              Analiza la siguiente telemetría de cambios del Gerrit de LineageOS y genera una recomendación técnica estructurada:
+              {contexto}'''
 
-          {contexto}
-          '''
+              print('🤖 Interrogando núcleo cognitivo (Gemini)...')
+              response = client.models.generate_content(
+                  model='gemini-2.5-flash',
+                  contents=prompt,
+              )
+              
+              print('\n--- [RESULTADO DEL PUENTE COGNITIVO] ---')
+              print(response.text)
 
-          print('🤖 Enviando contexto a Gemini...')
-          response = client.models.generate_content(
-              model='gemini-2.5-flash',
-              contents=prompt,
-          )
-          print('\n--- [RA PULSE RESPUESTA COGNITIVA] ---')
-          print(response.text)
+          except Exception as e:
+              print(f'❌ Error en el proceso cognitivo: {e}')
+              sys.exit(1)
           "
-
