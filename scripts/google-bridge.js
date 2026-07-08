@@ -30,4 +30,4 @@ async function dispatchTelemetry() {
     }
 }
 
-dispatchTelemetry();
+// dispatchTelemetry();
