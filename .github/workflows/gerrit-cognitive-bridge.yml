@@ -44,7 +44,18 @@
               print('\n--- [RESULTADO DEL PUENTE COGNITIVO] ---')
               print(response.text)
 
+ HEAD
           except Exception as e:
               print(f'❌ Error en el proceso cognitivo: {e}')
               sys.exit(1)
           "
+
+          print('🤖 Enviando contexto a Gemini...')
+          response = client.models.generate_content(
+              model='gemini-2.5-flash',
+              contents=prompt,
+          )
+          print('\n--- [RA PULSE RESPUESTA COGNITIVA] ---')
+          print(response.text)
+          "
+ 43f520bb68e896a3c1280cf59ceb46d6d2c8a2c4
