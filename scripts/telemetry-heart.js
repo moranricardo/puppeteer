@@ -3,7 +3,7 @@ const path = require('path');
 
 const STATE_FILE = path.join(__dirname, '../state.json');
 
-<<<<<<< HEAD
+ HEAD
 function auditTelemetry() {
     console.log('[Telemetry-Heart] Iniciando auditoría del pulso del sistema...');
 
@@ -16,7 +16,7 @@ function auditTelemetry() {
             lastAlert: null
         };
         fs.writeFileSync(STATE_FILE, JSON.stringify(initialState, null, 2));
-=======
+
 function auditSystemPulse() {
     console.log('[Telemetry-Heart] Iniciando auditoría estricta del pulso del sistema...');
 
@@ -30,12 +30,12 @@ function auditSystemPulse() {
         };
         fs.writeFileSync(STATE_FILE, JSON.stringify(initialState, null, 2));
         console.log('[Telemetry-Heart] state.json inicializado correctamente.');
->>>>>>> 0705b1498 (chore: enable automated RaPulse telemetry)
+ 0705b1498 (chore: enable automated RaPulse telemetry)
         return;
     }
 
     try {
-<<<<<<< HEAD
+ HEAD
         const rawData = fs.readFileSync(STATE_FILE, 'utf8');
         const state = JSON.parse(rawData);
 
@@ -56,7 +56,7 @@ function auditSystemPulse() {
 }
 
 auditTelemetry();
-=======
+
         const state = JSON.parse(fs.readFileSync(STATE_FILE, 'utf8'));
         
         // Reglas de validación del estado del ecosistema
@@ -80,4 +80,4 @@ auditTelemetry();
 }
 
 auditSystemPulse();
->>>>>>> 0705b1498 (chore: enable automated RaPulse telemetry)
+ 0705b1498 (chore: enable automated RaPulse telemetry)
