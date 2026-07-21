@@ -1,6 +1,7 @@
     - name: 4. Interrogar Puente Cognitivo (Gemini)
       env:
         GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        GOOGLE_GENAI_USE_VERTEXAI: "false"
       run: |
         python -c "
         import os, json, sys
@@ -21,7 +22,6 @@
             with open(json_path, 'r') as f:
                 data = json.load(f)
             
-            os.environ['GOOGLE_GENAI_USE_VERTEXAI'] = 'false'
             client = genai.Client(api_key=api_key)
             
             response = client.models.generate_content(
@@ -33,4 +33,3 @@
             print(f'❌ Error crítico: {e}')
             sys.exit(1)
         "
-
