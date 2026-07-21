@@ -1,3 +1,27 @@
+name: Gerrit Cognitive Bridge
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 1. Checkout del Repositorio
+        uses: actions/checkout@v4
+
+      - name: 2. Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 3. Instalar Dependencias
+        run: |
+          python -m pip install --upgrade pip
+          pip install google-genai
+
       - name: 4. Interrogar Puente Cognitivo (Gemini)
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
