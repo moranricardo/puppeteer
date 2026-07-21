@@ -54,3 +54,4 @@ jobs:
               print(f'❌ Error crítico: {e}')
               sys.exit(1)
           "
+
