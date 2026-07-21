@@ -1,32 +1,56 @@
-    - name: 4. Interrogar Puente Cognitivo (Gemini)
-      env:
-        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-      run: |
-        python -c "
-        import os, json, sys
-        import google.generativeai as genai
+name: Gerrit Cognitive Bridge
 
-        api_key = os.environ.get('GEMINI_API_KEY')
-        json_path = 'data/gerrit_payload.json'
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
 
-        if not api_key:
-            print('❌ Error: GEMINI_API_KEY no configurada.')
-            sys.exit(1)
-            
-        if not os.path.exists(json_path):
-            print(f'❌ Error: {json_path} no existe.')
-            sys.exit(1)
-            
-        try:
-            with open(json_path, 'r') as f:
-                data = json.load(f)
-            
-            genai.configure(api_key=api_key)
-            model = genai.GenerativeModel('gemini-1.5-flash')
-            
-            response = model.generate_content(f'Analiza: {json.dumps(data[:2])}')
-            print(response.text)
-        except Exception as e:
-            print(f'❌ Error crítico: {e}')
-            sys.exit(1)
-        "
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 1. Checkout del Repositorio
+        uses: actions/checkout@v4
+
+      - name: 2. Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: 3. Instalar Dependencias
+        run: |
+          python -m pip install --upgrade pip
+          pip install google-generativeai
+
+      - name: 4. Interrogar Puente Cognitivo (Gemini)
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          python -c "
+          import os, json, sys
+          import google.generativeai as genai
+
+          api_key = os.environ.get('GEMINI_API_KEY')
+          json_path = 'data/gerrit_payload.json'
+
+          if not api_key:
+              print('❌ Error: GEMINI_API_KEY no configurada.')
+              sys.exit(1)
+              
+          if not os.path.exists(json_path):
+              print(f'❌ Error: {json_path} no existe.')
+              sys.exit(1)
+              
+          try:
+              with open(json_path, 'r') as f:
+                  data = json.load(f)
+              
+              genai.configure(api_key=api_key)
+              model = genai.GenerativeModel('gemini-1.5-flash')
+              
+              response = model.generate_content(f'Analiza: {json.dumps(data[:2])}')
+              print(response.text)
+          except Exception as e:
+              print(f'❌ Error crítico: {e}')
+              sys.exit(1)
+          "
