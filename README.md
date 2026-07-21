@@ -1,4 +1,4 @@
-🪐 Ciclo de Ra - Pulse Orchestrator
+# Ciclo de Ra - Pulse Orchestrator
 
 Automatización horaria ejecutada mediante GitHub Actions para el monitoreo y actualización del pulso del sistema.
 
