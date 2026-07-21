@@ -13,10 +13,15 @@
             print('❌ Error: GEMINI_API_KEY no configurada.')
             sys.exit(1)
             
+        if not os.path.exists(json_path):
+            print(f'❌ Error: {json_path} no existe.')
+            sys.exit(1)
+            
         try:
             with open(json_path, 'r') as f:
                 data = json.load(f)
             
+            os.environ['GOOGLE_GENAI_USE_VERTEXAI'] = 'false'
             client = genai.Client(api_key=api_key)
             
             response = client.models.generate_content(
@@ -28,3 +33,4 @@
             print(f'❌ Error crítico: {e}')
             sys.exit(1)
         "
+
