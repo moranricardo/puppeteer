@@ -12,22 +12,21 @@
         if not api_key:
             print('❌ Error: GEMINI_API_KEY no configurada.')
             sys.exit(1)
-
+            
         if not os.path.exists(json_path):
             print(f'❌ Error: {json_path} no existe.')
             sys.exit(1)
-
+            
         try:
             with open(json_path, 'r') as f:
                 data = json.load(f)
-
+            
             genai.configure(api_key=api_key)
             model = genai.GenerativeModel('gemini-1.5-flash')
-
+            
             response = model.generate_content(f'Analiza: {json.dumps(data[:2])}')
             print(response.text)
         except Exception as e:
             print(f'❌ Error crítico: {e}')
             sys.exit(1)
         "
-
