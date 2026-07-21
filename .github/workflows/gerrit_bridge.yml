@@ -1,0 +1,30 @@
+    - name: 4. Interrogar Puente Cognitivo (Gemini)
+      env:
+        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      run: |
+        python -c "
+        import os, json, sys
+        from google import genai
+
+        api_key = os.environ.get('GEMINI_API_KEY')
+        json_path = 'data/gerrit_payload.json'
+
+        if not api_key:
+            print('❌ Error: GEMINI_API_KEY no configurada.')
+            sys.exit(1)
+            
+        try:
+            with open(json_path, 'r') as f:
+                data = json.load(f)
+            
+            client = genai.Client(api_key=api_key)
+            
+            response = client.models.generate_content(
+                model='gemini-2.5-flash',
+                contents=f'Analiza: {json.dumps(data[:2])}'
+            )
+            print(response.text)
+        except Exception as e:
+            print(f'❌ Error crítico: {e}')
+            sys.exit(1)
+        "
