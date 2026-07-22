@@ -17,16 +17,10 @@ jobs:
       with:
         python-version: '3.11'
 
-    - name: Procesar Payload Local (Sin API)
+    - name: Ejecutar Pulso Toroidal
       run: |
-        python -c "
-        import json, os
-        json_path = 'data/gerrit_payload.json'
-        if os.path.exists(json_path):
-            with open(json_path, 'r') as f:
-                data = json.load(f)
-            print('✅ JSON cargado correctamente. Elementos encontrados:', len(data) if isinstance(data, list) else 'Objeto')
-            print(json.dumps(data[:2] if isinstance(data, list) else data, indent=2))
-        else:
-            print('⚠️ Advertencia: El archivo de payload no existe, omitiendo.')
-        "
+        python core/toroid_pulse.py
+
+    - name: Mostrar Estado del Log de Consciencia
+      run: |
+        tail -n 5 knowledge/consciencia_log.jsonl
