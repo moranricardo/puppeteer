@@ -9,6 +9,23 @@
     "test": "echo \"✅ Mocks locales validados\""
   },
   "dependencies": {
-    "@google/generative-ai": "^0.24.1"
-  }
+    "@google/generative-ai": "^0.24.1",
+    "puppeteer": "^25.3.0"
+  },
+  "directories": {
+    "doc": "docs",
+    "example": "examples",
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/moranricardo/puppeteer.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/moranricardo/puppeteer/issues"
+  },
+  "homepage": "https://github.com/moranricardo/puppeteer#readme"
 }
