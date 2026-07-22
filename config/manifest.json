@@ -1,0 +1,27 @@
+{
+  "system": "Cerebro Digital / Bot Factory",
+  "version": "1.1",
+  "evolution": "818",
+  "geometry": "Toroidal",
+  "developer": {
+    "entity": "Ricardo Morán Maldonado",
+    "ecosystem": "Termux (Linux sobre Android)",
+    "philosophy": "Local-First & Augmented Developer"
+  },
+  "architecture_para": {
+    "projects": "Esfuerzos con fecha de finalización específica",
+    "areas": "Responsabilidades de mantenimiento a largo plazo",
+    "resources": "Temas de interés y aprendizaje continuo",
+    "archives": "Proyectos completados o información inactiva"
+  },
+  "core_nodes": {
+    "scripts": "Lógica de ejecución y bots",
+    "logs": "Registro de telemetría y errores",
+    "config": "Variables de entorno y configuración",
+    "knowledge": "Axiomas, logs de consciencia y bitácoras"
+  },
+  "protocols": {
+    "security": "Filtro estricto de payloads y gestión de cambios",
+    "automation": "GitHub Actions + Ejecución local en Termux"
+  }
+}
