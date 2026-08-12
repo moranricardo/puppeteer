@@ -3,8 +3,8 @@
   "inputs": [
     {
       "type": "pickString",
-      "id": "suit",
-      "description": "Which test suit to run?",
+      "id": "suite",
+      "description": "Which test suite to run?",
       "options": [
         "chrome-headless",
         "chrome-headful",
@@ -25,17 +25,17 @@
       "runtimeExecutable": "npm",
       "cwd": "${workspaceFolder}",
       "runtimeArgs": [
-        "run-script",
+        "run",
         "test",
         "--",
         "--test-suite",
-        "${input:suit}",
+        "${input:suite}",
         "--no-coverage",
         "--no-suggestions"
       ],
       "outFiles": ["${workspaceFolder}/**/*.js"],
       "env": {
-        "DEBUGGER_ATTACHED": true
+        "DEBUGGER_ATTACHED": "true"
       }
     }
   ]
