@@ -3,24 +3,30 @@ name: Process Payload Local
 on:
   push:
     branches: [ main ]
+  schedule:
+    - cron: '0 * * * *'
   workflow_dispatch:
 
 jobs:
   process:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.11'
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
 
-    - name: Ejecutar Pulso Toroidal
-      run: |
-        python core/toroid_pulse.py
+      - name: Ejecutar Pulso Toroidal
+        run: |
+          python core/toroid_pulse.py
 
-    - name: Mostrar Estado del Log de Consciencia
-      run: |
-        tail -n 5 knowledge/consciencia_log.jsonl
+      - name: Mostrar Estado del Log de Consciencia
+        run: |
+          if [ -f knowledge/consciencia_log.jsonl ]; then
+            tail -n 5 knowledge/consciencia_log.jsonl
+          else
+            echo "El archivo knowledge/consciencia_log.jsonl aún no existe o no fue generado."
+          fi
