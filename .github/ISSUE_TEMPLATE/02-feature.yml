@@ -1,17 +1,39 @@
-name: Feature
-description: File a feature request
+name: Feature Request - Ciclo de Ra
+description: Proponer una nueva funcionalidad o mejora para el orquestador.
 title: '[Feature]: '
-type: 'Feature'
 body:
   - type: markdown
     attributes:
       value: |
-        ### Thanks for taking the time to fill out a feature request!
-        **Before filling out this report**, please check [existing feature requests](https://github.com/puppeteer/puppeteer/issues?q=is%3Aissue%20type%3AFeature) and see if your feature has already been proposed.
-  - type: textarea
-    id: summary
+        ### Propuesta de Nueva Funcionalidad
+        Describe la nueva característica o mejora que deseas integrar en el pulso del sistema.
+  - id: summary
+    type: textarea
     attributes:
-      label: Feature description
-      description: Please describe your feature request with as many details as possible.
+      label: Descripción de la Funcionalidad
+      description: Explica detalladamente qué debe hacer la nueva función.
+      placeholder: |
+        Me gustaría que el sistema ejecute...
     validations:
       required: true
+  - id: module
+    type: dropdown
+    attributes:
+      label: Módulo o Componente Afectado
+      description: ¿En qué parte de la arquitectura se integraría?
+      options:
+        - Automatización / Puppeteer
+        - GitHub Actions (Workflow / Cron)
+        - Infraestructura / Entorno de Desarrollo
+        - Otro
+    validations:
+      required: true
+  - id: use-case
+    type: textarea
+    attributes:
+      label: Caso de Uso / Beneficio
+      description: ¿Por qué es útil esta mejora o qué problema resuelve?
+      placeholder: |
+        Esto optimizará el tiempo de ejecución debido a...
+    validations:
+      required: false
