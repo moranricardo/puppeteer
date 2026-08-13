@@ -1,67 +1,38 @@
-# Examples & Use cases
+# Examples & Use Cases
 
-## Official examples
+## Official Examples
 
-[The Puppeteer repository](https://github.com/puppeteer/puppeteer/tree/main/examples) includes a small number of examples maintained by the Puppeteer team.
+The [Puppeteer repository](https://github.com/puppeteer/puppeteer/tree/main/examples) includes official code samples maintained by the core team.
 
-Follow the instructions in the README to run the examples, covering use cases like creating PDFs from websites, creating screenshots or intercepting requests.
+These examples cover common automation tasks such as:
+- Generating PDFs and full-page screenshots.
+- Intercepting and modifying network requests.
+- Automating forms and user interactions using modern Locators (`page.locator()`).
+- Executing direct Chrome DevTools Protocol (CDP) commands.
 
-## Example suite
+## Dedicated Example Suite
 
-Find a set of unstructured examples in Puppeteer's dedicated [example repository](https://github.com/puppeteer/examples).
+For a broader set of community-contributed code snippets, visit the dedicated [Puppeteer Examples Repository](https://github.com/puppeteer/examples).
 
-This suite is a collection of examples that has been growing over time and covers various use cases like forwarding events
-from your Puppeteer process to the browser, interacting with elements and running CDP commands.
+This suite covers scenarios like event forwarding from the browser to Node.js, handling frames, custom query selectors, and managing browser contexts.
 
-## Other projects, articles and demos
+## Community Projects, Tools & Demos
 
-See the following list for use cases and examples from categories like Rendering, Web scraping and Testing.
+Below is a curated list of third-party tools, frameworks, and guides built on top of Puppeteer.
 
-### Rendering and web scraping
+### Rendering and Web Scraping
 
-- **[Puppetron](https://github.com/cheeaun/puppetron)**: Demo site that shows
-  how to use Puppeteer and Headless Chrome to render pages. Inspired by
-  [GoogleChrome/rendertron](https://github.com/GoogleChrome/rendertron).
-- **[Thal](https://medium.com/@e_mad_ehsan/getting-started-with-puppeteer-and-chrome-headless-for-web-scrapping-6bf5979dee3e)**:
-  Get started with Puppeteer and Chrome Headless for Web Scraping.
-- **[pupperender](https://github.com/LasaleFamine/pupperender)**: Express
-  middleware that checks the User-Agent header of incoming requests, and if
-  it matches one of a configurable set of bots, render the page using Puppeteer.
-  Useful for PWA rendering.
-- **[headless-chrome-crawler](https://github.com/yujiosaka/headless-chrome-crawler)**:
-  Crawler that provides APIs to manipulate Headless Chrome and lets you crawl
-  dynamic websites.
-- **[Puppeteer examples from Checkly](https://web.archive.org/web/20240811200732/https://www.checklyhq.com/learn/headless/basics-puppeteer-intro/)**:
-  E2E Puppeteer examples for real life use cases, such as getting
-  useful info from the web pages or common login scenarios.
-- **[browserless](https://github.com/browserless/browserless)**: Headless
-  Chrome as a service letting you execute Puppeteer scripts remotely.
-- **[Puppeteer on AWS Lambda](https://github.com/jay-deshmukh/headless-chrome-with-puppeteer-on-AWS-lambda-with-serverless-framework)**:
-  Run puppeteer on AWS Lambda with Serverless framework
-- **[Apify SDK](https://github.com/apifytech/apify-js)**: The scalable web
-  crawling and scraping library for JavaScript. Automatically manages a pool of
-  Puppeteer browsers and provides error handling, task management, proxy
-  rotation and more.
+- **[Crawlee (formerly Apify SDK)](https://crawlee.dev/)**: Scalable web crawling and scraping library for Node.js. Automatically manages browser pools, proxies, request queues, and anti-blocking strategies with Puppeteer.
+- **[Browserless](https://github.com/browserless/browserless)**: Headless Chrome/Firefox as a service, allowing remote execution of Puppeteer scripts in Docker or cloud environments.
+- **[Puppetron](https://github.com/cheeaun/puppetron)**: Demo showing how to use Puppeteer to render dynamic pages into static HTML.
+- **[Pupperender](https://github.com/LasaleFamine/pupperender)**: Express middleware that renders SPA pages using Puppeteer when requests originate from social media or search engine bots.
+- **[Headless Chrome Crawler](https://github.com/yujiosaka/headless-chrome-crawler)**: Distributed crawler providing high-level APIs to manipulate headless browser sessions.
+- **[Puppeteer on AWS Lambda](https://github.com/Sparticuz/chromium)**: Guidelines and binaries for executing Puppeteer and Chromium on serverless platforms like AWS Lambda.
 
-### Testing
+### Testing and Utilities
 
-- **[angular-puppeteer-demo](https://github.com/Quramy/angular-puppeteer-demo)**:
-  Demo repository explaining how to use Puppeteer in Karma.
-- **[mocha-headless-chrome](https://github.com/direct-adv-interfaces/mocha-headless-chrome)**:
-  Tool which runs client-side mocha tests in the command line through headless
-  Chrome.
-- **[puppeteer-to-istanbul-example](https://github.com/bcoe/puppeteer-to-istanbul-example)**:
-  Demo repository demonstrating how to output Puppeteer coverage in Istanbul
-  format.
-- **[jest-puppeteer](https://github.com/smooth-code/jest-puppeteer)**: (almost)
-  Zero configuration tool for setting up and running Jest and Puppeteer. Also
-  includes an assertion library for Puppeteer.
-- **[puppeteer-har](https://github.com/Everettss/puppeteer-har)**: Generate HAR
-  file with puppeteer.
-- **[puppetry](https://puppetry.app/)**: A desktop app to build Puppeteer and
-  Jest driven tests without coding.
-- **[puppeteer-loadtest](https://github.com/svenkatreddy/puppeteer-loadtest)**:
-  command line interface for performing load test on Puppeteer scripts.
-- **[cucumber-puppeteer-example](https://github.com/mlampedx/cucumber-puppeteer-example)**:
-  Example repository demonstrating how to use Puppeeteer and Cucumber for
-  integration testing.
+- **[Jest Puppeteer](https://github.com/argos-ci/jest-puppeteer)**: Zero-configuration runner for executing tests with Jest and Puppeteer, including custom assertions.
+- **[Puppetry](https://puppetry.app/)**: Desktop GUI application to build Puppeteer and Jest automated tests without writing code manually.
+- **[Puppeteer to Istanbul Example](https://github.com/bcoe/puppeteer-to-istanbul-example)**: Demo showing how to convert Puppeteer code coverage into Istanbul/nyc reports.
+- **[Puppeteer HAR Generator](https://github.com/Everettss/puppeteer-har)**: Utility to record network activity during Puppeteer sessions and export standard `.har` files.
+- **[Puppeteer Loadtest](https://github.com/svenkatreddy/puppeteer-loadtest)**: CLI tool to perform load testing using Puppeteer scripts.
