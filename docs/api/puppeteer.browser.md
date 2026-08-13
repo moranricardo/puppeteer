@@ -6,7 +6,8 @@ sidebar_label: Browser
 
 [Browser](./puppeteer.browser.md) represents a browser instance that is either:
 
-- connected to via [Puppeteer.connect()](./puppeteer.puppeteer.connect.md) or - launched by [PuppeteerNode.launch()](./puppeteer.puppeteernode.launch.md).
+- connected to via [Puppeteer.connect()](./puppeteer.puppeteer.connect.md)
+- launched by [PuppeteerNode.launch()](./puppeteer.puppeteernode.launch.md)
 
 [Browser](./puppeteer.browser.md) [emits](./puppeteer.eventemitter.emit.md) various events which are documented in the [BrowserEvent](./puppeteer.browserevent.md) enum.
 
@@ -54,443 +55,240 @@ const browser2 = await puppeteer.connect({browserWSEndpoint});
 await browser2.close();
 ```
 
-## Properties
-
+Properties
 <table><thead><tr><th>
-
 Property
-
 </th><th>
-
 Modifiers
-
 </th><th>
-
 Type
-
 </th><th>
-
 Description
-
 </th></tr></thead>
 <tbody><tr><td>
-
 <span id="connected">connected</span>
-
 </td><td>
-
-`readonly`
-
+readonly
 </td><td>
-
 boolean
-
 </td><td>
-
-Whether Puppeteer is connected to this [browser](./puppeteer.browser.md).
-
+Whether Puppeteer is connected to this browser.
 </td></tr>
 <tr><td>
-
 <span id="debuginfo">debugInfo</span>
-
 </td><td>
-
-`readonly`
-
+readonly
 </td><td>
-
-[DebugInfo](./puppeteer.debuginfo.md)
-
+DebugInfo
 </td><td>
-
-**_(Experimental)_** Get debug information from Puppeteer.
-
-**Remarks:**
-
+(Experimental) Get debug information from Puppeteer.
+Remarks:
 Currently, includes pending protocol calls. In the future, we might add more info.
-
 </td></tr>
 </tbody></table>
 
-## Methods
-
+Methods
 <table><thead><tr><th>
-
 Method
-
 </th><th>
-
 Modifiers
-
 </th><th>
-
 Description
-
 </th></tr></thead>
 <tbody><tr><td>
-
-<span id="addscreen">[addScreen(params)](./puppeteer.browser.addscreen.md)</span>
-
+<span id="addscreen">addScreen(params)</span>
 </td><td>
-
 </td><td>
-
-Adds a new screen, returns the added [screen information object](./puppeteer.screeninfo.md).
-
-**Remarks:**
-
+Adds a new screen, returns the added screen information object.
+Remarks:
 Only supported in headless mode.
-
 </td></tr>
 <tr><td>
-
-<span id="browsercontexts">[browserContexts()](./puppeteer.browser.browsercontexts.md)</span>
-
+<span id="browsercontexts">browserContexts()</span>
 </td><td>
-
 </td><td>
-
-Gets a list of open [browser contexts](./puppeteer.browsercontext.md).
-
-In a newly-created [browser](./puppeteer.browser.md), this will return a single instance of [BrowserContext](./puppeteer.browsercontext.md).
-
+Gets a list of open browser contexts.
+In a newly-created browser, this will return a single instance of BrowserContext.
 </td></tr>
 <tr><td>
-
-<span id="close">[close()](./puppeteer.browser.close.md)</span>
-
+<span id="close">close()</span>
 </td><td>
-
 </td><td>
-
-Closes this [browser](./puppeteer.browser.md) and all associated [pages](./puppeteer.page.md).
-
+Closes this browser and all associated pages.
 </td></tr>
 <tr><td>
-
-<span id="cookies">[cookies()](./puppeteer.browser.cookies.md)</span>
-
+<span id="cookies">cookies()</span>
 </td><td>
-
 </td><td>
-
-Returns all cookies in the default [BrowserContext](./puppeteer.browsercontext.md).
-
-**Remarks:**
-
-Shortcut for [browser.defaultBrowserContext().cookies()](./puppeteer.browsercontext.cookies.md).
-
+Returns all cookies in the default BrowserContext.
+Remarks:
+Shortcut for browser.defaultBrowserContext().cookies().
 </td></tr>
 <tr><td>
-
-<span id="createbrowsercontext">[createBrowserContext(options)](./puppeteer.browser.createbrowsercontext.md)</span>
-
+<span id="createbrowsercontext">createBrowserContext(options)</span>
 </td><td>
-
 </td><td>
-
-Creates a new [browser context](./puppeteer.browsercontext.md).
-
-This won't share cookies/cache with other [browser contexts](./puppeteer.browsercontext.md).
-
+Creates a new browser context.
+This won't share cookies/cache with other browser contexts.
 </td></tr>
 <tr><td>
-
-<span id="defaultbrowsercontext">[defaultBrowserContext()](./puppeteer.browser.defaultbrowsercontext.md)</span>
-
+<span id="defaultbrowsercontext">defaultBrowserContext()</span>
 </td><td>
-
 </td><td>
-
-Gets the default [browser context](./puppeteer.browsercontext.md).
-
-**Remarks:**
-
-The default [browser context](./puppeteer.browsercontext.md) cannot be closed.
-
+Gets the default browser context.
+Remarks:
+The default browser context cannot be closed.
 </td></tr>
 <tr><td>
-
-<span id="deletecookie">[deleteCookie(cookies)](./puppeteer.browser.deletecookie.md)</span>
-
+<span id="deletecookie">deleteCookie(cookies)</span>
 </td><td>
-
 </td><td>
-
-Removes cookies from the default [BrowserContext](./puppeteer.browsercontext.md).
-
-**Remarks:**
-
-Shortcut for [browser.defaultBrowserContext().deleteCookie()](./puppeteer.browsercontext.deletecookie.md).
-
+Removes cookies from the default BrowserContext.
+Remarks:
+Shortcut for browser.defaultBrowserContext().deleteCookie().
 </td></tr>
 <tr><td>
-
-<span id="deletematchingcookies">[deleteMatchingCookies(filters)](./puppeteer.browser.deletematchingcookies.md)</span>
-
+<span id="deletematchingcookies">deleteMatchingCookies(filters)</span>
 </td><td>
-
 </td><td>
-
-Deletes cookies matching the provided filters from the default [BrowserContext](./puppeteer.browsercontext.md).
-
-**Remarks:**
-
-Shortcut for [browser.defaultBrowserContext().deleteMatchingCookies()](./puppeteer.browsercontext.deletematchingcookies.md).
-
+Deletes cookies matching the provided filters from the default BrowserContext.
+Remarks:
+Shortcut for browser.defaultBrowserContext().deleteMatchingCookies().
 </td></tr>
 <tr><td>
-
-<span id="disconnect">[disconnect()](./puppeteer.browser.disconnect.md)</span>
-
+<span id="disconnect">disconnect()</span>
 </td><td>
-
 </td><td>
-
-Disconnects Puppeteer from this [browser](./puppeteer.browser.md), but leaves the process running.
-
+Disconnects Puppeteer from this browser, but leaves the process running.
 </td></tr>
 <tr><td>
-
-<span id="getwindowbounds">[getWindowBounds(windowId)](./puppeteer.browser.getwindowbounds.md)</span>
-
+<span id="getwindowbounds">getWindowBounds(windowId)</span>
 </td><td>
-
 </td><td>
-
-Gets the specified window [bounds](./puppeteer.windowbounds.md).
-
+Gets the specified window bounds.
 </td></tr>
 <tr><td>
-
-<span id="installextension">[installExtension(path)](./puppeteer.browser.installextension.md)</span>
-
+<span id="installextension">installExtension(path)</span>
 </td><td>
-
 </td><td>
-
-Installs an extension and returns the ID. In Chrome, this is only available if the browser was created using `pipe: true` and the `--enable-unsafe-extension-debugging` flag is set.
-
+Installs an extension and returns the ID. In Chrome, this is only available if the browser was created using pipe: true and the --enable-unsafe-extension-debugging flag is set.
 </td></tr>
 <tr><td>
-
-<span id="isconnected">[isConnected()](./puppeteer.browser.isconnected.md)</span>
-
+<span id="isconnected">isConnected()</span>
 </td><td>
-
-`deprecated`
-
+deprecated
 </td><td>
-
-Whether Puppeteer is connected to this [browser](./puppeteer.browser.md).
-
-**Deprecated:**
-
-Use [Browser.connected](./puppeteer.browser.md).
-
+Whether Puppeteer is connected to this browser.
+Deprecated:
+Use Browser.connected.
 </td></tr>
 <tr><td>
-
-<span id="newpage">[newPage(options)](./puppeteer.browser.newpage.md)</span>
-
+<span id="newpage">newPage(options)</span>
 </td><td>
-
 </td><td>
-
-Creates a new [page](./puppeteer.page.md) in the [default browser context](./puppeteer.browser.defaultbrowsercontext.md).
-
+Creates a new page in the default browser context.
 </td></tr>
 <tr><td>
-
-<span id="pages">[pages(includeAll)](./puppeteer.browser.pages.md)</span>
-
+<span id="pages">pages(includeAll)</span>
 </td><td>
-
 </td><td>
-
-Gets a list of all open [pages](./puppeteer.page.md) inside this [Browser](./puppeteer.browser.md).
-
-If there are multiple [browser contexts](./puppeteer.browsercontext.md), this returns all [pages](./puppeteer.page.md) in all [browser contexts](./puppeteer.browsercontext.md).
-
-**Remarks:**
-
-Non-visible [pages](./puppeteer.page.md), such as `"background_page"`, will not be listed here. You can find them using [Target.page()](./puppeteer.target.page.md).
-
+Gets a list of all open pages inside this Browser.
+If there are multiple browser contexts, this returns all pages in all browser contexts.
+Remarks:
+Non-visible pages, such as "background_page", will not be listed here. You can find them using Target.page().
 </td></tr>
 <tr><td>
-
-<span id="process">[process()](./puppeteer.browser.process.md)</span>
-
+<span id="process">process()</span>
 </td><td>
-
 </td><td>
-
-Gets the associated [ChildProcess](https://nodejs.org/api/child_process.html#class-childprocess).
-
+Gets the associated ChildProcess.
 </td></tr>
 <tr><td>
-
-<span id="removescreen">[removeScreen(screenId)](./puppeteer.browser.removescreen.md)</span>
-
+<span id="removescreen">removeScreen(screenId)</span>
 </td><td>
-
 </td><td>
-
 Removes a screen.
-
-**Remarks:**
-
+Remarks:
 Only supported in headless mode. Fails if the primary screen id is specified.
-
 </td></tr>
 <tr><td>
-
-<span id="screens">[screens()](./puppeteer.browser.screens.md)</span>
-
+<span id="screens">screens()</span>
 </td><td>
-
 </td><td>
-
-Gets a list of [screen information objects](./puppeteer.screeninfo.md).
-
+Gets a list of screen information objects.
 </td></tr>
 <tr><td>
-
-<span id="setcookie">[setCookie(cookies)](./puppeteer.browser.setcookie.md)</span>
-
+<span id="setcookie">setCookie(cookies)</span>
 </td><td>
-
 </td><td>
-
-Sets cookies in the default [BrowserContext](./puppeteer.browsercontext.md).
-
-**Remarks:**
-
-Shortcut for [browser.defaultBrowserContext().setCookie()](./puppeteer.browsercontext.setcookie.md).
-
+Sets cookies in the default BrowserContext.
+Remarks:
+Shortcut for browser.defaultBrowserContext().setCookie().
 </td></tr>
 <tr><td>
-
-<span id="setpermission">[setPermission(origin, permissions)](./puppeteer.browser.setpermission.md)</span>
-
+<span id="setpermission">setPermission(origin, permissions)</span>
 </td><td>
-
 </td><td>
-
-Sets the permission for a specific origin in the default [BrowserContext](./puppeteer.browsercontext.md).
-
-**Remarks:**
-
-Shortcut for [browser.defaultBrowserContext().setPermission()](./puppeteer.browsercontext.setpermission.md).
-
+Sets the permission for a specific origin in the default BrowserContext.
+Remarks:
+Shortcut for browser.defaultBrowserContext().setPermission().
 </td></tr>
 <tr><td>
-
-<span id="setwindowbounds">[setWindowBounds(windowId, windowBounds)](./puppeteer.browser.setwindowbounds.md)</span>
-
+<span id="setwindowbounds">setWindowBounds(windowId, windowBounds)</span>
 </td><td>
-
 </td><td>
-
-Sets the specified window [bounds](./puppeteer.windowbounds.md).
-
+Sets the specified window bounds.
 </td></tr>
 <tr><td>
-
-<span id="target">[target()](./puppeteer.browser.target.md)</span>
-
+<span id="target">target()</span>
 </td><td>
-
 </td><td>
-
-Gets the [target](./puppeteer.target.md) associated with the [default browser context](./puppeteer.browser.defaultbrowsercontext.md)).
-
+Gets the target associated with the default browser context).
 </td></tr>
 <tr><td>
-
-<span id="targets">[targets()](./puppeteer.browser.targets.md)</span>
-
+<span id="targets">targets()</span>
 </td><td>
-
 </td><td>
-
-Gets all active [targets](./puppeteer.target.md).
-
-In case of multiple [browser contexts](./puppeteer.browsercontext.md), this returns all [targets](./puppeteer.target.md) in all [browser contexts](./puppeteer.browsercontext.md).
-
+Gets all active targets.
+In case of multiple browser contexts, this returns all targets in all browser contexts.
 </td></tr>
 <tr><td>
-
-<span id="uninstallextension">[uninstallExtension(id)](./puppeteer.browser.uninstallextension.md)</span>
-
+<span id="uninstallextension">uninstallExtension(id)</span>
 </td><td>
-
 </td><td>
-
-Uninstalls an extension. In Chrome, this is only available if the browser was created using `pipe: true` and the `--enable-unsafe-extension-debugging` flag is set.
-
+Uninstalls an extension. In Chrome, this is only available if the browser was created using pipe: true and the --enable-unsafe-extension-debugging flag is set.
 </td></tr>
 <tr><td>
-
-<span id="useragent">[userAgent()](./puppeteer.browser.useragent.md)</span>
-
+<span id="useragent">userAgent()</span>
 </td><td>
-
 </td><td>
-
-Gets this [browser's](./puppeteer.browser.md) original user agent.
-
-[Pages](./puppeteer.page.md) can override the user agent with [Page.setUserAgent()](./puppeteer.page.setuseragent.md#overload-2).
-
+Gets this browser's original user agent.
+Pages can override the user agent with Page.setUserAgent().
 </td></tr>
 <tr><td>
-
-<span id="version">[version()](./puppeteer.browser.version.md)</span>
-
+<span id="version">version()</span>
 </td><td>
-
 </td><td>
-
-Gets a string representing this [browser's](./puppeteer.browser.md) name and version.
-
-For headless browser, this is similar to `"HeadlessChrome/61.0.3153.0"`. For non-headless or new-headless, this is similar to `"Chrome/61.0.3153.0"`. For Firefox, it is similar to `"Firefox/116.0a1"`.
-
-The format of [Browser.version()](./puppeteer.browser.version.md) might change with future releases of browsers.
-
+Gets a string representing this browser's name and version.
+For headless browser, this is similar to "HeadlessChrome/61.0.3153.0". For non-headless or new-headless, this is similar to "Chrome/61.0.3153.0". For Firefox, it is similar to "Firefox/116.0a1".
+The format of Browser.version() might change with future releases of browsers.
 </td></tr>
 <tr><td>
-
-<span id="waitfortarget">[waitForTarget(predicate, options)](./puppeteer.browser.waitfortarget.md)</span>
-
+<span id="waitfortarget">waitForTarget(predicate, options)</span>
 </td><td>
-
 </td><td>
-
-Waits until a [target](./puppeteer.target.md) matching the given `predicate` appears and returns it.
-
-This will look all open [browser contexts](./puppeteer.browsercontext.md).
-
+Waits until a target matching the given predicate appears and returns it.
+This will look all open browser contexts.
 </td></tr>
 <tr><td>
-
-<span id="wsendpoint">[wsEndpoint()](./puppeteer.browser.wsendpoint.md)</span>
-
+<span id="wsendpoint">wsEndpoint()</span>
 </td><td>
-
 </td><td>
-
-Gets the WebSocket URL to connect to this [browser](./puppeteer.browser.md).
-
-This is usually used with [Puppeteer.connect()](./puppeteer.puppeteer.connect.md).
-
-You can find the debugger URL (`webSocketDebuggerUrl`) from `http://HOST:PORT/json/version`.
-
-See [browser endpoint](https://chromedevtools.github.io/devtools-protocol/#how-do-i-access-the-browser-target) for more information.
-
-**Remarks:**
-
-The format is always `ws://HOST:PORT/devtools/browser/<id>`.
-
+Gets the WebSocket URL to connect to this browser.
+This is usually used with Puppeteer.connect().
+You can find the debugger URL (webSocketDebuggerUrl) from http://HOST:PORT/json/version.
+See browser endpoint for more information.
+Remarks:
+The format is always ws://HOST:PORT/devtools/browser/<id>.
 </td></tr>
 </tbody></table>
