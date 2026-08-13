@@ -9,58 +9,55 @@ hide_table_of_contents: true
 
 <img src="https://user-images.githubusercontent.com/10379601/29446482-04f7036a-841f-11e7-9872-91d1fc2ea683.png" height="200" align="right"/>
 
-> Puppeteer is a JavaScript library which provides a high-level API to control
-> Chrome or Firefox over the
-> [DevTools Protocol](https://chromedevtools.github.io/devtools-protocol/) or [WebDriver BiDi](https://pptr.dev/webdriver-bidi).
-> Puppeteer runs in the headless (no visible UI) by default
+> Puppeteer es una biblioteca de JavaScript que proporciona una API de alto nivel para controlar Chrome o Firefox mediante el [Protocolo DevTools](https://chromedevtools.github.io/devtools-protocol/) o [WebDriver BiDi](https://pptr.dev/webdriver-bidi). Se ejecuta en modo sin cabeza (*headless*) de forma predeterminada.
 
-## [Get started](https://pptr.dev/docs) | [API](https://pptr.dev/api) | [FAQ](https://pptr.dev/faq) | [Contributing](https://pptr.dev/contributing) | [Troubleshooting](https://pptr.dev/troubleshooting)
+## [Comenzar](https://pptr.dev/docs) | [API](https://pptr.dev/api) | [FAQ](https://pptr.dev/faq) | [Contribución](https://pptr.dev/contributing) | [Solución de problemas](https://pptr.dev/troubleshooting)
 
-## Installation
+## Instalación
 
 ```bash npm2yarn
-npm i puppeteer # Downloads compatible Chrome during installation.
-npm i puppeteer-core # Alternatively, install as a library, without downloading Chrome.
+npm i puppeteer # Descarga una versión compatible de Chrome durante la instalación.
+npm i puppeteer-core # Opcional: instala solo la biblioteca, sin descargar Chrome.
 ```
 
-## MCP
+## MCP (Model Context Protocol)
 
-Install [`chrome-devtools-mcp`](https://github.com/ChromeDevTools/chrome-devtools-mcp),
-a Puppeteer-based MCP server for browser automation and debugging.
+Instala [`chrome-devtools-mcp`](https://github.com/ChromeDevTools/chrome-devtools-mcp), un servidor MCP basado en Puppeteer diseñado para la automatización y depuración de navegadores.
 
-## Example
+## Ejemplo de uso
 
 ```ts
 import puppeteer from 'puppeteer';
-// Or import puppeteer from 'puppeteer-core';
+// O importa puppeteer-core si gestionas tu propio navegador:
+// import puppeteer from 'puppeteer-core';
 
-// Launch the browser and open a new blank page.
+// Inicia el navegador y abre una nueva página en blanco.
 const browser = await puppeteer.launch();
 const page = await browser.newPage();
 
-// Navigate the page to a URL.
+// Navega hacia una URL.
 await page.goto('https://developer.chrome.com/');
 
-// Set screen size.
+// Configura el tamaño de la ventana gráfica (viewport).
 await page.setViewport({width: 1080, height: 1024});
 
-// Open the search menu using the keyboard.
+// Abre el menú de búsqueda usando el teclado.
 await page.keyboard.press('/');
 
-// Type into search box using accessible input name.
+// Escribe en el cuadro de búsqueda usando selectores de accesibilidad (ARIA).
 await page.locator('::-p-aria(Search)').fill('automate beyond recorder');
 
-// Wait and click on first result.
+// Espera y hace clic en el primer resultado.
 await page.locator('.devsite-result-item-link').click();
 
-// Locate the full title with a unique string.
+// Localiza el título completo mediante una cadena de texto única.
 const textSelector = await page
   .locator('::-p-text(Customize and automate)')
   .waitHandle();
 const fullTitle = await textSelector?.evaluate(el => el.textContent);
 
-// Print the full title.
-console.log('The title of this blog post is "%s".', fullTitle);
+// Muestra el título en consola.
+console.log('El título de esta entrada de blog es "%s".', fullTitle);
 
 await browser.close();
 ```
