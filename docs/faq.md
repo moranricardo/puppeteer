@@ -1,121 +1,74 @@
-# FAQ
+# Preguntas Frecuentes (FAQ)
 
-## Q: Who maintains Puppeteer?
+## P: ¿Quién mantiene Puppeteer?
 
-The Chrome Browser Automation team maintains the library, but we'd love your help and
-expertise on the project! See our
-[contributing guide](https://pptr.dev/contributing).
+El equipo de Automatización de Navegadores de Chrome mantiene la biblioteca, ¡pero agradecemos las contribuciones y la experiencia de la comunidad! Consulta nuestra [guía de contribución](https://pptr.dev/contributing).
 
-## Q: What is the status of cross-browser support?
+## P: ¿Cuál es el estado del soporte multiplataforma/multinavegador?
 
-From Puppeteer v23.0.0 onwards Puppeteer provides support for both Chrome and Firefox.
+Puppeteer ofrece soporte listo para producción tanto para Chrome como para Firefox.
 
-To automate Chrome Puppeteer uses the Chrome DevTools Protocol (CDP) by default, but it can
-also be automated using WebDriver BiDi which is the default for automating Firefox.
+Para automatizar Chrome, Puppeteer utiliza el Protocolo DevTools de Chrome (CDP) por defecto, pero también puede utilizar **WebDriver BiDi** (que es el estándar predeterminado para automatizar Firefox).
 
-To understand the subtle differences in API support refer to our
-[WebDriver BiDi guide](https://pptr.dev/webdriver-bidi).
+Para comprender las sutiles diferencias en el soporte de la API, consulta nuestra [guía de WebDriver BiDi](https://pptr.dev/webdriver-bidi).
 
-## Q: Does Puppeteer support WebDriver BiDi?
+## P: ¿Puppeteer es compatible con WebDriver BiDi?
 
-From Puppeteer v23.0.0 and up Puppeteer has production-ready support for WebDriver BiDi
-to automate both Chrome and Firefox.
+¡Sí! Puppeteer cuenta con soporte listo para producción para WebDriver BiDi, lo que permite automatizar instancias tanto de Chrome como de Firefox.
 
-## Q: Will keep Puppeteer supporting CDP?
+## P: ¿Puppeteer seguirá siendo compatible con CDP?
 
-We are not going to stop supporting automation of Chrome with CDP - despite
-Puppeteer's support for WebDriver BiDi. To not break existing automation relying on CDP,
-but also to keep enabling automation use-cases unique to Chrome and not standardized
-with WebDriver BiDi.
+Sí. Continuamos brindando soporte para la automatización de Chrome a través de CDP junto con WebDriver BiDi. Esto garantiza la compatibilidad con versiones anteriores para las configuraciones existentes, al tiempo que mantiene el acceso a funciones específicas de Chrome que aún no se han estandarizado en WebDriver BiDi.
 
-## Q: What are Puppeteer’s goals and principles?
+## P: ¿Cuáles son los objetivos y principios de Puppeteer?
 
-The goals of the project are:
+Los objetivos principales del proyecto son:
+- Proporcionar una implementación de referencia que destaque las capacidades de [Chrome DevTools Protocol](https://chromedevtools.github.io/devtools-protocol/) y [WebDriver BiDi](https://w3c.github.io/webdriver-bidi/).
+- Expandir la adopción de pruebas automatizadas multinavegador.
+- Probar internamente (*dogfood*) las nuevas funciones de DevTools Protocol y WebDriver BiDi para detectar errores a tiempo.
+- Identificar los puntos de dolor en las pruebas de navegadores automatizados para reducir las brechas funcionales.
 
-- Provide a reference implementation that highlights the capabilities of the
-  [Chrome DevTools](https://chromedevtools.github.io/devtools-protocol/)
-  and [WebDriver BiDi](https://w3c.github.io/webdriver-bidi/) protocols.
-- Grow the adoption of automated cross-browser testing.
-- Help dogfood new DevTools Protocol and WebDriver BiDi features...and catch bugs!
-- Learn more about the pain points of automated browser testing and help fill
-  those gaps.
+Seguimos los principios fundamentales de [Chromium](https://www.chromium.org/developers/core-principles):
+- **Velocidad**: Sobrecarga de rendimiento prácticamente nula sobre una página automatizada.
+- **Seguridad**: Opera fuera del proceso con respecto al navegador, lo que lo hace seguro para inspeccionar páginas no confiables.
+- **Estabilidad**: Evita comportamientos inestables (*flakiness*) y fugas de memoria.
+- **Simplicidad**: Ofrece una API intuitiva de alto nivel que es fácil de usar y depurar.
 
-We adapt
-[Chromium principles](https://www.chromium.org/developers/core-principles) to
-help us drive product decisions:
+## P: ¿Es Puppeteer un reemplazo de Selenium?
 
-- **Speed**: Puppeteer has almost zero performance overhead over an automated
-  page.
-- **Security**: Puppeteer operates off-process with respect to the browser, making
-  it safe to automate potentially malicious pages.
-- **Stability**: Puppeteer should not be flaky and should not leak memory.
-- **Simplicity**: Puppeteer provides a high-level API that’s easy to use,
-  understand, and debug.
+Puppeteer es una implementación de referencia en Node.js para la automatización de navegadores mediante CDP y WebDriver BiDi. 
 
-## Q: Is Puppeteer a replacement for Selenium?
+Selenium ofrece capacidades más amplias en algunas áreas, como enlaces para múltiples lenguajes (Python, Java, C#, etc.) y herramientas de orquestación en red (Selenium Grid).
 
-Puppeteer is a Node.js based reference implementation of how to automate browsers
-with CDP and WebDriver BiDi - the same web standard the Selenium project is also
-contributing to.
+Sin embargo, las integraciones de la comunidad amplían el ecosistema de Puppeteer para entornos de prueba:
+- [jest-puppeteer](https://github.com/argos-ci/jest-puppeteer)
+- [Integración de Angular con Puppeteer](https://pptr.dev/integrations/ng-schematics)
 
-The Selenium project goes beyond what Puppeteer offers in multiple aspects: it provides
-bindings for more languages than just JavaScript and for example it also offers tooling
-to orchestrate automation at large, like Selenium Grid. Both is beyond Puppeteer's scope.
+## P: ¿Por qué Puppeteer v.XXX no funciona con una versión específica de Chrome o Firefox?
 
-There are community projects that add capabilities to Puppeteer beyond its core,
-making things like testing more convenient. For example see:
+Cada versión de Puppeteer está estrechamente acoplada con versiones específicas del navegador para garantizar la compatibilidad con las actualizaciones de los protocolos subyacentes (CDP y WebDriver BiDi).
 
-- [jest-puppeteer](https://github.com/smooth-code/jest-puppeteer) or
-- [Puppeteer's Angular integration](https://pptr.dev/integrations/ng-schematics)
+Esto evita que los cambios en [Chrome](https://pptr.dev/supported-browsers#chrome) o [Firefox](https://pptr.dev/supported-browsers#firefox) rompan de forma inesperada tus suites de prueba.
 
-## Q: Why doesn’t Puppeteer v.XXX work with a certain version of Chrome or Firefox?
+## P: ¿Qué versiones de Chrome y Firefox utiliza Puppeteer?
 
-Every Puppeteer release is tightly bundled with a specific browser release
-to ensure compatibility with the implementation of the underlying protocols,
-the Chrome DevTools Protocol and WebDriver BiDi.
+Consulta las entradas de revisión de `chrome` y `firefox` definidas en [`revisions.ts`](https://github.com/puppeteer/puppeteer/blob/main/packages/puppeteer-core/src/revisions.ts).
 
-This is to prevent changes in either [Chrome](https://pptr.dev/supported-browsers#chrome) or [Firefox](https://pptr.dev/supported-browsers#firefox) from unexpectedly breaking Puppeteer.
+## P: ¿Qué se considera una "Navegación"?
 
-## Q: Which Chrome and Firefox version does Puppeteer use?
+Desde la perspectiva de Puppeteer, una **navegación** es cualquier evento que altera la URL de una página. Esto incluye solicitudes de red estándar, así como [navegaciones por anclas](https://www.w3.org/TR/html5/single-page.html#scroll-to-fragid) y manipulaciones de la [History API](https://developer.mozilla.org/en-US/docs/Web/API/History_API).
 
-Look for the `chrome` and `firefox` entries in
-[revisions.ts](https://github.com/puppeteer/puppeteer/blob/main/packages/puppeteer-core/src/revisions.ts).
+Debido a esto, Puppeteer admite de forma nativa aplicaciones modernas de una sola página (SPA).
 
-## Q: What’s considered a “Navigation”?
+## P: ¿Cuál es la diferencia entre eventos de entrada "confiables" y "no confiables"?
 
-From Puppeteer’s standpoint, **“navigation” is anything that changes a page’s
-URL**. Aside from regular navigation where the browser hits the network to fetch
-a new document from the web server, this includes
-[anchor navigations](https://www.w3.org/TR/html5/single-page.html#scroll-to-fragid)
-and [History API](https://developer.mozilla.org/en-US/docs/Web/API/History_API)
-usage.
+Los eventos de entrada del navegador se dividen en dos categorías:
+- **Eventos confiables (*trusted*)**: Activados por interacciones reales de hardware del usuario (clics de mouse, pulsaciones físicas de teclas).
+- **Eventos no confiables (*untrusted*)**: Generados de forma programática a través de las APIs Web (por ejemplo, `document.createEvent` o métodos `element.click()`).
 
-With this definition of “navigation,” **Puppeteer works seamlessly with
-single-page applications.**
+Los sitios web pueden detectar eventos no confiables a través de [`Event.isTrusted`](https://developer.mozilla.org/en-US/docs/Web/API/Event/isTrusted) o verificaciones de secuencia (por ejemplo, verificar si un `click` fue precedido por `mousedown` y `mouseup`).
 
-## Q: What’s the difference between a “trusted" and "untrusted" input event?
-
-In browsers, input events could be divided into two big groups: trusted vs.
-untrusted.
-
-- **Trusted events**: events generated by users interacting with the page, e.g.
-  using a mouse or keyboard.
-- **Untrusted event**: events generated by Web APIs, e.g. `document.createEvent`
-  or `element.click()` methods.
-
-Websites can distinguish between these two groups:
-
-- using an
-  [`Event.isTrusted`](https://developer.mozilla.org/en-US/docs/Web/API/Event/isTrusted)
-  event flag
-- sniffing for accompanying events. For example, every trusted `'click'` event
-  is preceded by `'mousedown'` and `'mouseup'` events.
-
-For automation purposes it’s important to generate trusted events. **All input
-events generated with Puppeteer are trusted and fire proper accompanying
-events.** If, for some reason, one needs an untrusted event, it’s always
-possible to hop into a page context with `page.evaluate` and generate a fake
-event:
+**Todos los eventos de entrada generados a través de las APIs de Puppeteer son confiables.** Si se necesitan explícitamente eventos no confiables, puedes ejecutarlos dentro del contexto de la página:
 
 ```ts
 await page.evaluate(() => {
@@ -123,23 +76,15 @@ await page.evaluate(() => {
 });
 ```
 
-## Q: Does Puppeteer support media and audio playback?
+## P: ¿Puppeteer es compatible con la reproducción de audio y video?
 
-Puppeteer uses [Chrome for Testing](https://developer.chrome.com/blog/chrome-for-testing/) binaries
-by default which ship with proprietary codecs support starting from
-[M120](https://chromiumdash.appspot.com/commit/12d607016c31ea13579e897740c765be189ed6eb).
+Sí. Puppeteer descarga binarios de [Chrome for Testing](https://developer.chrome.com/blog/chrome-for-testing/) por defecto, los cuales incluyen soporte para códecs de audio/video propietarios.
 
-## Q: I am having trouble installing / running Puppeteer in my test environment. Where should I look for help?
+## P: ¿Cómo soluciono problemas al instalar o ejecutar Puppeteer?
 
-We have a
-[troubleshooting](https://pptr.dev/troubleshooting)
-guide for various operating systems that lists the required dependencies.
+Consulta nuestra [Guía de Solución de Problemas](https://pptr.dev/troubleshooting) oficial para ver las dependencias específicas por plataforma en entornos Linux, macOS y Windows.
 
-## Q: I have more questions! Where do I ask?
+## P: ¿Dónde puedo hacer preguntas adicionales?
 
-There are many ways to get help on Puppeteer:
-
-- For questions: [Stack Overflow](https://stackoverflow.com/questions/tagged/puppeteer)
-- For bug reports: [GitHub Issues](https://github.com/puppeteer/puppeteer/issues)
-
-Make sure to search these channels before posting your question.
+- **Preguntas y ayuda comunitaria**: [Stack Overflow (etiqueta `puppeteer`)](https://stackoverflow.com/questions/tagged/puppeteer)
+- **Reportes de errores y solicitudes de funciones**: [GitHub Issues](https://github.com/puppeteer/puppeteer/issues)
