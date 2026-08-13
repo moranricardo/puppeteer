@@ -1,22 +1,22 @@
-# Supported browsers
+# Navegadores soportados
 
 ## Chrome
 
-Starting with v20.0.0 Puppeteer downloads and works with **[Chrome for Testing](https://github.com/GoogleChromeLabs/chrome-for-testing?tab=readme-ov-file#what-is-chrome-for-testing)**, which supports both headless and headful modes sharing the same code path in the browser.
-The old headless mode is now a separate program called **[chrome-headless-shell](https://developer.chrome.com/blog/chrome-headless-shell)** (use `headless: 'shell'` with Puppeteer).
+A partir de la versión **v20.0.0**, Puppeteer descarga y funciona con **[Chrome for Testing](https://github.com/GoogleChromeLabs/chrome-for-testing?tab=readme-ov-file#what-is-chrome-for-testing)**, el cual soporta tanto el modo *headless* (sin interfaz) como *headful* (con interfaz) compartiendo el mismo flujo de código.
+El antiguo modo *headless* ahora es un programa independiente llamado **[chrome-headless-shell](https://developer.chrome.com/blog/chrome-headless-shell)** (usa `headless: 'shell'` en Puppeteer).
 
-Prior to this version Puppeteer downloaded and worked with Chromium.
+Antes de esta versión, Puppeteer descargaba y funcionaba con Chromium.
 
 ## Firefox
 
-Starting with v23.0.0 Puppeteer downloads and works with the stable release of [Firefox](https://www.mozilla.org/en-US/firefox/).
+A partir de la versión **v23.0.0**, Puppeteer descarga y funciona con la versión estable de [Firefox](https://www.mozilla.org/en-US/firefox/).
 
-Prior to this version Puppeteer downloaded and worked with the nightly versions of Firefox at the time.
+Antes de esta versión, Puppeteer descargaba y funcionaba con las versiones *Nightly* de Firefox.
 
-## Supported browser version list
+## Lista de versiones de navegadores soportadas
 
-The following table provides mapping between the Puppeteer version and the browsers version you can use it with.
-If an exact matching version of Puppeteer isn't listed, the supported version of the browser is that for the immediately prior version:
+La siguiente tabla muestra la relación entre la versión de Puppeteer y las versiones de los navegadores compatibles.
+Si no aparece una versión exacta de Puppeteer, la versión del navegador soportada corresponde a la de la versión inmediatamente anterior:
 
 <!-- version-start -->
 
