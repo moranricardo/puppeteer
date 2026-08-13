@@ -1,29 +1,60 @@
 import json
-import datetime
 import os
+from datetime import datetime
+from zoneinfo import ZoneInfo
+from pathlib import Path
 
-MEMORY_PATH = "/data/data/com.termux/files/home/bot-factory/knowledge/consciencia_log.jsonl"
+# Configuración de zona horaria local
+TZ_TIJUANA = ZoneInfo("America/Tijuana")
+
+def obtener_ruta_memoria():
+    """Obtiene la ruta dinámica de persistencia dentro del proyecto."""
+    base_dir = Path(__file__).resolve().parent.parent
+    log_dir = base_dir / "config"
+    log_dir.mkdir(parents=True, exist_ok=True)
+    return log_dir / "consciencia_log.jsonl"
 
 def recordar(evento, tipo="general"):
-    """Registra un evento con contexto en la memoria indexada."""
+    """Registra un evento con contexto en la memoria indexada usando hora de Tijuana."""
+    memory_path = obtener_ruta_memoria()
     entry = {
-        "timestamp": datetime.datetime.now().isoformat(),
+        "timestamp": datetime.now(TZ_TIJUANA).isoformat(),
         "tipo": tipo,
         "evento": evento
     }
-    with open(MEMORY_PATH, "a") as f:
-        f.write(json.dumps(entry) + "\n")
+    try:
+        with open(memory_path, "a", encoding="utf-8") as f:
+            f.write(json.dumps(entry, ensure_ascii=False) + "\n")
+    except Exception as e:
+        print(f"[-] ERROR guardando memoria: {e}")
 
 def recuperar_ultimos(n=5):
     """Recupera los últimos n eventos de la memoria."""
-    if not os.path.exists(MEMORY_PATH):
+    memory_path = obtener_ruta_memoria()
+    if not memory_path.exists():
         return []
-    with open(MEMORY_PATH, "r") as f:
-        lines = f.readlines()
-        return [json.loads(line) for line in lines[-n:]]
+        
+    try:
+        with open(memory_path, "r", encoding="utf-8") as f:
+            lines = [line.strip() for line in f if line.strip()]
+            
+        recuerdos = []
+        for line in lines[-n:]:
+            try:
+                recuerdos.append(json.loads(line))
+            except json.JSONDecodeError:
+                continue
+        return recuerdos
+    except Exception as e:
+        print(f"[-] ERROR recuperando memoria: {e}")
+        return []
 
 if __name__ == "__main__":
-    # Prueba de lectura cuando se invoca desde el orquestador
+    print("🧠 Consultando registros recientes de la consciencia...")
     recuerdos = recuperar_ultimos(5)
-    for r in recuerdos:
-        print(f"[{r['timestamp']}] ({r['tipo']}): {r['evento']}")
+    
+    if recuerdos:
+        for r in recuerdos:
+            print(f"• [{r.get('timestamp')}] ({r.get('tipo')}): {r.get('evento')}")
+    else:
+        print("ℹ️ No hay registros en la memoria aún.")
