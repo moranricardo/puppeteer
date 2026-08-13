@@ -1,1 +1,17 @@
-{"system": "Ra Pulse", "status": "optimized", "last_clean": "Fri Jul  3 22:12:22 PDT 2026", "active_nodes": ["Gerrit-Client", "Telemetry-Heart", "Agente CustomTools"]}
+{
+  "system": "Ra Pulse",
+  "geometry": "Toroidal",
+  "status": "optimized",
+  "version": "1.2.0",
+  "last_clean": "2026-08-12T17:21:00Z",
+  "active_nodes": [
+    "Toroid-Pulse",
+    "Telemetry-Heart",
+    "Agente CustomTools",
+    "Maat-Security-Guard"
+  ],
+  "telemetry": {
+    "health_check": "passing",
+    "privacy_guard": "active"
+  }
+}
