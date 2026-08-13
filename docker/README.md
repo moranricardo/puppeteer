@@ -1,23 +1,43 @@
-# Dockerfile for Puppeteer
+# Dockerfile para Puppeteer
 
-This directory contains files needed to containerize Puppeteer. The major problem
-that this is solving is the problem of providing all dependencies required to run a
-browser instance.
+Este directorio contiene los archivos de configuración necesarios para contenerizar Puppeteer. Su objetivo principal es proporcionar un entorno Linux completo e aislado con todas las dependencias del sistema requeridas para ejecutar Chrome en modo *headless* sin problemas.
 
-## Building the image
+---
 
-```bash
-docker build -t puppeteer-chrome-linux . # `puppeteer-chrome-linux` is the name of the image.
-```
+## 🛠️ Construir la Imagen
 
-## Running the image
+Para construir la imagen de Docker localmente, ejecuta:
 
-```bash
-docker run -i --init --rm --cap-add=SYS_ADMIN --name puppeteer-chrome puppeteer-chrome-linux node -e "`cat test/smoke-test.js`"
-```
+\`\`\`bash
+docker build -t puppeteer-chrome-linux .
+\`\`\`
 
-`--cap-add=SYS_ADMIN` capability is needed to enable Chrome sandbox that makes the browser more secure. Alternatively, it should be possible to start the browser binary with the `--no-sandbox` flag.
+---
 
-## GitHub Actions
+## 🚀 Ejecutar el Contenedor
 
-The image is automatically built, tested, and published by the [publish.yml](https://github.com/puppeteer/puppeteer/blob/main/.github/workflows/publish.yml) workflow.
+### Opción 1: Con capacidad SYS_ADMIN (Recomendado para el sandbox de Chromium)
+\`\`\`bash
+docker run -i --init --rm --cap-add=SYS_ADMIN --name puppeteer-chrome puppeteer-chrome-linux node -e "\$(cat test/index.js)"
+\`\`\`
+
+### Opción 2: Sin capacidad SYS_ADMIN
+Si ejecutas en entornos donde --cap-add=SYS_ADMIN está restringido, inicia el contenedor pasando el argumento --no-sandbox en la configuración de Puppeteer:
+
+\`\`\`bash
+docker run -i --init --rm --name puppeteer-chrome puppeteer-chrome-linux node -e "\$(cat test/index.js)"
+\`\`\`
+
+---
+
+## ⚙️ Explicación de Banderas Clave
+
+* --init: Inicia un proceso ligero dentro del contenedor para gestionar señales y evitar procesos zombi de Chromium.
+* --cap-add=SYS_ADMIN: Otorga los permisos del kernel necesarios para el aislamiento de seguridad (sandbox) nativo de Chrome.
+* --rm: Elimina automáticamente la instancia del contenedor al salir para no acumular datos basura en el almacenamiento.
+
+---
+
+## ☁️ GitHub Actions e Integración Continua
+
+Esta imagen se construye, prueba mediante *smoke tests* y publica automáticamente en el registro de contenedores a través del flujo de trabajo .github/workflows/publish.yml en cada lanzamiento.
