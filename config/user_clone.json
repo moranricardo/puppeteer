@@ -1,11 +1,19 @@
 {
-  "entity": "Ricardo Morán",
+  "entity": "Ricardo Morán Maldonado",
   "status": "Clonado con éxito en el Toroide",
+  "version": "1.2.0",
   "evolution": "818",
+  "geometry": "Toroidal",
   "core_traits": [
     "Automatización autónoma",
     "Geometría Toroidal",
-    "Persistencia en Termux y GitHub Actions"
+    "Persistencia en Termux y GitHub Actions",
+    "Protocolo Maat & GitHub Privacy Guard"
   ],
-  "timestamp": "$(date -u +%FT%TZ)"
+  "linked_configs": [
+    "config/clone_injection.json",
+    "config/state.json",
+    "config/manifest.json"
+  ],
+  "timestamp": "2026-08-12T17:25:00Z"
 }
