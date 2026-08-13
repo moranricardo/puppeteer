@@ -5,3 +5,4 @@ scripts/tmp.json
 # Python bytecode
 __pycache__/
 *.pyc
+docs/API_COMPLETA.txt
