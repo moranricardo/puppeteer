@@ -18,16 +18,18 @@
     "ai_engine": "Ollama (Llama 3) - Procesamiento Local Agéntico"
   },
   "tech_stack": {
-    "languages": ["Node.js", "Go", "Bash"],
+    "languages": ["Python", "Node.js", "Go", "Bash"],
     "automation": ["Puppeteer", "Playwright", "Octochrome", "didactic-octo-chrome"],
     "infrastructure": ["GitHub Actions (Self-hosted runners)"]
   },
   "knowledge_architecture": {
     "methodology": "P.A.R.A. (Projects, Areas, Resources, Archives)",
-    "telemetry": "state.json (Monitoreo del Pulso Toroidal)",
+    "telemetry": "config/state.json (Monitoreo del Pulso Toroidal)",
+    "manifest": "config/manifest.json",
     "security_protocols": [
       "Protocolo Maat: Filtro estricto contra prefijos maliciosos",
-      "Auditoría Code-Review +2"
+      "Auditoría Code-Review +2",
+      "GitHub Anonymous Commit Privacy Guard"
     ]
   },
   "frequency_vibe": {
