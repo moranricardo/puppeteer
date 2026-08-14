@@ -1,4 +1,4 @@
-name: Release Please - Ciclo de Ra
+name: release-please
 
 on:
   push:
@@ -15,5 +15,5 @@ jobs:
     steps:
       - uses: googleapis/release-please-action@v4
         with:
-          release-type: node
-          target-branch: main
+          token: ${{ secrets.GITHUB_TOKEN }}
+          search-depth: 50
