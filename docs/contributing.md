@@ -1,139 +1,143 @@
-# Contributing
+---
+sidebar_position: 7
+---
 
-First of all, thank you for your interest in Puppeteer! We'd love to accept your patches and contributions!
+# Guía de Contribución (Contributing)
 
-## Contributor License Agreement
+¡Ante todo, gracias por tu interés en Puppeteer! Nos encantaría recibir tus parches y contribuciones.
 
-Contributions to this project must be accompanied by a Contributor License Agreement (CLA). You (or your employer) retain the copyright to your contribution; this simply gives us permission to use and redistribute your contributions as part of the project. Head over to <https://cla.developers.google.com/> to see your current agreements on file or to sign a new one.
+## Acuerdo de Licencia de Colaborador (CLA)
 
-You generally only need to submit a CLA once, so if you've already submitted one (even if it was for a different project), you probably don't need to do it again.
+Las contribuciones a este proyecto deben ir acompañadas de un Acuerdo de Licencia de Colaborador (CLA). Tú (o tu empleador) conservas los derechos de autor de tu contribución; esto simplemente nos da permiso para usar y redistribuir tus aportes como parte del proyecto. Dirígete a <https://cla.developers.google.com/> para consultar tus acuerdos o firmar uno nuevo.
 
-## Getting Started
+Por lo general, solo necesitas enviar un CLA una vez; si ya has enviado uno (incluso para un proyecto diferente), no necesitas hacerlo de nuevo.
 
-1. Clone this repository:
+## Primeros Pasos
+
+1. Clona este repositorio:
 
    ```bash
    git clone https://github.com/puppeteer/puppeteer
    cd puppeteer
    ```
 
-   Or open directly with GitHub Codespaces:
+   O ábrelo directamente en GitHub Codespaces:
 
-   [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://github.com/codespaces/new?hide_repo_select=true&ref=main&repo=90796663&machine=standardLinux32gb&devcontainer_path=.devcontainer%2Fdevcontainer.json)
+   [![Abrir en GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://github.com/codespaces/new?hide_repo_select=true&ref=main&repo=90796663&machine=standardLinux32gb&devcontainer_path=.devcontainer%2Fdevcontainer.json)
 
-2. Install dependencies:
+2. Instala las dependencias:
 
    ```bash
    npm install
-   # Or to download Firefox by default:
+   # O para descargar Firefox por defecto:
    PUPPETEER_BROWSER=firefox npm install
    ```
 
-3. Build all packages:
+3. Compila todos los paquetes:
 
    ```bash
    npm run build
    ```
 
-4. Run all tests:
+4. Ejecuta todas las pruebas:
 
    ```bash
    npm test
    ```
 
-## Building a Single Package
+## Compilar un Paquete Individual
 
-To build a single package within the monorepo:
-
-```bash
-npm run build --workspace <package> # e.g., puppeteer
-```
-
-This will build all dependent packages automatically thanks to [wireit](https://github.com/google/wireit), which behaves similarly to GNU Make.
-
-### Watch Mode
-
-To continuously build a package on file changes:
+Para compilar un solo paquete dentro del monorepositorio:
 
 ```bash
-npm run build --watch --workspace <package> # e.g., puppeteer
+npm run build --workspace <paquete> # ej., puppeteer
 ```
 
-> **Note:** Only specify a single package to watch. `wireit` will automatically rebuild dependent workspaces as needed.
+Esto compilará todos los paquetes dependientes automáticamente gracias a [wireit](https://github.com/google/wireit), que funciona de manera similar a GNU Make.
 
-## Removing Stale Artifacts
+### Modo de Observación (Watch Mode)
 
-Generated artifacts (such as `packages/puppeteer-core/src/types.ts`) can occasionally become stale. To clean build artifacts, run:
+Para compilar continuamente un paquete al detectar cambios en los archivos:
+
+```bash
+npm run build --watch --workspace <paquete> # ej., puppeteer
+```
+
+> **Nota:** Especifica solo un paquete para observar. `wireit` recompilará automáticamente los espacios de trabajo dependientes según sea necesario.
+
+## Limpieza de Artefactos Obsoletos
+
+Los artefactos generados (como `packages/puppeteer-core/src/types.ts`) pueden quedar desactualizados. Para limpiar los artefactos de compilación, ejecuta:
 
 ```bash
 npm run clean
-# Or specify a workspace:
-npm run clean --workspace <package>
+# O especifica un espacio de trabajo:
+npm run clean --workspace <paquete>
 ```
 
-## Comprehensive Testing
+## Pruebas Exhaustivas
 
-In addition to `npm test`, several specific test scripts are available:
+Además de `npm test`, hay varios scripts de prueba específicos disponibles:
 
-- `test-install` - Verifies proper installation and basic functionality of `puppeteer` and `puppeteer-core`.
-- `test-types` - Tests TypeScript definitions using [`tsd`](https://github.com/SamVerschueren/tsd).
-- `test:chrome:**` - Runs tests on Chrome.
-- `test:firefox:**` - Runs tests on Firefox.
-- `unit` - Runs fast unit tests without browser instances.
+- `test-install` - Verifica la correcta instalación y funcionamiento básico de `puppeteer` y `puppeteer-core`.
+- `test-types` - Comprueba las definiciones de TypeScript usando [`tsd`](https://github.com/SamVerschueren/tsd).
+- `test:chrome:**` - Ejecuta pruebas en Chrome.
+- `test:firefox:**` - Ejecuta pruebas en Firefox.
+- `unit` - Ejecuta pruebas unitarias rápidas sin instancias de navegador.
 
-Default execution via `npm test` runs `test:{chrome,firefox}:headless`.
+La ejecución predeterminada mediante `npm test` corre `test:{chrome,firefox}:headless`.
 
-Puppeteer uses a custom test runner on top of Mocha that consults [TestExpectations.json](https://github.com/puppeteer/puppeteer/blob/main/test/TestExpectations.json). See details in [`tools/mocha-runner`](https://github.com/puppeteer/puppeteer/tree/main/tools/mocha-runner).
+Puppeteer utiliza un ejecutor de pruebas personalizado sobre Mocha que consulta [TestExpectations.json](https://github.com/puppeteer/puppeteer/blob/main/test/TestExpectations.json). Consulta más detalles en [`tools/mocha-runner`](https://github.com/puppeteer/puppeteer/tree/main/tools/mocha-runner).
 
-### Unit Tests
+### Pruebas Unitarias
 
-Unit tests execute without launching a full browser instance and leverage the native Node.js test runner:
+Las pruebas unitarias se ejecutan sin iniciar una instancia completa del navegador y utilizan el ejecutor nativo de Node.js:
 
 ```bash
 npm run unit
 ```
 
-## Code Reviews
+## Revisiones de Código
 
-All submissions require code review via GitHub Pull Requests. Please review [GitHub Help](https://help.github.com/articles/about-pull-requests/) if you are unfamiliar with PR workflows.
+Todas las contribuciones requieren revisión de código a través de Pull Requests de GitHub. Si no estás familiarizado con el flujo de trabajo de los PR, consulta la [Ayuda de GitHub](https://help.github.com/articles/about-pull-requests/).
 
-## Code Style
+## Estilo de Código
 
-Our code style is strictly enforced via [ESLint](https://eslint.org/) (`eslint.config.mjs`) and [Prettier](https://prettier.io) (`.prettierrc.cjs`).
+Nuestro estilo de código se aplica estrictamente mediante [ESLint](https://eslint.org/) (`eslint.config.mjs`) y [Prettier](https://prettier.io) (`.prettierrc.cjs`).
 
-Verify your code locally:
+Verifica tu código localmente:
 
 ```bash
 npm run lint
 ```
 
-To automatically fix styling errors:
+Para corregir automáticamente los errores de formato:
 
 ```bash
 npm run format
 ```
 
-## Project Structure
+## Estructura del Proyecto
 
-- `packages/`: Public source code for published packages.
-- `test/`: Integration and end-to-end test suites.
-- `test-d/`: TypeScript type definition tests (`tsd`).
-- `tools/`: Build scripts, CI utilities, and test runner configurations.
+- `packages/`: Código fuente público para los paquetes publicados.
+- `test/`: Suites de pruebas de integración y de extremo a extremo (E2E).
+- `test-d/`: Pruebas de definición de tipos de TypeScript (`tsd`).
+- `tools/`: Scripts de compilación, utilidades CI y configuraciones del runner de pruebas.
 
-## API Guidelines
+## Pautas para la API
 
-When adding new API methods or events:
+Al agregar nuevos métodos o eventos a la API:
 
-- Expose minimal information. When in doubt, defer public exposure.
-- Prefer explicit methods over getters/setters (except for namespace roots like `page.keyboard`).
-- Use lowercase string literals for event names and option values.
-- Avoid utility/sugar APIs that can easily be implemented in user-land unless heavily requested.
+- Expón la menor cantidad de información posible. En caso de duda, pospone su exposición pública.
+- Prefiere métodos explícitos en lugar de getters/setters (excepto para raíces de espacios de nombres como `page.keyboard`).
+- Utiliza literales de cadena en minúsculas para nombres de eventos y valores de opciones.
+- Evita APIs decorativas o utilidades simples que se puedan implementar fácilmente en el código del usuario, a menos que sean muy solicitadas.
 
-## Commit Messages
+## Mensajes de Commit
 
-Commit messages must follow the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/#summary) specification.
+Los mensajes de commit deben seguir la especificación de [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/#summary).
 
-Breaking changes must include `BREAKING CHANGE:` in the footer:
+Los cambios drásticos (*Breaking Changes*) deben incluir `BREAKING CHANGE:` en el pie del mensaje:
 
 ```text
 fix(page): fix page.pizza method
@@ -147,32 +151,32 @@ To deliver to a different location, use the "deliver" option:
   `page.pizza({deliver: 'work'})`.
 ```
 
-## Writing Documentation & TSDoc
+## Documentación y TSDoc
 
-API documentation is generated automatically from TSDoc comments via `npm run docs`. **Do not edit files in `docs/api` manually.**
+La documentación de la API se genera automáticamente a partir de los comentarios TSDoc mediante `npm run docs`. **No edites manualmente los archivos en `docs/api`**.
 
-- Document all public methods using TSDoc comments (`@public` or `@internal`).
-- Keep TSDoc lines under 90 characters.
+- Documenta todos los métodos públicos utilizando comentarios TSDoc (`@public` o `@internal`).
+- Mantén las líneas de TSDoc por debajo de los 90 caracteres.
 
-### Local Documentation Site Setup
+### Configuración Local del Sitio de Documentación
 
-1. Install root dependencies without scripts: `npm i --ignore-scripts`
-2. Generate API docs: `npm run docs`
-3. Install website dependencies: `npm i --prefix website`
-4. Start local site: `npm start --prefix website`
+1. Instala las dependencias raíz sin ejecutar scripts: `npm i --ignore-scripts`
+2. Genera la documentación de la API: `npm run docs`
+3. Instala las dependencias del sitio web: `npm i --prefix website`
+4. Inicia el sitio local: `npm start --prefix website`
 
-## For Project Maintainers
+## Para Mantenedores del Proyecto
 
-### Rolling New Chrome Versions
+### Actualización de Versiones de Chrome
 
-Chrome browser pins are updated automatically via a daily [GitHub Action](https://github.com/puppeteer/puppeteer/actions/workflows/update-browser-pins.yml).
+Las versiones fijadas de Chrome se actualizan automáticamente mediante una [GitHub Action](https://github.com/puppeteer/puppeteer/actions/workflows/update-browser-pins.yml) diaria.
 
-To run manually:
+Para ejecutar la actualización manualmente:
 
 ```bash
 node tools/update_browser_revision.mjs
 ```
 
-### Releasing to npm
+### Publicación en npm
 
-Releases are automated via [Release Please](https://github.com/googleapis/release-please). Merge the automated release Pull Request to publish packages to npm.
+Las publicaciones en npm se automatizan mediante [Release Please](https://github.com/googleapis/release-please). Fusiona (*merge*) el Pull Request automatizado para publicar los paquetes.
