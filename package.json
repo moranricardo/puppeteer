@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
-    "puppeteer-core": "^22.0.0"
+    "puppeteer-core": "^25.7.0"
   },
   "directories": {
     "doc": "docs",

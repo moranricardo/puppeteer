@@ -1,12 +1,50 @@
-import { mkdtemp, unlink, rename } from 'fs/promises';
-import os, { tmpdir } from 'os';
-import path, { join } from 'path';
-import { launch as launch$1, TimeoutError as TimeoutError$1, CDP_WEBSOCKET_ENDPOINT_REGEX, WEBDRIVER_BIDI_WEBSOCKET_ENDPOINT_REGEX, computeExecutablePath, Browser as Browser$1, computeSystemExecutablePath, ChromeReleaseChannel, createProfile, Cache, detectBrowserPlatform, getInstalledBrowsers, resolveBuildId, uninstall } from '@puppeteer/browsers';
-import fs$1, { existsSync } from 'fs';
+import fs, { existsSync } from 'node:fs';
+import path, { join, dirname } from 'node:path';
+import { debuglog } from 'node:util';
+import { mkdtemp, unlink, rename } from 'node:fs/promises';
+import os, { tmpdir } from 'node:os';
+import { launch as launch$1, TimeoutError as TimeoutError$1, CDP_WEBSOCKET_ENDPOINT_REGEX, WEBDRIVER_BIDI_WEBSOCKET_ENDPOINT_REGEX, computeExecutablePath, Browser as Browser$1, ChromeReleaseChannel, computeSystemExecutablePath, createProfile, detectBrowserPlatform, getInstalledBrowsers, resolveBuildId, uninstall } from '@puppeteer/browsers';
 import NodeWebSocket from 'ws';
-import { spawnSync, spawn } from 'child_process';
-import { PassThrough } from 'stream';
-import debug$1 from 'debug';
+import { spawnSync, spawn } from 'node:child_process';
+import { PassThrough } from 'node:stream';
+
+/**
+ * @license
+ * Copyright 2020 Google Inc.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+/**
+ * @internal
+ */
+const isNode = !!(typeof process !== 'undefined' && process.version);
+/**
+ * Holder for environment dependencies. These dependencies cannot
+ * be used during the module instantiation.
+ */
+const environment = {
+    value: {
+        get fs() {
+            throw new Error('fs is not available in this environment');
+        },
+        ScreenRecorder: class {
+            constructor() {
+                throw new Error('ScreenRecorder is not available in this environment');
+            }
+        },
+    },
+};
+
+/**
+ * @license
+ * Copyright 2026 Google Inc.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+environment.value = {
+    fs,
+    path,
+    debuglog,
+    ScreenRecorder: environment.value.ScreenRecorder,
+};
 
 /**
                                Apache License
@@ -213,7 +251,7 @@ import debug$1 from 'debug';
  
 
 */
-// node_modules/tslib/tslib.es6.mjs
+// node_modules/rxjs/node_modules/tslib/tslib.es6.mjs
 var extendStatics = function(d, b) {
   extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
     d2.__proto__ = b2;
@@ -262,8 +300,8 @@ function __generator(thisArg, body) {
   var _ = { label: 0, sent: function() {
     if (t[0] & 1) throw t[1];
     return t[1];
-  }, trys: [], ops: [] }, f, y, t, g;
-  return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() {
+  }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
+  return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() {
     return this;
   }), g;
   function verb(n) {
@@ -370,15 +408,23 @@ function __await(v) {
 function __asyncGenerator(thisArg, _arguments, generator) {
   if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
   var g = generator.apply(thisArg, _arguments || []), i, q = [];
-  return i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function() {
+  return i = Object.create((typeof AsyncIterator === "function" ? AsyncIterator : Object).prototype), verb("next"), verb("throw"), verb("return", awaitReturn), i[Symbol.asyncIterator] = function() {
     return this;
   }, i;
-  function verb(n) {
-    if (g[n]) i[n] = function(v) {
-      return new Promise(function(a, b) {
-        q.push([n, v, a, b]) > 1 || resume(n, v);
-      });
+  function awaitReturn(f) {
+    return function(v) {
+      return Promise.resolve(v).then(f, reject);
     };
+  }
+  function verb(n, f) {
+    if (g[n]) {
+      i[n] = function(v) {
+        return new Promise(function(a, b) {
+          q.push([n, v, a, b]) > 1 || resume(n, v);
+        });
+      };
+      if (f) i[n] = f(i[n]);
+    }
   }
   function resume(n, v) {
     try {
@@ -458,7 +504,7 @@ function arrRemove(arr, item) {
 }
 
 // node_modules/rxjs/dist/esm5/internal/Subscription.js
-var Subscription = function() {
+var Subscription = (function() {
   function Subscription2(initialTeardown) {
     this.initialTeardown = initialTeardown;
     this.closed = false;
@@ -571,13 +617,13 @@ var Subscription = function() {
       teardown._removeParent(this);
     }
   };
-  Subscription2.EMPTY = function() {
+  Subscription2.EMPTY = (function() {
     var empty = new Subscription2();
     empty.closed = true;
     return empty;
-  }();
+  })();
   return Subscription2;
-}();
+})();
 var EMPTY_SUBSCRIPTION = Subscription.EMPTY;
 function isSubscription(value) {
   return value instanceof Subscription || value && "closed" in value && isFunction(value.remove) && isFunction(value.add) && isFunction(value.unsubscribe);
@@ -628,7 +674,7 @@ function errorContext(cb) {
 }
 
 // node_modules/rxjs/dist/esm5/internal/Subscriber.js
-var Subscriber = function(_super) {
+var Subscriber = (function(_super) {
   __extends(Subscriber2, _super);
   function Subscriber2(destination) {
     var _this = _super.call(this) || this;
@@ -688,8 +734,8 @@ var Subscriber = function(_super) {
     }
   };
   return Subscriber2;
-}(Subscription);
-var ConsumerObserver = function() {
+})(Subscription);
+var ConsumerObserver = (function() {
   function ConsumerObserver2(partialObserver) {
     this.partialObserver = partialObserver;
   }
@@ -726,8 +772,8 @@ var ConsumerObserver = function() {
     }
   };
   return ConsumerObserver2;
-}();
-var SafeSubscriber = function(_super) {
+})();
+var SafeSubscriber = (function(_super) {
   __extends(SafeSubscriber2, _super);
   function SafeSubscriber2(observerOrNext, error, complete) {
     var _this = _super.call(this) || this;
@@ -747,7 +793,7 @@ var SafeSubscriber = function(_super) {
     return _this;
   }
   return SafeSubscriber2;
-}(Subscriber);
+})(Subscriber);
 function handleUnhandledError(error) {
   {
     reportUnhandledError(error);
@@ -764,9 +810,9 @@ var EMPTY_OBSERVER = {
 };
 
 // node_modules/rxjs/dist/esm5/internal/symbol/observable.js
-var observable = function() {
+var observable = (function() {
   return typeof Symbol === "function" && Symbol.observable || "@@observable";
-}();
+})();
 
 // node_modules/rxjs/dist/esm5/internal/util/identity.js
 function identity(x) {
@@ -796,7 +842,7 @@ function pipeFromArray(fns) {
 }
 
 // node_modules/rxjs/dist/esm5/internal/Observable.js
-var Observable = function() {
+var Observable = (function() {
   function Observable2(subscribe) {
     if (subscribe) {
       this._subscribe = subscribe;
@@ -875,7 +921,7 @@ var Observable = function() {
     return new Observable2(subscribe);
   };
   return Observable2;
-}();
+})();
 function getPromiseCtor(promiseCtor) {
   var _a;
   return (_a = promiseCtor !== null && promiseCtor !== void 0 ? promiseCtor : config.Promise) !== null && _a !== void 0 ? _a : Promise;
@@ -910,7 +956,7 @@ function operate(init) {
 function createOperatorSubscriber(destination, onNext, onComplete, onError, onFinalize) {
   return new OperatorSubscriber(destination, onNext, onComplete, onError, onFinalize);
 }
-var OperatorSubscriber = function(_super) {
+var OperatorSubscriber = (function(_super) {
   __extends(OperatorSubscriber2, _super);
   function OperatorSubscriber2(destination, onNext, onComplete, onError, onFinalize, shouldUnsubscribe) {
     var _this = _super.call(this, destination) || this;
@@ -952,7 +998,7 @@ var OperatorSubscriber = function(_super) {
     }
   };
   return OperatorSubscriber2;
-}(Subscriber);
+})(Subscriber);
 
 // node_modules/rxjs/dist/esm5/internal/util/ObjectUnsubscribedError.js
 var ObjectUnsubscribedError = createErrorClass(function(_super) {
@@ -964,7 +1010,7 @@ var ObjectUnsubscribedError = createErrorClass(function(_super) {
 });
 
 // node_modules/rxjs/dist/esm5/internal/Subject.js
-var Subject = function(_super) {
+var Subject = (function(_super) {
   __extends(Subject2, _super);
   function Subject2() {
     var _this = _super.call(this) || this;
@@ -1090,8 +1136,8 @@ var Subject = function(_super) {
     return new AnonymousSubject(destination, source);
   };
   return Subject2;
-}(Observable);
-var AnonymousSubject = function(_super) {
+})(Observable);
+var AnonymousSubject = (function(_super) {
   __extends(AnonymousSubject2, _super);
   function AnonymousSubject2(destination, source) {
     var _this = _super.call(this) || this;
@@ -1116,7 +1162,7 @@ var AnonymousSubject = function(_super) {
     return (_b = (_a = this.source) === null || _a === void 0 ? void 0 : _a.subscribe(subscriber)) !== null && _b !== void 0 ? _b : EMPTY_SUBSCRIPTION;
   };
   return AnonymousSubject2;
-}(Subject);
+})(Subject);
 
 // node_modules/rxjs/dist/esm5/internal/scheduler/dateTimestampProvider.js
 var dateTimestampProvider = {
@@ -1127,7 +1173,7 @@ var dateTimestampProvider = {
 };
 
 // node_modules/rxjs/dist/esm5/internal/ReplaySubject.js
-var ReplaySubject = function(_super) {
+var ReplaySubject = (function(_super) {
   __extends(ReplaySubject2, _super);
   function ReplaySubject2(_bufferSize, _windowTime, _timestampProvider) {
     if (_bufferSize === void 0) {
@@ -1185,10 +1231,10 @@ var ReplaySubject = function(_super) {
     }
   };
   return ReplaySubject2;
-}(Subject);
+})(Subject);
 
 // node_modules/rxjs/dist/esm5/internal/scheduler/Action.js
-var Action = function(_super) {
+var Action = (function(_super) {
   __extends(Action2, _super);
   function Action2(scheduler, work) {
     return _super.call(this) || this;
@@ -1197,7 +1243,7 @@ var Action = function(_super) {
     return this;
   };
   return Action2;
-}(Subscription);
+})(Subscription);
 
 // node_modules/rxjs/dist/esm5/internal/scheduler/intervalProvider.js
 var intervalProvider = {
@@ -1215,7 +1261,7 @@ var intervalProvider = {
 };
 
 // node_modules/rxjs/dist/esm5/internal/scheduler/AsyncAction.js
-var AsyncAction = function(_super) {
+var AsyncAction = (function(_super) {
   __extends(AsyncAction2, _super);
   function AsyncAction2(scheduler, work) {
     var _this = _super.call(this, scheduler, work) || this;
@@ -1302,10 +1348,10 @@ var AsyncAction = function(_super) {
     }
   };
   return AsyncAction2;
-}(Action);
+})(Action);
 
 // node_modules/rxjs/dist/esm5/internal/Scheduler.js
-var Scheduler = function() {
+var Scheduler = (function() {
   function Scheduler2(schedulerActionCtor, now) {
     if (now === void 0) {
       now = Scheduler2.now;
@@ -1321,10 +1367,10 @@ var Scheduler = function() {
   };
   Scheduler2.now = dateTimestampProvider.now;
   return Scheduler2;
-}();
+})();
 
 // node_modules/rxjs/dist/esm5/internal/scheduler/AsyncScheduler.js
-var AsyncScheduler = function(_super) {
+var AsyncScheduler = (function(_super) {
   __extends(AsyncScheduler2, _super);
   function AsyncScheduler2(SchedulerAction, now) {
     if (now === void 0) {
@@ -1357,7 +1403,7 @@ var AsyncScheduler = function(_super) {
     }
   };
   return AsyncScheduler2;
-}(Scheduler);
+})(Scheduler);
 
 // node_modules/rxjs/dist/esm5/internal/scheduler/async.js
 var asyncScheduler = new AsyncScheduler(AsyncAction);
@@ -1388,9 +1434,9 @@ function popNumber(args, defaultValue) {
 }
 
 // node_modules/rxjs/dist/esm5/internal/util/isArrayLike.js
-var isArrayLike = function(x) {
+var isArrayLike = (function(x) {
   return x && typeof x.length === "number" && typeof x !== "function";
-};
+});
 
 // node_modules/rxjs/dist/esm5/internal/util/isPromise.js
 function isPromise(value) {
@@ -2363,6 +2409,29 @@ function delayWhen(delayDurationSelector, subscriptionDelay) {
   });
 }
 
+// node_modules/rxjs/dist/esm5/internal/operators/distinctUntilChanged.js
+function distinctUntilChanged(comparator, keySelector) {
+  if (keySelector === void 0) {
+    keySelector = identity;
+  }
+  comparator = comparator !== null && comparator !== void 0 ? comparator : defaultCompare;
+  return operate(function(source, subscriber) {
+    var previousKey;
+    var first2 = true;
+    source.subscribe(createOperatorSubscriber(subscriber, function(value) {
+      var currentKey = keySelector(value);
+      if (first2 || !comparator(previousKey, currentKey)) {
+        first2 = false;
+        previousKey = currentKey;
+        subscriber.next(value);
+      }
+    }));
+  });
+}
+function defaultCompare(a, b) {
+  return a === b;
+}
+
 // node_modules/rxjs/dist/esm5/internal/operators/throwIfEmpty.js
 function throwIfEmpty(errorFactory) {
   if (errorFactory === void 0) {
@@ -2563,6 +2632,93 @@ function tap(observerOrNext, error, complete) {
 }
 
 /**
+ * @license
+ * Copyright 2020 Google Inc.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+/**
+ * @public
+ * @experimental
+ */
+const DEBUG_PREFIXES = {
+    cdpSend: 'puppeteer:protocol:SEND ►',
+    cdpReceive: 'puppeteer:protocol:RECV ◀',
+    bidiSend: 'puppeteer:webDriverBiDi:SEND ►',
+    bidiReceive: 'puppeteer:webDriverBiDi:RECV ◀',
+    error: 'puppeteer:error',
+    ffmpeg: 'puppeteer:ffmpeg',
+};
+/**
+ * A debug function that can be used in any environment.
+ *
+ * @remarks
+ * If used in Node, it falls back to Node's built-in
+ * {@link https://nodejs.org/api/util.html#utildebuglogsection-callback | util.debuglog}. In the browser it
+ * uses `console.log`.
+ *
+ * In Node, use the `NODE_DEBUG` environment variable to control logging:
+ *
+ * ```
+ * NODE_DEBUG=* // logs all channels
+ * NODE_DEBUG=foo // logs the `foo` channel
+ * NODE_DEBUG=foo* // logs any channels starting with `foo`
+ * ```
+ *
+ * In the browser, set `window.__PUPPETEER_DEBUG` to a string:
+ *
+ * ```
+ * window.__PUPPETEER_DEBUG='*'; // logs all channels
+ * window.__PUPPETEER_DEBUG='foo'; // logs the `foo` channel
+ * window.__PUPPETEER_DEBUG='foo*'; // logs any channels starting with `foo`
+ * ```
+ *
+ * @example
+ *
+ * ```
+ * const log = debug(DEBUG_PREFIXES.error);
+ *
+ * log('new page created')
+ * // logs "Page: new page created"
+ * ```
+ *
+ * @param prefix - this will be prefixed to each log.
+ * @returns a function that can be called to log to that debug channel.
+ *
+ * @internal
+ */
+const debug = (prefix) => {
+    if (isNode) {
+        const nodeDebug = environment.value.debuglog?.(prefix);
+        if (!nodeDebug || !nodeDebug.enabled) {
+            return;
+        }
+        return (...logArgs) => {
+            nodeDebug(...logArgs);
+        };
+    }
+    const debugLevel = globalThis.__PUPPETEER_DEBUG;
+    if (!debugLevel) {
+        return;
+    }
+    const everythingShouldBeLogged = debugLevel === '*';
+    const prefixMatchesDebugLevel = everythingShouldBeLogged ||
+        /**
+         * If the debug level is `foo*`, that means we match any prefix that
+         * starts with `foo`. If the level is `foo`, we match only the prefix
+         * `foo`.
+         */
+        (debugLevel.endsWith('*')
+            ? prefix.startsWith(debugLevel.slice(0, -1))
+            : prefix === debugLevel);
+    if (!prefixMatchesDebugLevel) {
+        return;
+    }
+    return (...logArgs) => {
+        console.log(`${prefix}:`, ...logArgs);
+    };
+};
+
+/**
 MIT License
 
 Copyright (c) 2021 Jason Miller
@@ -2586,7 +2742,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
-// ../../node_modules/mitt/dist/mitt.mjs
+// node_modules/mitt/dist/mitt.mjs
 function mitt_default(n) {
   return { all: n = n || /* @__PURE__ */ new Map(), on: function(t, e) {
     var i = n.get(t);
@@ -2612,56 +2768,51 @@ function mitt_default(n) {
 Symbol.dispose ??= Symbol('dispose');
 Symbol.asyncDispose ??= Symbol('asyncDispose');
 /**
- * @internal
+ * @public
  */
 const disposeSymbol = Symbol.dispose;
 /**
- * @internal
+ * @public
  */
 const asyncDisposeSymbol = Symbol.asyncDispose;
 /**
  * @internal
  */
-class DisposableStack {
+class DisposableStackPolyfill {
     #disposed = false;
     #stack = [];
     /**
-     * Returns a value indicating whether this stack has been disposed.
+     * Returns a value indicating whether the stack has been disposed.
      */
     get disposed() {
         return this.#disposed;
     }
     /**
-     * Disposes each resource in the stack in the reverse order that they were added.
+     * Alias for `[Symbol.dispose]()`.
      */
     dispose() {
-        if (this.#disposed) {
-            return;
-        }
-        this.#disposed = true;
-        for (const resource of this.#stack.reverse()) {
-            resource[disposeSymbol]();
-        }
+        this[disposeSymbol]();
     }
     /**
-     * Adds a disposable resource to the stack, returning the resource.
+     * Adds a disposable resource to the top of stack, returning the resource.
+     * Has no effect if provided `null` or `undefined`.
      *
-     * @param value - The resource to add. `null` and `undefined` will not be added,
-     * but will be returned.
+     * @param value - A `Disposable` object, `null`, or `undefined`.
+     * `null` and `undefined` will not be added, but will be returned.
      * @returns The provided `value`.
      */
     use(value) {
-        if (value) {
+        if (value && typeof value[disposeSymbol] === 'function') {
             this.#stack.push(value);
         }
         return value;
     }
     /**
-     * Adds a value and associated disposal callback as a resource to the stack.
+     * Adds a non-disposable resource and a disposal callback to the top of the stack.
      *
-     * @param value - The value to add.
-     * @param onDispose - The callback to use in place of a `[disposeSymbol]()`
-     * method. Will be invoked with `value` as the first parameter.
+     * @param value - A resource to be disposed.
+     * @param onDispose - A callback invoked to dispose the provided value.
+     * Will be invoked with `value` as the first parameter.
      * @returns The provided `value`.
      */
     adopt(value, onDispose) {
@@ -2673,7 +2824,8 @@ class DisposableStack {
         return value;
     }
     /**
-     * Adds a callback to be invoked when the stack is disposed.
+     * Add a disposal callback to the top of the stack to be invoked when stack is disposed.
+     * @param onDispose - A callback to invoke when this object is disposed.
      */
     defer(onDispose) {
         this.#stack.push({
@@ -2685,6 +2837,7 @@ class DisposableStack {
     /**
      * Move all resources out of this stack and into a new `DisposableStack`, and
      * marks this stack as disposed.
+     * @returns The new `DisposableStack`.
      *
      * @example
      *
@@ -2716,59 +2869,102 @@ class DisposableStack {
      */
     move() {
         if (this.#disposed) {
-            throw new ReferenceError('a disposed stack can not use anything new'); // step 3
+            throw new ReferenceError('A disposed stack can not use anything new');
         }
-        const stack = new DisposableStack(); // step 4-5
+        const stack = new DisposableStackPolyfill();
         stack.#stack = this.#stack;
+        this.#stack = [];
         this.#disposed = true;
         return stack;
     }
-    [disposeSymbol] = this.dispose;
+    /**
+     * Disposes each resource in the stack in last-in-first-out (LIFO) manner.
+     */
+    [disposeSymbol]() {
+        if (this.#disposed) {
+            return;
+        }
+        this.#disposed = true;
+        const errors = [];
+        for (const resource of this.#stack.reverse()) {
+            try {
+                resource[disposeSymbol]();
+            }
+            catch (e) {
+                errors.push(e);
+            }
+        }
+        if (errors.length === 1) {
+            throw errors[0];
+        }
+        else if (errors.length > 1) {
+            let suppressed = null;
+            for (const error of errors) {
+                if (suppressed === null) {
+                    suppressed = error;
+                }
+                else {
+                    suppressed = new SuppressedErrorPolyfill(error, suppressed);
+                }
+            }
+            throw suppressed;
+        }
+    }
     [Symbol.toStringTag] = 'DisposableStack';
 }
 /**
  * @internal
  */
-class AsyncDisposableStack {
+const DisposableStack = globalThis.DisposableStack ?? DisposableStackPolyfill;
+/**
+ * @internal
+ */
+class AsyncDisposableStackPolyfill {
     #disposed = false;
     #stack = [];
     /**
-     * Returns a value indicating whether this stack has been disposed.
+     * Returns a value indicating whether the stack has been disposed.
      */
     get disposed() {
         return this.#disposed;
     }
     /**
-     * Disposes each resource in the stack in the reverse order that they were added.
+     * Alias for `[Symbol.asyncDispose]()`.
      */
-    async dispose() {
-        if (this.#disposed) {
-            return;
-        }
-        this.#disposed = true;
-        for (const resource of this.#stack.reverse()) {
-            await resource[asyncDisposeSymbol]();
-        }
+    async disposeAsync() {
+        await this[asyncDisposeSymbol]();
     }
     /**
-     * Adds a disposable resource to the stack, returning the resource.
+     * Adds a AsyncDisposable resource to the top of stack, returning the resource.
+     * Has no effect if provided `null` or `undefined`.
      *
-     * @param value - The resource to add. `null` and `undefined` will not be added,
-     * but will be returned.
+     * @param value - A `AsyncDisposable` object, `null`, or `undefined`.
+     * `null` and `undefined` will not be added, but will be returned.
      * @returns The provided `value`.
      */
     use(value) {
         if (value) {
-            this.#stack.push(value);
+            const asyncDispose = value[asyncDisposeSymbol];
+            const dispose = value[disposeSymbol];
+            if (typeof asyncDispose === 'function') {
+                this.#stack.push(value);
+            }
+            else if (typeof dispose === 'function') {
+                this.#stack.push({
+                    [asyncDisposeSymbol]: async () => {
+                        value[disposeSymbol]();
+                    },
+                });
+            }
         }
         return value;
     }
     /**
-     * Adds a value and associated disposal callback as a resource to the stack.
+     * Adds a non-disposable resource and a disposal callback to the top of the stack.
      *
-     * @param value - The value to add.
-     * @param onDispose - The callback to use in place of a `[disposeSymbol]()`
-     * method. Will be invoked with `value` as the first parameter.
+     * @param value - A resource to be disposed.
+     * @param onDispose - A callback invoked to dispose the provided value.
+     * Will be invoked with `value` as the first parameter.
      * @returns The provided `value`.
      */
     adopt(value, onDispose) {
@@ -2780,7 +2976,8 @@ class AsyncDisposableStack {
         return value;
     }
     /**
-     * Adds a callback to be invoked when the stack is disposed.
+     * Add a disposal callback to the top of the stack to be invoked when stack is disposed.
+     * @param onDispose - A callback to invoke when this object is disposed.
      */
     defer(onDispose) {
         this.#stack.push({
@@ -2792,6 +2989,7 @@ class AsyncDisposableStack {
     /**
      * Move all resources out of this stack and into a new `DisposableStack`, and
      * marks this stack as disposed.
+     * @returns The new `AsyncDisposableStack`.
      *
      * @example
      *
@@ -2823,15 +3021,81 @@ class AsyncDisposableStack {
      */
     move() {
         if (this.#disposed) {
-            throw new ReferenceError('a disposed stack can not use anything new'); // step 3
+            throw new ReferenceError('A disposed stack can not use anything new');
         }
-        const stack = new AsyncDisposableStack(); // step 4-5
+        const stack = new AsyncDisposableStackPolyfill();
         stack.#stack = this.#stack;
+        this.#stack = [];
         this.#disposed = true;
         return stack;
     }
-    [asyncDisposeSymbol] = this.dispose;
+    /**
+     * Disposes each resource in the stack in last-in-first-out (LIFO) manner.
+     */
+    async [asyncDisposeSymbol]() {
+        if (this.#disposed) {
+            return;
+        }
+        this.#disposed = true;
+        const errors = [];
+        for (const resource of this.#stack.reverse()) {
+            try {
+                await resource[asyncDisposeSymbol]();
+            }
+            catch (e) {
+                errors.push(e);
+            }
+        }
+        if (errors.length === 1) {
+            throw errors[0];
+        }
+        else if (errors.length > 1) {
+            let suppressed = null;
+            for (const error of errors) {
+                if (suppressed === null) {
+                    suppressed = error;
+                }
+                else {
+                    suppressed = new SuppressedErrorPolyfill(error, suppressed);
+                }
+            }
+            throw suppressed;
+        }
+    }
     [Symbol.toStringTag] = 'AsyncDisposableStack';
+}
+/**
+ * @internal
+ */
+const AsyncDisposableStack = globalThis.AsyncDisposableStack ?? AsyncDisposableStackPolyfill;
+/**
+ * @internal
+ * Represents an error that occurs when multiple errors are thrown during
+ * the disposal of resources. This class encapsulates the primary error and
+ * any suppressed errors that occurred subsequently.
+ */
+class SuppressedErrorPolyfill extends Error {
+    #error;
+    #suppressed;
+    constructor(error, suppressed, message = 'An error was suppressed during disposal') {
+        super(message);
+        this.name = 'SuppressedError';
+        this.#error = error;
+        this.#suppressed = suppressed;
+    }
+    /**
+     * The primary error that occurred during disposal.
+     */
+    get error() {
+        return this.#error;
+    }
+    /**
+     * The suppressed error i.e. the error that was suppressed
+     * because it occurred later in the flow after the original error.
+     */
+    get suppressed() {
+        return this.#suppressed;
+    }
 }
 
 /**
@@ -2854,13 +3118,15 @@ class AsyncDisposableStack {
 class EventEmitter {
     #emitter;
     #handlers = new Map();
+    #logger;
     /**
      * If you pass an emitter, the returned emitter will wrap the passed emitter.
      *
      * @internal
      */
-    constructor(emitter = mitt_default(new Map())) {
+    constructor(emitter = mitt_default(new Map()), logger) {
         this.#emitter = emitter;
+        this.#logger = logger;
     }
     /**
      * Bind an event listener to fire when an event occurs.
@@ -2947,10 +3213,12 @@ class EventEmitter {
         this[disposeSymbol]();
         return this;
     }
-    /**
-     * @internal
-     */
     [disposeSymbol]() {
+        return void this[asyncDisposeSymbol]().catch(error => {
+            this.#logger?.(DEBUG_PREFIXES.error)?.(error);
+        });
+    }
+    async [asyncDisposeSymbol]() {
         for (const [type, handlers] of this.#handlers) {
             for (const handler of handlers) {
                 this.#emitter.off(type, handler);
@@ -2959,11 +3227,6 @@ class EventEmitter {
         this.#handlers.clear();
     }
 }
-
-/**
- * @internal
- */
-const packageVersion = '22.15.0';
 
 /**
  * @license
@@ -2985,98 +3248,76 @@ const assert = (value, message) => {
 
 /**
  * @license
- * Copyright 2020 Google Inc.
+ * Copyright 2024 Google Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 /**
  * @internal
  */
-const isNode = !!(typeof process !== 'undefined' && process.version);
+function stringToTypedArray(string, base64Encoded = false) {
+    if (base64Encoded) {
+        if ('fromBase64' in Uint8Array) {
+            // @ts-expect-error fromBase64 is newer than the types we use.
+            return Uint8Array.fromBase64(string);
+        }
+        // TODO: remove Buffer in v26 when it becomes LTS.
+        if (typeof Buffer === 'function') {
+            return Buffer.from(string, 'base64');
+        }
+        return Uint8Array.from(atob(string), m => {
+            return m.codePointAt(0);
+        });
+    }
+    return new TextEncoder().encode(string);
+}
+/**
+ * @internal
+ */
+function stringToBase64(str) {
+    return typedArrayToBase64(new TextEncoder().encode(str));
+}
+/**
+ * @internal
+ */
+function typedArrayToBase64(typedArray) {
+    // chunkSize should be less V8 limit on number of arguments!
+    // https://github.com/v8/v8/blob/d3de848bea727518aee94dd2fd42ba0b62037a27/src/objects/code.h#L444
+    const chunkSize = 65534;
+    const chunks = [];
+    for (let i = 0; i < typedArray.length; i += chunkSize) {
+        const chunk = typedArray.subarray(i, i + chunkSize);
+        chunks.push(String.fromCodePoint.apply(null, chunk));
+    }
+    const binaryString = chunks.join('');
+    return btoa(binaryString);
+}
+/**
+ * @internal
+ */
+function mergeUint8Arrays(items) {
+    let length = 0;
+    for (const item of items) {
+        length += item.length;
+    }
+    // Create a new array with total length and merge all source arrays.
+    const result = new Uint8Array(length);
+    let offset = 0;
+    for (const item of items) {
+        result.set(item, offset);
+        offset += item.length;
+    }
+    return result;
+}
 
 /**
  * @license
- * Copyright 2020 Google Inc.
+ * Copyright 2025 Google Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
-/**
- * @internal
- */
-let debugModule = null;
-/**
- * @internal
- */
-async function importDebug() {
-    if (!debugModule) {
-        debugModule = (await import('debug')).default;
-    }
-    return debugModule;
-}
-/**
- * A debug function that can be used in any environment.
- *
- * @remarks
- * If used in Node, it falls back to the
- * {@link https://www.npmjs.com/package/debug | debug module}. In the browser it
- * uses `console.log`.
- *
- * In Node, use the `DEBUG` environment variable to control logging:
- *
- * ```
- * DEBUG=* // logs all channels
- * DEBUG=foo // logs the `foo` channel
- * DEBUG=foo* // logs any channels starting with `foo`
- * ```
- *
- * In the browser, set `window.__PUPPETEER_DEBUG` to a string:
- *
- * ```
- * window.__PUPPETEER_DEBUG='*'; // logs all channels
- * window.__PUPPETEER_DEBUG='foo'; // logs the `foo` channel
- * window.__PUPPETEER_DEBUG='foo*'; // logs any channels starting with `foo`
- * ```
- *
- * @example
- *
- * ```
- * const log = debug('Page');
- *
- * log('new page created')
- * // logs "Page: new page created"
- * ```
- *
- * @param prefix - this will be prefixed to each log.
- * @returns a function that can be called to log to that debug channel.
- *
- * @internal
- */
-const debug = (prefix) => {
-    if (isNode) {
-        return async (...logArgs) => {
-            (await importDebug())(prefix)(logArgs);
-        };
-    }
-    return (...logArgs) => {
-        const debugLevel = globalThis.__PUPPETEER_DEBUG;
-        if (!debugLevel) {
-            return;
-        }
-        const everythingShouldBeLogged = debugLevel === '*';
-        const prefixMatchesDebugLevel = everythingShouldBeLogged ||
-            /**
-             * If the debug level is `foo*`, that means we match any prefix that
-             * starts with `foo`. If the level is `foo`, we match only the prefix
-             * `foo`.
-             */
-            (debugLevel.endsWith('*')
-                ? prefix.startsWith(debugLevel)
-                : prefix === debugLevel);
-        if (!prefixMatchesDebugLevel) {
-            return;
-        }
-        // eslint-disable-next-line no-console
-        console.log(`${prefix}:`, ...logArgs);
-    };
-};
+// If moved update release-please config
+// x-release-please-start-version
+const packageVersion = '25.7.0';
+// x-release-please-end
 
 /**
  * @license
@@ -3114,6 +3355,13 @@ class PuppeteerError extends Error {
  * @public
  */
 class TimeoutError extends PuppeteerError {
+}
+/**
+ * TouchError is thrown when an attempt is made to move or end a touch that does
+ * not exist.
+ * @public
+ */
+class TouchError extends PuppeteerError {
 }
 /**
  * ProtocolError is emitted whenever there is an error from the protocol.
@@ -3157,6 +3405,13 @@ class UnsupportedOperation extends PuppeteerError {
  */
 class TargetCloseError extends ProtocolError {
 }
+/**
+ * Thrown if underlying protocol connection has been closed.
+ *
+ * @public
+ */
+class ConnectionClosedError extends ProtocolError {
+}
 
 /**
  * @license
@@ -3165,19 +3420,55 @@ class TargetCloseError extends ProtocolError {
  */
 /**
  * @internal
+ *
+ * @remarks All A series paper format sizes in inches are calculated from centimeters
+ * rounded mathematically to four decimal places.
  */
 const paperFormats = {
-    letter: { width: 8.5, height: 11 },
-    legal: { width: 8.5, height: 14 },
-    tabloid: { width: 11, height: 17 },
-    ledger: { width: 17, height: 11 },
-    a0: { width: 33.1, height: 46.8 },
-    a1: { width: 23.4, height: 33.1 },
-    a2: { width: 16.54, height: 23.4 },
-    a3: { width: 11.7, height: 16.54 },
-    a4: { width: 8.27, height: 11.7 },
-    a5: { width: 5.83, height: 8.27 },
-    a6: { width: 4.13, height: 5.83 },
+    letter: {
+        cm: { width: 21.59, height: 27.94 },
+        in: { width: 8.5, height: 11 },
+    },
+    legal: {
+        cm: { width: 21.59, height: 35.56 },
+        in: { width: 8.5, height: 14 },
+    },
+    tabloid: {
+        cm: { width: 27.94, height: 43.18 },
+        in: { width: 11, height: 17 },
+    },
+    ledger: {
+        cm: { width: 43.18, height: 27.94 },
+        in: { width: 17, height: 11 },
+    },
+    a0: {
+        cm: { width: 84.1, height: 118.9 },
+        in: { width: 33.1102, height: 46.811 },
+    },
+    a1: {
+        cm: { width: 59.4, height: 84.1 },
+        in: { width: 23.3858, height: 33.1102 },
+    },
+    a2: {
+        cm: { width: 42, height: 59.4 },
+        in: { width: 16.5354, height: 23.3858 },
+    },
+    a3: {
+        cm: { width: 29.7, height: 42 },
+        in: { width: 11.6929, height: 16.5354 },
+    },
+    a4: {
+        cm: { width: 21, height: 29.7 },
+        in: { width: 8.2677, height: 11.6929 },
+    },
+    a5: {
+        cm: { width: 14.8, height: 21 },
+        in: { width: 5.8268, height: 8.2677 },
+    },
+    a6: {
+        cm: { width: 10.5, height: 14.8 },
+        in: { width: 4.1339, height: 5.8268 },
+    },
 };
 
 /**
@@ -3185,10 +3476,6 @@ const paperFormats = {
  * Copyright 2017 Google Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
-/**
- * @internal
- */
-const debugError = debug('puppeteer:error');
 /**
  * @internal
  */
@@ -3297,7 +3584,9 @@ const isDate = (obj) => {
 /**
  * @internal
  */
-function evaluationString(fun, ...args) {
+function evaluationString(
+// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+fun, ...args) {
     if (isString(fun)) {
         assert(args.length === 0, 'Cannot evaluate a string with arguments');
         return fun;
@@ -3313,33 +3602,11 @@ function evaluationString(fun, ...args) {
 /**
  * @internal
  */
-let fs = null;
-/**
- * @internal
- */
-async function importFSPromises() {
-    if (!fs) {
-        try {
-            fs = await import('fs/promises');
-        }
-        catch (error) {
-            if (error instanceof TypeError) {
-                throw new Error('Cannot write to a path outside of a Node-like environment.');
-            }
-            throw error;
-        }
-    }
-    return fs;
-}
-/**
- * @internal
- */
-async function getReadableAsBuffer(readable, path) {
+async function getReadableAsTypedArray(readable, path, logger) {
     const buffers = [];
     const reader = readable.getReader();
     if (path) {
-        const fs = await importFSPromises();
-        const fileHandle = await fs.open(path, 'w+');
+        const fileHandle = await environment.value.fs.promises.open(path, 'w+');
         try {
             while (true) {
                 const { done, value } = await reader.read();
@@ -3364,35 +3631,27 @@ async function getReadableAsBuffer(readable, path) {
         }
     }
     try {
-        return Buffer.concat(buffers);
+        const concat = mergeUint8Arrays(buffers);
+        if (concat.length === 0) {
+            return null;
+        }
+        return concat;
     }
     catch (error) {
-        debugError(error);
+        logger?.(DEBUG_PREFIXES.error)?.(error);
         return null;
     }
 }
 /**
  * @internal
  */
-/**
- * @internal
- */
 async function getReadableFromProtocolStream(client, handle) {
     return new ReadableStream({
         async pull(controller) {
-            function getUnit8Array(data, isBase64) {
-                if (isBase64) {
-                    return Uint8Array.from(atob(data), m => {
-                        return m.codePointAt(0);
-                    });
-                }
-                const encoder = new TextEncoder();
-                return encoder.encode(data);
-            }
             const { data, base64Encoded, eof } = await client.send('IO.read', {
                 handle,
             });
-            controller.enqueue(getUnit8Array(data, base64Encoded ?? false));
+            controller.enqueue(stringToTypedArray(data, base64Encoded ?? false));
             if (eof) {
                 await client.send('IO.close', { handle });
                 controller.close();
@@ -3400,18 +3659,18 @@ async function getReadableFromProtocolStream(client, handle) {
         },
     });
 }
+const VALID_DIALOG_TYPES = new Set([
+    'alert',
+    'confirm',
+    'prompt',
+    'beforeunload',
+]);
 /**
  * @internal
  */
 function validateDialogType(type) {
     let dialogType = null;
-    const validDialogTypes = new Set([
-        'alert',
-        'confirm',
-        'prompt',
-        'beforeunload',
-    ]);
-    if (validDialogTypes.has(type)) {
+    if (VALID_DIALOG_TYPES.has(type)) {
         dialogType = type;
     }
     assert(dialogType, `Unknown javascript dialog type: ${type}`);
@@ -3434,7 +3693,7 @@ const UTILITY_WORLD_NAME = '__puppeteer_utility_world__' + packageVersion;
 /**
  * @internal
  */
-const SOURCE_URL_REGEX = /^[\040\t]*\/\/[@#] sourceURL=\s*(\S*?)\s*$/m;
+const SOURCE_URL_REGEX = /^[\x20\t]*\/\/[@#] sourceURL=\s{0,10}(\S*?)\s{0,10}$/m;
 /**
  * @internal
  */
@@ -3466,7 +3725,7 @@ function parsePDFOptions(options = {}, lengthUnit = 'in') {
     let width = 8.5;
     let height = 11;
     if (options.format) {
-        const format = paperFormats[options.format.toLowerCase()];
+        const format = paperFormats[options.format.toLowerCase()][lengthUnit];
         assert(format, 'Unknown paper format: ' + options.format);
         width = format.width;
         height = format.height;
@@ -3576,33 +3835,27 @@ function filterAsync(predicate) {
 }
 
 /**
- * @license
- * Copyright 2017 Google Inc.
- * SPDX-License-Identifier: Apache-2.0
- */
-/**
  * @internal
  */
 const WEB_PERMISSION_TO_PROTOCOL_PERMISSION = new Map([
+    ['accelerometer', 'sensors'],
+    ['ambient-light-sensor', 'sensors'],
+    ['background-sync', 'backgroundSync'],
+    ['camera', 'videoCapture'],
+    ['clipboard-read', 'clipboardReadWrite'],
+    ['clipboard-sanitized-write', 'clipboardSanitizedWrite'],
+    ['clipboard-write', 'clipboardReadWrite'],
     ['geolocation', 'geolocation'],
+    ['gyroscope', 'sensors'],
+    ['idle-detection', 'idleDetection'],
+    ['keyboard-lock', 'keyboardLock'],
+    ['magnetometer', 'sensors'],
+    ['microphone', 'audioCapture'],
     ['midi', 'midi'],
     ['notifications', 'notifications'],
-    // TODO: push isn't a valid type?
-    // ['push', 'push'],
-    ['camera', 'videoCapture'],
-    ['microphone', 'audioCapture'],
-    ['background-sync', 'backgroundSync'],
-    ['ambient-light-sensor', 'sensors'],
-    ['accelerometer', 'sensors'],
-    ['gyroscope', 'sensors'],
-    ['magnetometer', 'sensors'],
-    ['accessibility-events', 'accessibilityEvents'],
-    ['clipboard-read', 'clipboardReadWrite'],
-    ['clipboard-write', 'clipboardReadWrite'],
-    ['clipboard-sanitized-write', 'clipboardSanitizedWrite'],
     ['payment-handler', 'paymentHandler'],
     ['persistent-storage', 'durableStorage'],
-    ['idle-detection', 'idleDetection'],
+    ['pointer-lock', 'pointerLock'],
     // chrome-specific permissions we have.
     ['midi-sysex', 'midiSysex'],
 ]);
@@ -3646,11 +3899,19 @@ const WEB_PERMISSION_TO_PROTOCOL_PERMISSION = new Map([
  * @public
  */
 class Browser extends EventEmitter {
+    #logger;
     /**
      * @internal
      */
-    constructor() {
-        super();
+    constructor(logger) {
+        super(undefined, logger);
+        this.#logger = logger;
+    }
+    /**
+     * @internal
+     */
+    get logger() {
+        return this.#logger;
     }
     /**
      * Waits until a {@link Target | target} matching the given `predicate`
@@ -3663,27 +3924,29 @@ class Browser extends EventEmitter {
      * ```ts
      * await page.evaluate(() => window.open('https://www.example.com/'));
      * const newWindowTarget = await browser.waitForTarget(
-     *   target => target.url() === 'https://www.example.com/'
+     *   target => target.url() === 'https://www.example.com/',
      * );
      * ```
      */
     async waitForTarget(predicate, options = {}) {
-        const { timeout: ms = 30000 } = options;
-        return await firstValueFrom(merge(fromEmitterEvent(this, "targetcreated" /* BrowserEvent.TargetCreated */), fromEmitterEvent(this, "targetchanged" /* BrowserEvent.TargetChanged */), from(this.targets())).pipe(filterAsync(predicate), raceWith(timeout(ms))));
+        const { timeout: ms = 30000, signal } = options;
+        return await firstValueFrom(merge(fromEmitterEvent(this, "targetcreated" /* BrowserEvent.TargetCreated */), fromEmitterEvent(this, "targetchanged" /* BrowserEvent.TargetChanged */), from(this.targets())).pipe(filterAsync(predicate), raceWith(fromAbortSignal(signal), timeout(ms))));
     }
     /**
      * Gets a list of all open {@link Page | pages} inside this {@link Browser}.
      *
-     * If there ar multiple {@link BrowserContext | browser contexts}, this
+     * If there are multiple {@link BrowserContext | browser contexts}, this
      * returns all {@link Page | pages} in all
      * {@link BrowserContext | browser contexts}.
+     *
+     * @param includeAll - experimental, setting to true includes all kinds of pages.
      *
      * @remarks Non-visible {@link Page | pages}, such as `"background_page"`,
      * will not be listed here. You can find them using {@link Target.page}.
      */
-    async pages() {
+    async pages(includeAll = false) {
         const contextPages = await Promise.all(this.browserContexts().map(context => {
-            return context.pages();
+            return context.pages(includeAll);
         }));
         // Flatten array.
         return contextPages.reduce((acc, x) => {
@@ -3691,26 +3954,83 @@ class Browser extends EventEmitter {
         }, []);
     }
     /**
-     * Whether Puppeteer is connected to this {@link Browser | browser}.
+     * Returns all cookies in the default {@link BrowserContext}.
      *
-     * @deprecated Use {@link Browser | Browser.connected}.
+     * @remarks
+     *
+     * Shortcut for
+     * {@link BrowserContext.cookies | browser.defaultBrowserContext().cookies()}.
      */
-    isConnected() {
-        return this.connected;
+    async cookies() {
+        return await this.defaultBrowserContext().cookies();
     }
-    /** @internal */
+    /**
+     * Sets cookies in the default {@link BrowserContext}.
+     *
+     * @remarks
+     *
+     * Shortcut for
+     * {@link BrowserContext.setCookie | browser.defaultBrowserContext().setCookie()}.
+     */
+    async setCookie(...cookies) {
+        return await this.defaultBrowserContext().setCookie(...cookies);
+    }
+    /**
+     * Removes cookies from the default {@link BrowserContext}.
+     *
+     * @remarks
+     *
+     * Shortcut for
+     * {@link BrowserContext.deleteCookie | browser.defaultBrowserContext().deleteCookie()}.
+     */
+    async deleteCookie(...cookies) {
+        return await this.defaultBrowserContext().deleteCookie(...cookies);
+    }
+    /**
+     * Deletes cookies matching the provided filters from the default
+     * {@link BrowserContext}.
+     *
+     * @remarks
+     *
+     * Shortcut for
+     * {@link BrowserContext.deleteMatchingCookies |
+     * browser.defaultBrowserContext().deleteMatchingCookies()}.
+     */
+    async deleteMatchingCookies(...filters) {
+        return await this.defaultBrowserContext().deleteMatchingCookies(...filters);
+    }
+    /**
+     * Sets the permission for a specific origin in the default
+     * {@link BrowserContext}.
+     *
+     * @remarks
+     *
+     * Shortcut for
+     * {@link BrowserContext.setPermission |
+     * browser.defaultBrowserContext().setPermission()}.
+     *
+     * @param origin - The origin to set the permission for.
+     * @param permission - The permission descriptor.
+     * @param state - The state of the permission.
+     *
+     * @public
+     */
+    async setPermission(origin, ...permissions) {
+        return await this.defaultBrowserContext().setPermission(origin, ...permissions);
+    }
     [disposeSymbol]() {
-        if (this.process()) {
-            return void this.close().catch(debugError);
-        }
-        return void this.disconnect().catch(debugError);
+        return void this[asyncDisposeSymbol]().catch(error => {
+            this.#logger?.(DEBUG_PREFIXES.error)?.(error);
+        });
     }
-    /** @internal */
-    [asyncDisposeSymbol]() {
+    async [asyncDisposeSymbol]() {
         if (this.process()) {
-            return this.close();
+            await this.close();
         }
-        return this.disconnect();
+        else {
+            await this.disconnect();
+        }
+        await super[asyncDisposeSymbol]();
     }
 }
 
@@ -3761,6 +4081,7 @@ class Deferred {
     #value;
     // SAFETY: This is ensured by #taskPromise.
     #resolve;
+    // TODO: Switch to Promise.withResolvers with Node 22
     #taskPromise = new Promise(resolve => {
         this.#resolve = resolve;
     });
@@ -3825,26 +4146,30 @@ class Deferred {
 /**
  * @internal
  */
+class MutexGuard {
+    #mutex;
+    #onRelease;
+    constructor(mutex, onRelease) {
+        this.#mutex = mutex;
+        this.#onRelease = onRelease;
+    }
+    [disposeSymbol]() {
+        this.#onRelease?.();
+        return this.#mutex.release();
+    }
+}
+/**
+ * @internal
+ */
 class Mutex {
-    static Guard = class Guard {
-        #mutex;
-        #onRelease;
-        constructor(mutex, onRelease) {
-            this.#mutex = mutex;
-            this.#onRelease = onRelease;
-        }
-        [disposeSymbol]() {
-            this.#onRelease?.();
-            return this.#mutex.release();
-        }
-    };
+    static Guard = MutexGuard;
     #locked = false;
     #acquirers = [];
     // This is FIFO.
     async acquire(onRelease) {
         if (!this.#locked) {
             this.#locked = true;
-            return new Mutex.Guard(this);
+            return new Mutex.Guard(this, onRelease);
         }
         const deferred = Deferred.create();
         this.#acquirers.push(deferred.resolve.bind(deferred));
@@ -3870,8 +4195,8 @@ class Mutex {
  * {@link BrowserContext} represents individual user contexts within a
  * {@link Browser | browser}.
  *
- * When a {@link Browser | browser} is launched, it has a single
- * {@link BrowserContext | browser context} by default. Others can be created
+ * When a {@link Browser | browser} is launched, it has at least one default
+ * {@link BrowserContext | browser context}. Others can be created
  * using {@link Browser.createBrowserContext}. Each context has isolated storage
  * (cookies/localStorage/etc.)
  *
@@ -3895,17 +4220,32 @@ class Mutex {
  * await context.close();
  * ```
  *
+ * @remarks
+ *
+ * In Chrome all non-default contexts are incognito,
+ * and {@link Browser.defaultBrowserContext | default browser context}
+ * might be incognito if you provide the `--incognito` argument when launching
+ * the browser.
+ *
  * @public
  */
 class BrowserContext extends EventEmitter {
+    #logger;
     /**
      * @internal
      */
-    constructor() {
-        super();
+    constructor(logger) {
+        super(undefined, logger);
+        this.#logger = logger;
     }
     /**
-     * If defined, indicates an ongoing screenshot opereation.
+     * @internal
+     */
+    get logger() {
+        return this.#logger;
+    }
+    /**
+     * If defined, indicates an ongoing screenshot operation.
      */
     #pageScreenshotMutex;
     #screenshotOperationsCount = 0;
@@ -3941,13 +4281,73 @@ class BrowserContext extends EventEmitter {
      * ```ts
      * await page.evaluate(() => window.open('https://www.example.com/'));
      * const newWindowTarget = await browserContext.waitForTarget(
-     *   target => target.url() === 'https://www.example.com/'
+     *   target => target.url() === 'https://www.example.com/',
      * );
      * ```
      */
     async waitForTarget(predicate, options = {}) {
         const { timeout: ms = 30000 } = options;
         return await firstValueFrom(merge(fromEmitterEvent(this, "targetcreated" /* BrowserContextEvent.TargetCreated */), fromEmitterEvent(this, "targetchanged" /* BrowserContextEvent.TargetChanged */), from(this.targets())).pipe(filterAsync(predicate), raceWith(timeout(ms))));
+    }
+    /**
+     * Removes cookie in this browser context.
+     *
+     * @param cookies - Complete {@link Cookie | cookie} object to be removed.
+     */
+    async deleteCookie(...cookies) {
+        return await this.setCookie(...cookies.map(cookie => {
+            return {
+                ...cookie,
+                expires: 1,
+            };
+        }));
+    }
+    /**
+     * Deletes cookies matching the provided filters in this browser context.
+     *
+     * @param filters - {@link DeleteCookiesRequest}
+     */
+    async deleteMatchingCookies(...filters) {
+        const cookies = await this.cookies();
+        const cookiesToDelete = cookies.filter(cookie => {
+            return filters.some(filter => {
+                if (filter.name === cookie.name) {
+                    if (filter.domain !== undefined && filter.domain === cookie.domain) {
+                        return true;
+                    }
+                    if (filter.path !== undefined && filter.path === cookie.path) {
+                        return true;
+                    }
+                    if (filter.partitionKey !== undefined &&
+                        cookie.partitionKey !== undefined) {
+                        if (typeof cookie.partitionKey !== 'object') {
+                            throw new Error('Unexpected string partition key');
+                        }
+                        if (typeof filter.partitionKey === 'string') {
+                            if (filter.partitionKey === cookie.partitionKey?.sourceOrigin) {
+                                return true;
+                            }
+                        }
+                        else {
+                            if (filter.partitionKey.sourceOrigin ===
+                                cookie.partitionKey?.sourceOrigin) {
+                                return true;
+                            }
+                        }
+                    }
+                    if (filter.url !== undefined) {
+                        const url = new URL(filter.url);
+                        if (url.hostname === cookie.domain &&
+                            url.pathname === cookie.path) {
+                            return true;
+                        }
+                    }
+                    return true;
+                }
+                return false;
+            });
+        });
+        await this.deleteCookie(...cookiesToDelete);
     }
     /**
      * Whether this {@link BrowserContext | browser context} is closed.
@@ -3961,13 +4361,14 @@ class BrowserContext extends EventEmitter {
     get id() {
         return undefined;
     }
-    /** @internal */
     [disposeSymbol]() {
-        return void this.close().catch(debugError);
+        return void this[asyncDisposeSymbol]().catch(error => {
+            this.#logger?.(DEBUG_PREFIXES.error)?.(error);
+        });
     }
-    /** @internal */
-    [asyncDisposeSymbol]() {
-        return this.close();
+    async [asyncDisposeSymbol]() {
+        await this.close();
+        await super[asyncDisposeSymbol]();
     }
 }
 
@@ -4010,7 +4411,7 @@ var CDPSessionEvent;
  * const client = await page.createCDPSession();
  * await client.send('Animation.enable');
  * client.on('Animation.animationCreated', () =>
- *   console.log('Animation created!')
+ *   console.log('Animation created!'),
  * );
  * const response = await client.send('Animation.getPlaybackRate');
  * console.log('playback rate is ' + response.playbackRate);
@@ -4040,6 +4441,40 @@ class CDPSession extends EventEmitter {
 
 /**
  * @license
+ * Copyright 2025 Google Inc.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+/**
+ * Device request prompts let you respond to the page requesting for a device
+ * through an API like WebBluetooth.
+ *
+ * @remarks
+ * `DeviceRequestPrompt` instances are returned via the
+ * {@link Page.waitForDevicePrompt} method.
+ *
+ * @example
+ *
+ * ```ts
+ * const [devicePrompt] = Promise.all([
+ *   page.waitForDevicePrompt(),
+ *   page.click('#connect-bluetooth'),
+ * ]);
+ * await devicePrompt.select(
+ *   await devicePrompt.waitForDevice(({name}) => name.includes('My Device')),
+ * );
+ * ```
+ *
+ * @public
+ */
+class DeviceRequestPrompt {
+    /**
+     * Current list of selectable devices.
+     */
+    devices = [];
+}
+
+/**
+ * @license
  * Copyright 2017 Google Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -4053,16 +4488,14 @@ class CDPSession extends EventEmitter {
  * ```ts
  * import puppeteer from 'puppeteer';
  *
- * (async () => {
- *   const browser = await puppeteer.launch();
- *   const page = await browser.newPage();
- *   page.on('dialog', async dialog => {
- *     console.log(dialog.message());
- *     await dialog.dismiss();
- *     await browser.close();
- *   });
- *   page.evaluate(() => alert('1'));
- * })();
+ * const browser = await puppeteer.launch();
+ * const page = await browser.newPage();
+ * page.on('dialog', async dialog => {
+ *   console.log(dialog.message());
+ *   await dialog.dismiss();
+ *   await browser.close();
+ * });
+ * await page.evaluate(() => alert('1'));
  * ```
  *
  * @public
@@ -4071,10 +4504,16 @@ class Dialog {
     #type;
     #message;
     #defaultValue;
+    #handled = false;
     /**
-     * @internal
+     * A boolean value indicating whether the dialog has been handled.
      */
-    handled = false;
+    get handled() {
+        return this.#handled;
+    }
+    set handled(handled) {
+        this.#handled = handled;
+    }
     /**
      * @internal
      */
@@ -4126,6 +4565,35 @@ class Dialog {
         await this.handle({
             accept: false,
         });
+    }
+}
+
+/**
+ * @internal
+ */
+class AsyncIterableUtil {
+    static async *map(iterable, map) {
+        for await (const value of iterable) {
+            yield await map(value);
+        }
+    }
+    static async *flatMap(iterable, map) {
+        for await (const value of iterable) {
+            yield* map(value);
+        }
+    }
+    static async collect(iterable) {
+        const result = [];
+        for await (const value of iterable) {
+            result.push(value);
+        }
+        return result;
+    }
+    static async first(iterable) {
+        for await (const value of iterable) {
+            return value;
+        }
+        return;
     }
 }
 
@@ -4198,32 +4666,24 @@ const createFunction = (functionValue) => {
  */
 function stringifyFunction(fn) {
     let value = fn.toString();
-    try {
-        new Function(`(${value})`);
+    if (value.match(/^(async )*function(\(|\s)/) ||
+        value.match(/^(async )*function\s*\*\s*/)) {
+        return value;
     }
-    catch (err) {
-        if (err.message.includes(`Refused to evaluate a string as JavaScript because 'unsafe-eval' is not an allowed source of script in the following Content Security Policy directive`)) {
-            // The content security policy does not allow Function eval. Let's
-            // assume the value might be valid as is.
-            return value;
-        }
-        // This means we might have a function shorthand (e.g. `test(){}`). Let's
-        // try prefixing.
-        let prefix = 'function ';
-        if (value.startsWith('async ')) {
-            prefix = `async ${prefix}`;
-            value = value.substring('async '.length);
-        }
-        value = `${prefix}${value}`;
-        try {
-            new Function(`(${value})`);
-        }
-        catch {
-            // We tried hard to serialize, but there's a weird beast here.
-            throw new Error('Passed function cannot be serialized!');
-        }
+    const isArrow = value.startsWith('(') ||
+        value.match(/^async\s*\(/) ||
+        value.match(/^(async)*\s*(?:[$_\p{ID_Start}])(?:[$\u200C\u200D\p{ID_Continue}])*\s*=>/u);
+    if (isArrow) {
+        return value;
     }
-    return value;
+    // This means we might have a function shorthand (e.g. `test(){}`). Let's
+    // try prefixing.
+    let prefix = 'function ';
+    if (value.startsWith('async ')) {
+        prefix = `async ${prefix}`;
+        value = value.substring('async '.length);
+    }
+    return `${prefix}${value}`;
 }
 /**
  * Replaces `PLACEHOLDER`s with the given replacements.
@@ -4256,10 +4716,10 @@ const interpolateFunction = (fn, replacements) => {
  * Copyright 2023 Google Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
-var __addDisposableResource$b = (undefined && undefined.__addDisposableResource) || function (env, value, async) {
+var __addDisposableResource$d = (undefined && undefined.__addDisposableResource) || function (env, value, async) {
     if (value !== null && value !== void 0) {
         if (typeof value !== "object" && typeof value !== "function") throw new TypeError("Object expected.");
-        var dispose;
+        var dispose, inner;
         if (async) {
             if (!Symbol.asyncDispose) throw new TypeError("Symbol.asyncDispose is not defined.");
             dispose = value[Symbol.asyncDispose];
@@ -4267,8 +4727,10 @@ var __addDisposableResource$b = (undefined && undefined.__addDisposableResource)
         if (dispose === void 0) {
             if (!Symbol.dispose) throw new TypeError("Symbol.dispose is not defined.");
             dispose = value[Symbol.dispose];
+            if (async) inner = dispose;
         }
         if (typeof dispose !== "function") throw new TypeError("Object not disposable.");
+        if (inner) dispose = function() { try { inner.call(this); } catch (e) { return Promise.reject(e); } };
         env.stack.push({ value: value, dispose: dispose, async: async });
     }
     else if (async) {
@@ -4276,23 +4738,28 @@ var __addDisposableResource$b = (undefined && undefined.__addDisposableResource)
     }
     return value;
 };
-var __disposeResources$b = (undefined && undefined.__disposeResources) || (function (SuppressedError) {
+var __disposeResources$d = (undefined && undefined.__disposeResources) || (function (SuppressedError) {
     return function (env) {
         function fail(e) {
             env.error = env.hasError ? new SuppressedError(e, env.error, "An error was suppressed during disposal.") : e;
             env.hasError = true;
         }
+        var r, s = 0;
         function next() {
-            while (env.stack.length) {
-                var rec = env.stack.pop();
+            while (r = env.stack.pop()) {
                 try {
-                    var result = rec.dispose && rec.dispose.call(rec.value);
-                    if (rec.async) return Promise.resolve(result).then(next, function(e) { fail(e); return next(); });
+                    if (!r.async && s === 1) return s = 0, env.stack.push(r), Promise.resolve().then(next);
+                    if (r.dispose) {
+                        var result = r.dispose.call(r.value);
+                        if (r.async) return s |= 2, Promise.resolve(result).then(next, function(e) { fail(e); return next(); });
+                    }
+                    else s |= 1;
                 }
                 catch (e) {
                     fail(e);
                 }
             }
+            if (s === 1) return env.hasError ? Promise.reject(env.error) : Promise.resolve();
             if (env.hasError) throw env.error;
         }
         return next();
@@ -4312,7 +4779,7 @@ const DEFAULT_BATCH_SIZE = 20;
 async function* fastTransposeIteratorHandle(iterator, size) {
     const env_1 = { stack: [], error: void 0, hasError: false };
     try {
-        const array = __addDisposableResource$b(env_1, await iterator.evaluateHandle(async (iterator, size) => {
+        const array = __addDisposableResource$d(env_1, await iterator.evaluateHandle(async (iterator, size) => {
             const results = [];
             while (results.length < size) {
                 const result = await iterator.next();
@@ -4325,12 +4792,12 @@ async function* fastTransposeIteratorHandle(iterator, size) {
         }, size), false);
         const properties = (await array.getProperties());
         const handles = properties.values();
-        const stack = __addDisposableResource$b(env_1, new DisposableStack(), false);
+        const stack = __addDisposableResource$d(env_1, new DisposableStack(), false);
         stack.defer(() => {
             for (const handle_1 of handles) {
                 const env_2 = { stack: [], error: void 0, hasError: false };
                 try {
-                    const handle = __addDisposableResource$b(env_2, handle_1, false);
+                    const handle = __addDisposableResource$d(env_2, handle_1, false);
                     handle[disposeSymbol]();
                 }
                 catch (e_2) {
@@ -4338,7 +4805,7 @@ async function* fastTransposeIteratorHandle(iterator, size) {
                     env_2.hasError = true;
                 }
                 finally {
-                    __disposeResources$b(env_2);
+                    __disposeResources$d(env_2);
                 }
             }
         });
@@ -4350,7 +4817,7 @@ async function* fastTransposeIteratorHandle(iterator, size) {
         env_1.hasError = true;
     }
     finally {
-        __disposeResources$b(env_1);
+        __disposeResources$d(env_1);
     }
 }
 /**
@@ -4369,7 +4836,7 @@ async function* transposeIteratorHandle(iterator) {
 async function* transposeIterableHandle(handle) {
     const env_3 = { stack: [], error: void 0, hasError: false };
     try {
-        const generatorHandle = __addDisposableResource$b(env_3, await handle.evaluateHandle(iterable => {
+        const generatorHandle = __addDisposableResource$d(env_3, await handle.evaluateHandle(iterable => {
             return (async function* () {
                 yield* iterable;
             })();
@@ -4381,7 +4848,7 @@ async function* transposeIterableHandle(handle) {
         env_3.hasError = true;
     }
     finally {
-        __disposeResources$b(env_3);
+        __disposeResources$d(env_3);
     }
 }
 
@@ -4413,10 +4880,10 @@ class LazyArg {
  * Copyright 2023 Google Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
-var __addDisposableResource$a = (undefined && undefined.__addDisposableResource) || function (env, value, async) {
+var __addDisposableResource$c = (undefined && undefined.__addDisposableResource) || function (env, value, async) {
     if (value !== null && value !== void 0) {
         if (typeof value !== "object" && typeof value !== "function") throw new TypeError("Object expected.");
-        var dispose;
+        var dispose, inner;
         if (async) {
             if (!Symbol.asyncDispose) throw new TypeError("Symbol.asyncDispose is not defined.");
             dispose = value[Symbol.asyncDispose];
@@ -4424,8 +4891,10 @@ var __addDisposableResource$a = (undefined && undefined.__addDisposableResource)
         if (dispose === void 0) {
             if (!Symbol.dispose) throw new TypeError("Symbol.dispose is not defined.");
             dispose = value[Symbol.dispose];
+            if (async) inner = dispose;
         }
         if (typeof dispose !== "function") throw new TypeError("Object not disposable.");
+        if (inner) dispose = function() { try { inner.call(this); } catch (e) { return Promise.reject(e); } };
         env.stack.push({ value: value, dispose: dispose, async: async });
     }
     else if (async) {
@@ -4433,23 +4902,28 @@ var __addDisposableResource$a = (undefined && undefined.__addDisposableResource)
     }
     return value;
 };
-var __disposeResources$a = (undefined && undefined.__disposeResources) || (function (SuppressedError) {
+var __disposeResources$c = (undefined && undefined.__disposeResources) || (function (SuppressedError) {
     return function (env) {
         function fail(e) {
             env.error = env.hasError ? new SuppressedError(e, env.error, "An error was suppressed during disposal.") : e;
             env.hasError = true;
         }
+        var r, s = 0;
         function next() {
-            while (env.stack.length) {
-                var rec = env.stack.pop();
+            while (r = env.stack.pop()) {
                 try {
-                    var result = rec.dispose && rec.dispose.call(rec.value);
-                    if (rec.async) return Promise.resolve(result).then(next, function(e) { fail(e); return next(); });
+                    if (!r.async && s === 1) return s = 0, env.stack.push(r), Promise.resolve().then(next);
+                    if (r.dispose) {
+                        var result = r.dispose.call(r.value);
+                        if (r.async) return s |= 2, Promise.resolve(result).then(next, function(e) { fail(e); return next(); });
+                    }
+                    else s |= 1;
                 }
                 catch (e) {
                     fail(e);
                 }
             }
+            if (s === 1) return env.hasError ? Promise.reject(env.error) : Promise.resolve();
             if (env.hasError) throw env.error;
         }
         return next();
@@ -4508,7 +4982,7 @@ class QueryHandler {
     static async *queryAll(element, selector) {
         const env_1 = { stack: [], error: void 0, hasError: false };
         try {
-            const handle = __addDisposableResource$a(env_1, await element.evaluateHandle(this._querySelectorAll, selector, LazyArg.create(context => {
+            const handle = __addDisposableResource$c(env_1, await element.evaluateHandle(this._querySelectorAll, selector, LazyArg.create(context => {
                 return context.puppeteerUtil;
             })), false);
             yield* transposeIterableHandle(handle);
@@ -4518,7 +4992,7 @@ class QueryHandler {
             env_1.hasError = true;
         }
         finally {
-            __disposeResources$a(env_1);
+            __disposeResources$c(env_1);
         }
     }
     /**
@@ -4529,7 +5003,7 @@ class QueryHandler {
     static async queryOne(element, selector) {
         const env_2 = { stack: [], error: void 0, hasError: false };
         try {
-            const result = __addDisposableResource$a(env_2, await element.evaluateHandle(this._querySelector, selector, LazyArg.create(context => {
+            const result = __addDisposableResource$c(env_2, await element.evaluateHandle(this._querySelector, selector, LazyArg.create(context => {
                 return context.puppeteerUtil;
             })), false);
             if (!(_isElementHandle in result)) {
@@ -4542,7 +5016,7 @@ class QueryHandler {
             env_2.hasError = true;
         }
         finally {
-            __disposeResources$a(env_2);
+            __disposeResources$c(env_2);
         }
     }
     /**
@@ -4556,7 +5030,7 @@ class QueryHandler {
         const env_3 = { stack: [], error: void 0, hasError: false };
         try {
             let frame;
-            const element = __addDisposableResource$a(env_3, await (async () => {
+            const element = __addDisposableResource$c(env_3, await (async () => {
                 if (!(_isElementHandle in elementOrFrame)) {
                     frame = elementOrFrame;
                     return;
@@ -4565,13 +5039,12 @@ class QueryHandler {
                 return await frame.isolatedRealm().adoptHandle(elementOrFrame);
             })(), false);
             const { visible = false, hidden = false, timeout, signal } = options;
-            const polling = options.polling ??
-                (visible || hidden ? "raf" /* PollingOptions.RAF */ : "mutation" /* PollingOptions.MUTATION */);
+            const polling = visible || hidden ? "raf" /* PollingOptions.RAF */ : options.polling;
             try {
                 const env_4 = { stack: [], error: void 0, hasError: false };
                 try {
                     signal?.throwIfAborted();
-                    const handle = __addDisposableResource$a(env_4, await frame.isolatedRealm().waitForFunction(async (PuppeteerUtil, query, selector, root, visible) => {
+                    const handle = __addDisposableResource$c(env_4, await frame.isolatedRealm().waitForFunction(async (PuppeteerUtil, query, selector, root, visible) => {
                         const querySelector = PuppeteerUtil.createFunction(query);
                         const node = await querySelector(root ?? document, selector, PuppeteerUtil);
                         return PuppeteerUtil.checkVisibility(node, visible);
@@ -4596,7 +5069,7 @@ class QueryHandler {
                     env_4.hasError = true;
                 }
                 finally {
-                    __disposeResources$a(env_4);
+                    __disposeResources$c(env_4);
                 }
             }
             catch (error) {
@@ -4606,8 +5079,9 @@ class QueryHandler {
                 if (error.name === 'AbortError') {
                     throw error;
                 }
-                error.message = `Waiting for selector \`${selector}\` failed: ${error.message}`;
-                throw error;
+                const waitForSelectorError = new (error instanceof TimeoutError ? TimeoutError : Error)(`Waiting for selector \`${selector}\` failed`);
+                waitForSelectorError.cause = error;
+                throw waitForSelectorError;
             }
         }
         catch (e_4) {
@@ -4615,37 +5089,8 @@ class QueryHandler {
             env_3.hasError = true;
         }
         finally {
-            __disposeResources$a(env_3);
+            __disposeResources$c(env_3);
         }
-    }
-}
-
-/**
- * @internal
- */
-class AsyncIterableUtil {
-    static async *map(iterable, map) {
-        for await (const value of iterable) {
-            yield await map(value);
-        }
-    }
-    static async *flatMap(iterable, map) {
-        for await (const value of iterable) {
-            yield* map(value);
-        }
-    }
-    static async collect(iterable) {
-        const result = [];
-        for await (const value of iterable) {
-            result.push(value);
-        }
-        return result;
-    }
-    static async first(iterable) {
-        for await (const value of iterable) {
-            return value;
-        }
-        return;
     }
 }
 
@@ -4656,9 +5101,6 @@ class AsyncIterableUtil {
  */
 const isKnownAttribute = (attribute) => {
     return ['name', 'role'].includes(attribute);
-};
-const normalizeValue = (value) => {
-    return value.replace(/ +/g, ' ').trim();
 };
 /**
  * The selectors consist of an accessible name to query for and optionally
@@ -4673,15 +5115,17 @@ const normalizeValue = (value) => {
  */
 const ATTRIBUTE_REGEXP = /\[\s*(?<attribute>\w+)\s*=\s*(?<quote>"|')(?<value>\\.|.*?(?=\k<quote>))\k<quote>\s*\]/g;
 const parseARIASelector = (selector) => {
+    if (selector.length > 10_000) {
+        throw new Error(`Selector ${selector} is too long`);
+    }
     const queryOptions = {};
     const defaultName = selector.replace(ATTRIBUTE_REGEXP, (_, attribute, __, value) => {
-        attribute = attribute.trim();
         assert(isKnownAttribute(attribute), `Unknown aria attribute "${attribute}" in selector`);
-        queryOptions[attribute] = normalizeValue(value);
+        queryOptions[attribute] = value;
         return '';
     });
     if (defaultName && !queryOptions.name) {
-        queryOptions.name = normalizeValue(defaultName);
+        queryOptions.name = defaultName;
     }
     return queryOptions;
 };
@@ -4725,7 +5169,7 @@ class CSSQueryHandler extends QueryHandler {
  *
  * @internal
  */
-const source = "\"use strict\";var g=Object.defineProperty;var X=Object.getOwnPropertyDescriptor;var B=Object.getOwnPropertyNames;var Y=Object.prototype.hasOwnProperty;var l=(t,e)=>{for(var r in e)g(t,r,{get:e[r],enumerable:!0})},J=(t,e,r,o)=>{if(e&&typeof e==\"object\"||typeof e==\"function\")for(let n of B(e))!Y.call(t,n)&&n!==r&&g(t,n,{get:()=>e[n],enumerable:!(o=X(e,n))||o.enumerable});return t};var z=t=>J(g({},\"__esModule\",{value:!0}),t);var pe={};l(pe,{default:()=>he});module.exports=z(pe);var N=class extends Error{constructor(e,r){super(e,r),this.name=this.constructor.name}get[Symbol.toStringTag](){return this.constructor.name}},p=class extends N{};var c=class t{static create(e){return new t(e)}static async race(e){let r=new Set;try{let o=e.map(n=>n instanceof t?(n.#n&&r.add(n),n.valueOrThrow()):n);return await Promise.race(o)}finally{for(let o of r)o.reject(new Error(\"Timeout cleared\"))}}#e=!1;#r=!1;#o;#t;#a=new Promise(e=>{this.#t=e});#n;#i;constructor(e){e&&e.timeout>0&&(this.#i=new p(e.message),this.#n=setTimeout(()=>{this.reject(this.#i)},e.timeout))}#l(e){clearTimeout(this.#n),this.#o=e,this.#t()}resolve(e){this.#r||this.#e||(this.#e=!0,this.#l(e))}reject(e){this.#r||this.#e||(this.#r=!0,this.#l(e))}resolved(){return this.#e}finished(){return this.#e||this.#r}value(){return this.#o}#s;valueOrThrow(){return this.#s||(this.#s=(async()=>{if(await this.#a,this.#r)throw this.#o;return this.#o})()),this.#s}};var L=new Map,F=t=>{let e=L.get(t);return e||(e=new Function(`return ${t}`)(),L.set(t,e),e)};var x={};l(x,{ariaQuerySelector:()=>G,ariaQuerySelectorAll:()=>b});var G=(t,e)=>globalThis.__ariaQuerySelector(t,e),b=async function*(t,e){yield*await globalThis.__ariaQuerySelectorAll(t,e)};var E={};l(E,{cssQuerySelector:()=>K,cssQuerySelectorAll:()=>Z});var K=(t,e)=>t.querySelector(e),Z=function(t,e){return t.querySelectorAll(e)};var A={};l(A,{customQuerySelectors:()=>P});var v=class{#e=new Map;register(e,r){if(!r.queryOne&&r.queryAll){let o=r.queryAll;r.queryOne=(n,i)=>{for(let s of o(n,i))return s;return null}}else if(r.queryOne&&!r.queryAll){let o=r.queryOne;r.queryAll=(n,i)=>{let s=o(n,i);return s?[s]:[]}}else if(!r.queryOne||!r.queryAll)throw new Error(\"At least one query method must be defined.\");this.#e.set(e,{querySelector:r.queryOne,querySelectorAll:r.queryAll})}unregister(e){this.#e.delete(e)}get(e){return this.#e.get(e)}clear(){this.#e.clear()}},P=new v;var R={};l(R,{pierceQuerySelector:()=>ee,pierceQuerySelectorAll:()=>te});var ee=(t,e)=>{let r=null,o=n=>{let i=document.createTreeWalker(n,NodeFilter.SHOW_ELEMENT);do{let s=i.currentNode;s.shadowRoot&&o(s.shadowRoot),!(s instanceof ShadowRoot)&&s!==n&&!r&&s.matches(e)&&(r=s)}while(!r&&i.nextNode())};return t instanceof Document&&(t=t.documentElement),o(t),r},te=(t,e)=>{let r=[],o=n=>{let i=document.createTreeWalker(n,NodeFilter.SHOW_ELEMENT);do{let s=i.currentNode;s.shadowRoot&&o(s.shadowRoot),!(s instanceof ShadowRoot)&&s!==n&&s.matches(e)&&r.push(s)}while(i.nextNode())};return t instanceof Document&&(t=t.documentElement),o(t),r};var u=(t,e)=>{if(!t)throw new Error(e)};var y=class{#e;#r;#o;#t;constructor(e,r){this.#e=e,this.#r=r}async start(){let e=this.#t=c.create(),r=await this.#e();if(r){e.resolve(r);return}this.#o=new MutationObserver(async()=>{let o=await this.#e();o&&(e.resolve(o),await this.stop())}),this.#o.observe(this.#r,{childList:!0,subtree:!0,attributes:!0})}async stop(){u(this.#t,\"Polling never started.\"),this.#t.finished()||this.#t.reject(new Error(\"Polling stopped\")),this.#o&&(this.#o.disconnect(),this.#o=void 0)}result(){return u(this.#t,\"Polling never started.\"),this.#t.valueOrThrow()}},w=class{#e;#r;constructor(e){this.#e=e}async start(){let e=this.#r=c.create(),r=await this.#e();if(r){e.resolve(r);return}let o=async()=>{if(e.finished())return;let n=await this.#e();if(!n){window.requestAnimationFrame(o);return}e.resolve(n),await this.stop()};window.requestAnimationFrame(o)}async stop(){u(this.#r,\"Polling never started.\"),this.#r.finished()||this.#r.reject(new Error(\"Polling stopped\"))}result(){return u(this.#r,\"Polling never started.\"),this.#r.valueOrThrow()}},T=class{#e;#r;#o;#t;constructor(e,r){this.#e=e,this.#r=r}async start(){let e=this.#t=c.create(),r=await this.#e();if(r){e.resolve(r);return}this.#o=setInterval(async()=>{let o=await this.#e();o&&(e.resolve(o),await this.stop())},this.#r)}async stop(){u(this.#t,\"Polling never started.\"),this.#t.finished()||this.#t.reject(new Error(\"Polling stopped\")),this.#o&&(clearInterval(this.#o),this.#o=void 0)}result(){return u(this.#t,\"Polling never started.\"),this.#t.valueOrThrow()}};var _={};l(_,{PCombinator:()=>H,pQuerySelector:()=>fe,pQuerySelectorAll:()=>$});var a=class{static async*map(e,r){for await(let o of e)yield await r(o)}static async*flatMap(e,r){for await(let o of e)yield*r(o)}static async collect(e){let r=[];for await(let o of e)r.push(o);return r}static async first(e){for await(let r of e)return r}};var C={};l(C,{textQuerySelectorAll:()=>m});var re=new Set([\"checkbox\",\"image\",\"radio\"]),oe=t=>t instanceof HTMLSelectElement||t instanceof HTMLTextAreaElement||t instanceof HTMLInputElement&&!re.has(t.type),ne=new Set([\"SCRIPT\",\"STYLE\"]),f=t=>!ne.has(t.nodeName)&&!document.head?.contains(t),I=new WeakMap,j=t=>{for(;t;)I.delete(t),t instanceof ShadowRoot?t=t.host:t=t.parentNode},W=new WeakSet,se=new MutationObserver(t=>{for(let e of t)j(e.target)}),d=t=>{let e=I.get(t);if(e||(e={full:\"\",immediate:[]},!f(t)))return e;let r=\"\";if(oe(t))e.full=t.value,e.immediate.push(t.value),t.addEventListener(\"input\",o=>{j(o.target)},{once:!0,capture:!0});else{for(let o=t.firstChild;o;o=o.nextSibling){if(o.nodeType===Node.TEXT_NODE){e.full+=o.nodeValue??\"\",r+=o.nodeValue??\"\";continue}r&&e.immediate.push(r),r=\"\",o.nodeType===Node.ELEMENT_NODE&&(e.full+=d(o).full)}r&&e.immediate.push(r),t instanceof Element&&t.shadowRoot&&(e.full+=d(t.shadowRoot).full),W.has(t)||(se.observe(t,{childList:!0,characterData:!0,subtree:!0}),W.add(t))}return I.set(t,e),e};var m=function*(t,e){let r=!1;for(let o of t.childNodes)if(o instanceof Element&&f(o)){let n;o.shadowRoot?n=m(o.shadowRoot,e):n=m(o,e);for(let i of n)yield i,r=!0}r||t instanceof Element&&f(t)&&d(t).full.includes(e)&&(yield t)};var k={};l(k,{checkVisibility:()=>le,pierce:()=>S,pierceAll:()=>O});var ie=[\"hidden\",\"collapse\"],le=(t,e)=>{if(!t)return e===!1;if(e===void 0)return t;let r=t.nodeType===Node.TEXT_NODE?t.parentElement:t,o=window.getComputedStyle(r),n=o&&!ie.includes(o.visibility)&&!ae(r);return e===n?t:!1};function ae(t){let e=t.getBoundingClientRect();return e.width===0||e.height===0}var ce=t=>\"shadowRoot\"in t&&t.shadowRoot instanceof ShadowRoot;function*S(t){ce(t)?yield t.shadowRoot:yield t}function*O(t){t=S(t).next().value,yield t;let e=[document.createTreeWalker(t,NodeFilter.SHOW_ELEMENT)];for(let r of e){let o;for(;o=r.nextNode();)o.shadowRoot&&(yield o.shadowRoot,e.push(document.createTreeWalker(o.shadowRoot,NodeFilter.SHOW_ELEMENT)))}}var Q={};l(Q,{xpathQuerySelectorAll:()=>q});var q=function*(t,e,r=-1){let n=(t.ownerDocument||document).evaluate(e,t,null,XPathResult.ORDERED_NODE_ITERATOR_TYPE),i=[],s;for(;(s=n.iterateNext())&&(i.push(s),!(r&&i.length===r)););for(let h=0;h<i.length;h++)s=i[h],yield s,delete i[h]};var ue=/[-\\w\\P{ASCII}*]/,H=(r=>(r.Descendent=\">>>\",r.Child=\">>>>\",r))(H||{}),V=t=>\"querySelectorAll\"in t,M=class{#e;#r=[];#o=void 0;elements;constructor(e,r){this.elements=[e],this.#e=r,this.#t()}async run(){if(typeof this.#o==\"string\")switch(this.#o.trimStart()){case\":scope\":this.#t();break}for(;this.#o!==void 0;this.#t()){let e=this.#o;typeof e==\"string\"?e[0]&&ue.test(e[0])?this.elements=a.flatMap(this.elements,async function*(r){V(r)&&(yield*r.querySelectorAll(e))}):this.elements=a.flatMap(this.elements,async function*(r){if(!r.parentElement){if(!V(r))return;yield*r.querySelectorAll(e);return}let o=0;for(let n of r.parentElement.children)if(++o,n===r)break;yield*r.parentElement.querySelectorAll(`:scope>:nth-child(${o})${e}`)}):this.elements=a.flatMap(this.elements,async function*(r){switch(e.name){case\"text\":yield*m(r,e.value);break;case\"xpath\":yield*q(r,e.value);break;case\"aria\":yield*b(r,e.value);break;default:let o=P.get(e.name);if(!o)throw new Error(`Unknown selector type: ${e.name}`);yield*o.querySelectorAll(r,e.value)}})}}#t(){if(this.#r.length!==0){this.#o=this.#r.shift();return}if(this.#e.length===0){this.#o=void 0;return}let e=this.#e.shift();switch(e){case\">>>>\":{this.elements=a.flatMap(this.elements,S),this.#t();break}case\">>>\":{this.elements=a.flatMap(this.elements,O),this.#t();break}default:this.#r=e,this.#t();break}}},D=class{#e=new WeakMap;calculate(e,r=[]){if(e===null)return r;e instanceof ShadowRoot&&(e=e.host);let o=this.#e.get(e);if(o)return[...o,...r];let n=0;for(let s=e.previousSibling;s;s=s.previousSibling)++n;let i=this.calculate(e.parentNode,[n]);return this.#e.set(e,i),[...i,...r]}},U=(t,e)=>{if(t.length+e.length===0)return 0;let[r=-1,...o]=t,[n=-1,...i]=e;return r===n?U(o,i):r<n?-1:1},de=async function*(t){let e=new Set;for await(let o of t)e.add(o);let r=new D;yield*[...e.values()].map(o=>[o,r.calculate(o)]).sort(([,o],[,n])=>U(o,n)).map(([o])=>o)},$=function(t,e){let r=JSON.parse(e);if(r.some(o=>{let n=0;return o.some(i=>(typeof i==\"string\"?++n:n=0,n>1))}))throw new Error(\"Multiple deep combinators found in sequence.\");return de(a.flatMap(r,o=>{let n=new M(t,o);return n.run(),n.elements}))},fe=async function(t,e){for await(let r of $(t,e))return r;return null};var me=Object.freeze({...x,...A,...R,..._,...C,...k,...Q,...E,Deferred:c,createFunction:F,createTextContent:d,IntervalPoller:T,isSuitableNodeForTextMatching:f,MutationPoller:y,RAFPoller:w}),he=me;\n";
+const source = "\"use strict\";var N=Object.defineProperty;var B=Object.getOwnPropertyDescriptor;var Y=Object.getOwnPropertyNames;var G=Object.prototype.hasOwnProperty;var l=(t,e)=>{for(var r in e)N(t,r,{get:e[r],enumerable:!0})},J=(t,e,r,o)=>{if(e&&typeof e==\"object\"||typeof e==\"function\")for(let n of Y(e))!G.call(t,n)&&n!==r&&N(t,n,{get:()=>e[n],enumerable:!(o=B(e,n))||o.enumerable});return t};var z=t=>J(N({},\"__esModule\",{value:!0}),t);var ye={};l(ye,{default:()=>pe});module.exports=z(ye);var b=class extends Error{constructor(e,r){super(e,r),this.name=this.constructor.name}get[Symbol.toStringTag](){return this.constructor.name}},p=class extends b{};var c=class t{static create(e){return new t(e)}static async race(e){let r=new Set;try{let o=e.map(n=>n instanceof t?(n.#n&&r.add(n),n.valueOrThrow()):n);return await Promise.race(o)}finally{for(let o of r)o.reject(new Error(\"Timeout cleared\"))}}#e=!1;#r=!1;#o;#t;#a=new Promise(e=>{this.#t=e});#n;#i;constructor(e){e&&e.timeout>0&&(this.#i=new p(e.message),this.#n=setTimeout(()=>{this.reject(this.#i)},e.timeout))}#l(e){clearTimeout(this.#n),this.#o=e,this.#t()}resolve(e){this.#r||this.#e||(this.#e=!0,this.#l(e))}reject(e){this.#r||this.#e||(this.#r=!0,this.#l(e))}resolved(){return this.#e}finished(){return this.#e||this.#r}value(){return this.#o}#s;valueOrThrow(){return this.#s||(this.#s=(async()=>{if(await this.#a,this.#r)throw this.#o;return this.#o})()),this.#s}};var W=new Map,j=t=>{let e=W.get(t);return e||(e=new Function(`return ${t}`)(),W.set(t,e),e)};var v={};l(v,{ariaQuerySelector:()=>K,ariaQuerySelectorAll:()=>x});var K=(t,e)=>globalThis.__ariaQuerySelector(t,e),x=async function*(t,e){yield*await globalThis.__ariaQuerySelectorAll(t,e)};var E={};l(E,{cssQuerySelector:()=>Z,cssQuerySelectorAll:()=>ee});var Z=(t,e)=>t.querySelector(e),ee=function(t,e){return t.querySelectorAll(e)};var A={};l(A,{CustomQuerySelectorRegistry:()=>y,customQuerySelectors:()=>P});var y=class{#e=new Map;register(e,r){if(!r.queryOne&&r.queryAll){let o=r.queryAll;r.queryOne=(n,i)=>{for(let s of o(n,i))return s;return null}}else if(r.queryOne&&!r.queryAll){let o=r.queryOne;r.queryAll=(n,i)=>{let s=o(n,i);return s?[s]:[]}}else if(!r.queryOne||!r.queryAll)throw new Error(\"At least one query method must be defined.\");this.#e.set(e,{querySelector:r.queryOne,querySelectorAll:r.queryAll})}unregister(e){this.#e.delete(e)}get(e){return this.#e.get(e)}clear(){this.#e.clear()}},P=new y;var R={};l(R,{pierceQuerySelector:()=>te,pierceQuerySelectorAll:()=>re});var te=(t,e)=>{let r=null,o=n=>{let i=document.createTreeWalker(n,NodeFilter.SHOW_ELEMENT);do{let s=i.currentNode;s.shadowRoot&&o(s.shadowRoot),!(s instanceof ShadowRoot)&&s!==n&&!r&&s.matches(e)&&(r=s)}while(!r&&i.nextNode())};return t instanceof Document&&(t=t.documentElement),o(t),r},re=(t,e)=>{let r=[],o=n=>{let i=document.createTreeWalker(n,NodeFilter.SHOW_ELEMENT);do{let s=i.currentNode;s.shadowRoot&&o(s.shadowRoot),!(s instanceof ShadowRoot)&&s!==n&&s.matches(e)&&r.push(s)}while(i.nextNode())};return t instanceof Document&&(t=t.documentElement),o(t),r};var u=(t,e)=>{if(!t)throw new Error(e)};var w=class{#e;#r;#o;#t;constructor(e,r){this.#e=e,this.#r=r}async start(){let e=this.#t=c.create(),r=await this.#e();if(r){e.resolve(r);return}this.#o=new MutationObserver(async()=>{let o=await this.#e();o&&(e.resolve(o),await this.stop())}),this.#o.observe(this.#r,{childList:!0,subtree:!0,attributes:!0})}async stop(){u(this.#t,\"Polling never started.\"),this.#t.finished()||this.#t.reject(new Error(\"Polling stopped\")),this.#o&&(this.#o.disconnect(),this.#o=void 0)}result(){return u(this.#t,\"Polling never started.\"),this.#t.valueOrThrow()}},T=class{#e;#r;constructor(e){this.#e=e}async start(){let e=this.#r=c.create(),r=await this.#e();if(r){e.resolve(r);return}let o=async()=>{if(e.finished())return;let n=await this.#e();if(!n){window.requestAnimationFrame(o);return}e.resolve(n),await this.stop()};window.requestAnimationFrame(o)}async stop(){u(this.#r,\"Polling never started.\"),this.#r.finished()||this.#r.reject(new Error(\"Polling stopped\"))}result(){return u(this.#r,\"Polling never started.\"),this.#r.valueOrThrow()}},S=class{#e;#r;#o;#t;constructor(e,r){this.#e=e,this.#r=r}async start(){let e=this.#t=c.create(),r=await this.#e();if(r){e.resolve(r);return}this.#o=setInterval(async()=>{let o=await this.#e();o&&(e.resolve(o),await this.stop())},this.#r)}async stop(){u(this.#t,\"Polling never started.\"),this.#t.finished()||this.#t.reject(new Error(\"Polling stopped\")),this.#o&&(clearInterval(this.#o),this.#o=void 0)}result(){return u(this.#t,\"Polling never started.\"),this.#t.valueOrThrow()}};var L={};l(L,{PCombinator:()=>U,pQuerySelector:()=>me,pQuerySelectorAll:()=>X});var a=class{static async*map(e,r){for await(let o of e)yield await r(o)}static async*flatMap(e,r){for await(let o of e)yield*r(o)}static async collect(e){let r=[];for await(let o of e)r.push(o);return r}static async first(e){for await(let r of e)return r}};var O={};l(O,{textQuerySelectorAll:()=>m});var oe=new Set([\"checkbox\",\"image\",\"radio\"]),ne=t=>t instanceof HTMLSelectElement||t instanceof HTMLTextAreaElement||t instanceof HTMLInputElement&&!oe.has(t.type),se=new Set([\"SCRIPT\",\"STYLE\"]),f=t=>!se.has(t.nodeName)&&!document.head?.contains(t),C=new WeakMap,V=t=>{for(;t;)C.delete(t),t instanceof ShadowRoot?t=t.host:t=t.parentNode},F=new WeakSet,I,ie=()=>{let t=globalThis.MutationObserver;if(!t)throw new Error(\"MutationObserver is not available in this environment.\");return I||(I=new t(e=>{for(let r of e)V(r.target)})),I},d=t=>{let e=C.get(t);if(e||(e={full:\"\",immediate:[]},!f(t)))return e;let r=\"\";if(ne(t))e.full=t.value,e.immediate.push(t.value),t.addEventListener(\"input\",o=>{V(o.target)},{once:!0,capture:!0});else{for(let o=t.firstChild;o;o=o.nextSibling){if(o.nodeType===Node.TEXT_NODE){e.full+=o.nodeValue??\"\",r+=o.nodeValue??\"\";continue}r&&e.immediate.push(r),r=\"\",o.nodeType===Node.ELEMENT_NODE&&(e.full+=d(o).full)}r&&e.immediate.push(r),t instanceof Element&&t.shadowRoot&&(e.full+=d(t.shadowRoot).full),F.has(t)||(ie().observe(t,{childList:!0,characterData:!0,subtree:!0}),F.add(t))}return C.set(t,e),e};var m=function*(t,e){let r=!1;for(let o of t.childNodes)if(o instanceof Element&&f(o)){let n;o.shadowRoot?n=m(o.shadowRoot,e):n=m(o,e);for(let i of n)yield i,r=!0}r||t instanceof Element&&f(t)&&d(t).full.includes(e)&&(yield t)};var M={};l(M,{checkVisibility:()=>ae,pierce:()=>g,pierceAll:()=>k});var le=[\"hidden\",\"collapse\"],ae=(t,e)=>{if(!t)return e===!1;if(e===void 0)return t;let r=t.nodeType===Node.TEXT_NODE?t.parentElement:t;if(!r)return e===!1;let o=window.getComputedStyle(r),n=o&&!le.includes(o.visibility)&&!ce(r);return e===n?t:!1};function ce(t){let e=t.getBoundingClientRect();return e.width===0||e.height===0}var ue=t=>\"shadowRoot\"in t&&t.shadowRoot instanceof ShadowRoot;function*g(t){ue(t)?yield t.shadowRoot:yield t}function*k(t){t=g(t).next().value,yield t;let e=[document.createTreeWalker(t,NodeFilter.SHOW_ELEMENT)];for(let r of e){let o;for(;o=r.nextNode();)o.shadowRoot&&(yield o.shadowRoot,e.push(document.createTreeWalker(o.shadowRoot,NodeFilter.SHOW_ELEMENT)))}}var D={};l(D,{xpathQuerySelectorAll:()=>q});var q=function*(t,e,r=-1){let n=(t.ownerDocument||document).evaluate(e,t,null,XPathResult.ORDERED_NODE_ITERATOR_TYPE),i=[],s;for(;(s=n.iterateNext())&&(i.push(s),!(r&&i.length===r)););for(let h=0;h<i.length;h++)s=i[h],yield s,i[h]=null};var de=/[-\\w\\P{ASCII}*]/u,U=(r=>(r.Descendent=\">>>\",r.Child=\">>>>\",r))(U||{}),H=t=>\"querySelectorAll\"in t,Q=class{#e;#r=[];#o=void 0;elements;constructor(e,r){this.elements=[e],this.#e=r,this.#t()}async run(){for(typeof this.#o==\"string\"&&this.#o.trimStart()===\":scope\"&&this.#t();this.#o!==void 0;this.#t()){let e=this.#o;typeof e==\"string\"?e[0]&&de.test(e[0])?this.elements=a.flatMap(this.elements,async function*(r){H(r)&&(yield*r.querySelectorAll(e))}):this.elements=a.flatMap(this.elements,async function*(r){if(!r.parentElement){if(!H(r))return;yield*r.querySelectorAll(e);return}let o=0;for(let n of r.parentElement.children)if(++o,n===r)break;yield*r.parentElement.querySelectorAll(`:scope>:nth-child(${o})${e}`)}):this.elements=a.flatMap(this.elements,async function*(r){switch(e.name){case\"text\":yield*m(r,e.value);break;case\"xpath\":yield*q(r,e.value);break;case\"aria\":yield*x(r,e.value);break;default:let o=P.get(e.name);if(!o)throw new Error(`Unknown selector type: ${e.name}`);yield*o.querySelectorAll(r,e.value)}})}}#t(){if(this.#r.length!==0){this.#o=this.#r.shift();return}if(this.#e.length===0){this.#o=void 0;return}let e=this.#e.shift();switch(e){case\">>>>\":{this.elements=a.flatMap(this.elements,g),this.#t();break}case\">>>\":{this.elements=a.flatMap(this.elements,k),this.#t();break}default:this.#r=e,this.#t();break}}},_=class{#e=new WeakMap;calculate(e,r=[]){if(e===null)return r;e instanceof ShadowRoot&&(e=e.host);let o=this.#e.get(e);if(o)return[...o,...r];let n=0;for(let s=e.previousSibling;s;s=s.previousSibling)++n;let i=this.calculate(e.parentNode,[n]);return this.#e.set(e,i),[...i,...r]}},$=(t,e)=>{if(t.length+e.length===0)return 0;let[r=-1,...o]=t,[n=-1,...i]=e;return r===n?$(o,i):r<n?-1:1},fe=async function*(t){let e=new Set;for await(let o of t)e.add(o);let r=new _;yield*[...e.values()].map(o=>[o,r.calculate(o)]).sort(([,o],[,n])=>$(o,n)).map(([o])=>o)},X=function(t,e){let r=JSON.parse(e);if(r.some(o=>{let n=0;return o.some(i=>(typeof i==\"string\"?++n:n=0,n>1))}))throw new Error(\"Multiple deep combinators found in sequence.\");return fe(a.flatMap(r,o=>{let n=new Q(t,o);return n.run(),n.elements}))},me=async function(t,e){for await(let r of X(t,e))return r;return null};var he=Object.freeze({...v,...A,...R,...L,...O,...M,...D,...E,Deferred:c,createFunction:j,createTextContent:d,IntervalPoller:S,isSuitableNodeForTextMatching:f,MutationPoller:w,RAFPoller:T}),pe=he;\n";
 
 /**
  * @license
@@ -4945,7 +5389,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
-// ../../node_modules/parsel-js/dist/parsel.js
+// node_modules/parsel-js/dist/parsel.js
 var TOKENS = {
   attribute: /\[\s*(?:(?<namespace>\*|[-\w\P{ASCII}]*)\|)?(?<name>[-\w\P{ASCII}]+)\s*(?:(?<operator>\W?=)\s*(?<value>.+?)\s*(\s(?<caseSensitive>[iIsS]))?\s*)?\]/gu,
   id: /#(?<name>[-\w\P{ASCII}]+)/gu,
@@ -5039,7 +5483,7 @@ function tokenizeBy(text, grammar = TOKENS) {
   }
   return tokens;
 }
-var STRING_PATTERN = /(['"])([^\\\n]+?)\1/g;
+var STRING_PATTERN = /(['"])([^\\\n]*?)\1/g;
 var ESCAPE_PATTERN = /\\./g;
 function tokenize(selector, grammar = TOKENS) {
   selector = selector.trim();
@@ -5095,32 +5539,22 @@ function tokenize(selector, grammar = TOKENS) {
   }
   return tokens;
 }
-function* flatten(node, parent) {
-  switch (node.type) {
-    case "list":
-      for (let child of node.list) {
-        yield* flatten(child, node);
-      }
-      break;
-    case "complex":
-      yield* flatten(node.left, node);
-      yield* flatten(node.right, node);
-      break;
-    case "compound":
-      yield* node.list.map((token) => [token, node]);
-      break;
-    default:
-      yield [node, parent];
-  }
-}
 function stringify(listOrNode) {
-  let tokens;
   if (Array.isArray(listOrNode)) {
-    tokens = listOrNode;
-  } else {
-    tokens = [...flatten(listOrNode)].map(([token]) => token);
+    return listOrNode.map((token) => token.content).join("");
   }
-  return tokens.map((token) => token.content).join("");
+  switch (listOrNode.type) {
+    case "list":
+      return listOrNode.list.map(stringify).join(",");
+    case "relative":
+      return listOrNode.combinator + stringify(listOrNode.right);
+    case "complex":
+      return stringify(listOrNode.left) + listOrNode.combinator + stringify(listOrNode.right);
+    case "compound":
+      return listOrNode.list.map(stringify).join("");
+    default:
+      return listOrNode.content;
+  }
 }
 
 /**
@@ -5323,10 +5757,10 @@ function getQueryHandlerAndSelector(selector) {
  * Copyright 2023 Google Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
-var __addDisposableResource$9 = (undefined && undefined.__addDisposableResource) || function (env, value, async) {
+var __addDisposableResource$b = (undefined && undefined.__addDisposableResource) || function (env, value, async) {
     if (value !== null && value !== void 0) {
         if (typeof value !== "object" && typeof value !== "function") throw new TypeError("Object expected.");
-        var dispose;
+        var dispose, inner;
         if (async) {
             if (!Symbol.asyncDispose) throw new TypeError("Symbol.asyncDispose is not defined.");
             dispose = value[Symbol.asyncDispose];
@@ -5334,8 +5768,10 @@ var __addDisposableResource$9 = (undefined && undefined.__addDisposableResource)
         if (dispose === void 0) {
             if (!Symbol.dispose) throw new TypeError("Symbol.dispose is not defined.");
             dispose = value[Symbol.dispose];
+            if (async) inner = dispose;
         }
         if (typeof dispose !== "function") throw new TypeError("Object not disposable.");
+        if (inner) dispose = function() { try { inner.call(this); } catch (e) { return Promise.reject(e); } };
         env.stack.push({ value: value, dispose: dispose, async: async });
     }
     else if (async) {
@@ -5343,23 +5779,28 @@ var __addDisposableResource$9 = (undefined && undefined.__addDisposableResource)
     }
     return value;
 };
-var __disposeResources$9 = (undefined && undefined.__disposeResources) || (function (SuppressedError) {
+var __disposeResources$b = (undefined && undefined.__disposeResources) || (function (SuppressedError) {
     return function (env) {
         function fail(e) {
             env.error = env.hasError ? new SuppressedError(e, env.error, "An error was suppressed during disposal.") : e;
             env.hasError = true;
         }
+        var r, s = 0;
         function next() {
-            while (env.stack.length) {
-                var rec = env.stack.pop();
+            while (r = env.stack.pop()) {
                 try {
-                    var result = rec.dispose && rec.dispose.call(rec.value);
-                    if (rec.async) return Promise.resolve(result).then(next, function(e) { fail(e); return next(); });
+                    if (!r.async && s === 1) return s = 0, env.stack.push(r), Promise.resolve().then(next);
+                    if (r.dispose) {
+                        var result = r.dispose.call(r.value);
+                        if (r.async) return s |= 2, Promise.resolve(result).then(next, function(e) { fail(e); return next(); });
+                    }
+                    else s |= 1;
                 }
                 catch (e) {
                     fail(e);
                 }
             }
+            if (s === 1) return env.hasError ? Promise.reject(env.error) : Promise.resolve();
             if (env.hasError) throw env.error;
         }
         return next();
@@ -5471,7 +5912,7 @@ function guarded(getKey = function () {
                     mutex = new Mutex();
                     mutexes.set(key, mutex);
                 }
-                const _ = __addDisposableResource$9(env_1, await mutex.acquire(), true);
+                const _ = __addDisposableResource$b(env_1, await mutex.acquire(), true);
                 return await target.call(this, ...args);
             }
             catch (e_1) {
@@ -5479,7 +5920,7 @@ function guarded(getKey = function () {
                 env_1.hasError = true;
             }
             finally {
-                const result_1 = __disposeResources$9(env_1);
+                const result_1 = __disposeResources$b(env_1);
                 if (result_1)
                     await result_1;
             }
@@ -5509,7 +5950,6 @@ const bubbleInitializer = function (events) {
  * the field owner.
  */
 // The type is too complicated to type.
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 function bubble(events) {
     return ({ set, get }, context) => {
         context.addInitializer(function () {
@@ -5581,10 +6021,10 @@ var __esDecorate$7 = (undefined && undefined.__esDecorate) || function (ctor, de
     if (target) Object.defineProperty(target, contextIn.name, descriptor);
     done = true;
 };
-var __addDisposableResource$8 = (undefined && undefined.__addDisposableResource) || function (env, value, async) {
+var __addDisposableResource$a = (undefined && undefined.__addDisposableResource) || function (env, value, async) {
     if (value !== null && value !== void 0) {
         if (typeof value !== "object" && typeof value !== "function") throw new TypeError("Object expected.");
-        var dispose;
+        var dispose, inner;
         if (async) {
             if (!Symbol.asyncDispose) throw new TypeError("Symbol.asyncDispose is not defined.");
             dispose = value[Symbol.asyncDispose];
@@ -5592,8 +6032,10 @@ var __addDisposableResource$8 = (undefined && undefined.__addDisposableResource)
         if (dispose === void 0) {
             if (!Symbol.dispose) throw new TypeError("Symbol.dispose is not defined.");
             dispose = value[Symbol.dispose];
+            if (async) inner = dispose;
         }
         if (typeof dispose !== "function") throw new TypeError("Object not disposable.");
+        if (inner) dispose = function() { try { inner.call(this); } catch (e) { return Promise.reject(e); } };
         env.stack.push({ value: value, dispose: dispose, async: async });
     }
     else if (async) {
@@ -5601,23 +6043,28 @@ var __addDisposableResource$8 = (undefined && undefined.__addDisposableResource)
     }
     return value;
 };
-var __disposeResources$8 = (undefined && undefined.__disposeResources) || (function (SuppressedError) {
+var __disposeResources$a = (undefined && undefined.__disposeResources) || (function (SuppressedError) {
     return function (env) {
         function fail(e) {
             env.error = env.hasError ? new SuppressedError(e, env.error, "An error was suppressed during disposal.") : e;
             env.hasError = true;
         }
+        var r, s = 0;
         function next() {
-            while (env.stack.length) {
-                var rec = env.stack.pop();
+            while (r = env.stack.pop()) {
                 try {
-                    var result = rec.dispose && rec.dispose.call(rec.value);
-                    if (rec.async) return Promise.resolve(result).then(next, function(e) { fail(e); return next(); });
+                    if (!r.async && s === 1) return s = 0, env.stack.push(r), Promise.resolve().then(next);
+                    if (r.dispose) {
+                        var result = r.dispose.call(r.value);
+                        if (r.async) return s |= 2, Promise.resolve(result).then(next, function(e) { fail(e); return next(); });
+                    }
+                    else s |= 1;
                 }
                 catch (e) {
                     fail(e);
                 }
             }
+            if (s === 1) return env.hasError ? Promise.reject(env.error) : Promise.resolve();
             if (env.hasError) throw env.error;
         }
         return next();
@@ -5666,11 +6113,18 @@ let JSHandle = (() => {
             if (_metadata) Object.defineProperty(_classThis, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
             __runInitializers$7(_classThis, _classExtraInitializers);
         }
+        #logger = __runInitializers$7(this, _instanceExtraInitializers);
         /**
          * @internal
          */
-        constructor() {
-            __runInitializers$7(this, _instanceExtraInitializers);
+        constructor(logger) {
+            this.#logger = logger;
+        }
+        /**
+         * @internal
+         */
+        get logger() {
+            return this.#logger;
         }
         /**
          * Evaluates the given function with the current handle as its first argument.
@@ -5715,14 +6169,7 @@ let JSHandle = (() => {
          */
         async getProperties() {
             const propertyNames = await this.evaluate(object => {
-                const enumerableProperties = [];
-                const descriptors = Object.getOwnPropertyDescriptors(object);
-                for (const propertyName in descriptors) {
-                    if (descriptors[propertyName]?.enumerable) {
-                        enumerableProperties.push(propertyName);
-                    }
-                }
-                return enumerableProperties;
+                return Object.keys(object ?? {});
             });
             const map = new Map();
             const results = await Promise.all(propertyNames.map(key => {
@@ -5731,7 +6178,7 @@ let JSHandle = (() => {
             for (const [key, value] of Object.entries(propertyNames)) {
                 const env_1 = { stack: [], error: void 0, hasError: false };
                 try {
-                    const handle = __addDisposableResource$8(env_1, results[key], false);
+                    const handle = __addDisposableResource$a(env_1, results[key], false);
                     if (handle) {
                         map.set(value, handle.move());
                     }
@@ -5741,16 +6188,16 @@ let JSHandle = (() => {
                     env_1.hasError = true;
                 }
                 finally {
-                    __disposeResources$8(env_1);
+                    __disposeResources$a(env_1);
                 }
             }
             return map;
         }
-        /** @internal */
         [(_getProperty_decorators = [throwIfDisposed()], _getProperties_decorators = [throwIfDisposed()], disposeSymbol)]() {
-            return void this.dispose().catch(debugError);
+            return void this[asyncDisposeSymbol]().catch(error => {
+                this.#logger?.(DEBUG_PREFIXES.error)?.(error);
+            });
         }
-        /** @internal */
         [asyncDisposeSymbol]() {
             return this.dispose();
         }
@@ -5758,49 +6205,10 @@ let JSHandle = (() => {
     return _classThis;
 })();
 
-/**
- * @license
- * Copyright 2023 Google Inc.
- * SPDX-License-Identifier: Apache-2.0
- */
-var __runInitializers$6 = (undefined && undefined.__runInitializers) || function (thisArg, initializers, value) {
-    var useValue = arguments.length > 2;
-    for (var i = 0; i < initializers.length; i++) {
-        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
-    }
-    return useValue ? value : void 0;
-};
-var __esDecorate$6 = (undefined && undefined.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
-    function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
-    var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
-    var target = !descriptorIn && ctor ? contextIn["static"] ? ctor : ctor.prototype : null;
-    var descriptor = descriptorIn || (target ? Object.getOwnPropertyDescriptor(target, contextIn.name) : {});
-    var _, done = false;
-    for (var i = decorators.length - 1; i >= 0; i--) {
-        var context = {};
-        for (var p in contextIn) context[p] = p === "access" ? {} : contextIn[p];
-        for (var p in contextIn.access) context.access[p] = contextIn.access[p];
-        context.addInitializer = function (f) { if (done) throw new TypeError("Cannot add initializers after decoration has completed"); extraInitializers.push(accept(f || null)); };
-        var result = (0, decorators[i])(kind === "accessor" ? { get: descriptor.get, set: descriptor.set } : descriptor[key], context);
-        if (kind === "accessor") {
-            if (result === void 0) continue;
-            if (result === null || typeof result !== "object") throw new TypeError("Object expected");
-            if (_ = accept(result.get)) descriptor.get = _;
-            if (_ = accept(result.set)) descriptor.set = _;
-            if (_ = accept(result.init)) initializers.unshift(_);
-        }
-        else if (_ = accept(result)) {
-            if (kind === "field") initializers.unshift(_);
-            else descriptor[key] = _;
-        }
-    }
-    if (target) Object.defineProperty(target, contextIn.name, descriptor);
-    done = true;
-};
-var __addDisposableResource$7 = (undefined && undefined.__addDisposableResource) || function (env, value, async) {
+var __addDisposableResource$9 = (undefined && undefined.__addDisposableResource) || function (env, value, async) {
     if (value !== null && value !== void 0) {
         if (typeof value !== "object" && typeof value !== "function") throw new TypeError("Object expected.");
-        var dispose;
+        var dispose, inner;
         if (async) {
             if (!Symbol.asyncDispose) throw new TypeError("Symbol.asyncDispose is not defined.");
             dispose = value[Symbol.asyncDispose];
@@ -5808,8 +6216,10 @@ var __addDisposableResource$7 = (undefined && undefined.__addDisposableResource)
         if (dispose === void 0) {
             if (!Symbol.dispose) throw new TypeError("Symbol.dispose is not defined.");
             dispose = value[Symbol.dispose];
+            if (async) inner = dispose;
         }
         if (typeof dispose !== "function") throw new TypeError("Object not disposable.");
+        if (inner) dispose = function() { try { inner.call(this); } catch (e) { return Promise.reject(e); } };
         env.stack.push({ value: value, dispose: dispose, async: async });
     }
     else if (async) {
@@ -5817,1313 +6227,28 @@ var __addDisposableResource$7 = (undefined && undefined.__addDisposableResource)
     }
     return value;
 };
-var __disposeResources$7 = (undefined && undefined.__disposeResources) || (function (SuppressedError) {
+var __disposeResources$9 = (undefined && undefined.__disposeResources) || (function (SuppressedError) {
     return function (env) {
         function fail(e) {
             env.error = env.hasError ? new SuppressedError(e, env.error, "An error was suppressed during disposal.") : e;
             env.hasError = true;
         }
+        var r, s = 0;
         function next() {
-            while (env.stack.length) {
-                var rec = env.stack.pop();
+            while (r = env.stack.pop()) {
                 try {
-                    var result = rec.dispose && rec.dispose.call(rec.value);
-                    if (rec.async) return Promise.resolve(result).then(next, function(e) { fail(e); return next(); });
+                    if (!r.async && s === 1) return s = 0, env.stack.push(r), Promise.resolve().then(next);
+                    if (r.dispose) {
+                        var result = r.dispose.call(r.value);
+                        if (r.async) return s |= 2, Promise.resolve(result).then(next, function(e) { fail(e); return next(); });
+                    }
+                    else s |= 1;
                 }
                 catch (e) {
                     fail(e);
                 }
             }
-            if (env.hasError) throw env.error;
-        }
-        return next();
-    };
-})(typeof SuppressedError === "function" ? SuppressedError : function (error, suppressed, message) {
-    var e = new Error(message);
-    return e.name = "SuppressedError", e.error = error, e.suppressed = suppressed, e;
-});
-var __setFunctionName$2 = (undefined && undefined.__setFunctionName) || function (f, name, prefix) {
-    if (typeof name === "symbol") name = name.description ? "[".concat(name.description, "]") : "";
-    return Object.defineProperty(f, "name", { configurable: true, value: prefix ? "".concat(prefix, " ", name) : name });
-};
-/**
- * ElementHandle represents an in-page DOM element.
- *
- * @remarks
- * ElementHandles can be created with the {@link Page.$} method.
- *
- * ```ts
- * import puppeteer from 'puppeteer';
- *
- * (async () => {
- *   const browser = await puppeteer.launch();
- *   const page = await browser.newPage();
- *   await page.goto('https://example.com');
- *   const hrefElement = await page.$('a');
- *   await hrefElement.click();
- *   // ...
- * })();
- * ```
- *
- * ElementHandle prevents the DOM element from being garbage-collected unless the
- * handle is {@link JSHandle.dispose | disposed}. ElementHandles are auto-disposed
- * when their origin frame gets navigated.
- *
- * ElementHandle instances can be used as arguments in {@link Page.$eval} and
- * {@link Page.evaluate} methods.
- *
- * If you're using TypeScript, ElementHandle takes a generic argument that
- * denotes the type of element the handle is holding within. For example, if you
- * have a handle to a `<select>` element, you can type it as
- * `ElementHandle<HTMLSelectElement>` and you get some nicer type checks.
- *
- * @public
- */
-let ElementHandle = (() => {
-    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _0, _1, _2, _3, _4, _5;
-    let _classSuper = JSHandle;
-    let _instanceExtraInitializers = [];
-    let _getProperty_decorators;
-    let _getProperties_decorators;
-    let _jsonValue_decorators;
-    let _$_decorators;
-    let _$$_decorators;
-    let _private_$$_decorators;
-    let _private_$$_descriptor;
-    let _waitForSelector_decorators;
-    let _isVisible_decorators;
-    let _isHidden_decorators;
-    let _toElement_decorators;
-    let _clickablePoint_decorators;
-    let _hover_decorators;
-    let _click_decorators;
-    let _drag_decorators;
-    let _dragEnter_decorators;
-    let _dragOver_decorators;
-    let _drop_decorators;
-    let _dragAndDrop_decorators;
-    let _select_decorators;
-    let _tap_decorators;
-    let _touchStart_decorators;
-    let _touchMove_decorators;
-    let _touchEnd_decorators;
-    let _focus_decorators;
-    let _type_decorators;
-    let _press_decorators;
-    let _boundingBox_decorators;
-    let _boxModel_decorators;
-    let _screenshot_decorators;
-    let _isIntersectingViewport_decorators;
-    let _scrollIntoView_decorators;
-    return class ElementHandle extends _classSuper {
-        static {
-            const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
-            _getProperty_decorators = [throwIfDisposed(), (_a = ElementHandle).bindIsolatedHandle.bind(_a)];
-            _getProperties_decorators = [throwIfDisposed(), (_b = ElementHandle).bindIsolatedHandle.bind(_b)];
-            _jsonValue_decorators = [throwIfDisposed(), (_c = ElementHandle).bindIsolatedHandle.bind(_c)];
-            _$_decorators = [throwIfDisposed(), (_d = ElementHandle).bindIsolatedHandle.bind(_d)];
-            _$$_decorators = [throwIfDisposed()];
-            _private_$$_decorators = [(_e = ElementHandle).bindIsolatedHandle.bind(_e)];
-            _waitForSelector_decorators = [throwIfDisposed(), (_f = ElementHandle).bindIsolatedHandle.bind(_f)];
-            _isVisible_decorators = [throwIfDisposed(), (_g = ElementHandle).bindIsolatedHandle.bind(_g)];
-            _isHidden_decorators = [throwIfDisposed(), (_h = ElementHandle).bindIsolatedHandle.bind(_h)];
-            _toElement_decorators = [throwIfDisposed(), (_j = ElementHandle).bindIsolatedHandle.bind(_j)];
-            _clickablePoint_decorators = [throwIfDisposed(), (_k = ElementHandle).bindIsolatedHandle.bind(_k)];
-            _hover_decorators = [throwIfDisposed(), (_l = ElementHandle).bindIsolatedHandle.bind(_l)];
-            _click_decorators = [throwIfDisposed(), (_m = ElementHandle).bindIsolatedHandle.bind(_m)];
-            _drag_decorators = [throwIfDisposed(), (_o = ElementHandle).bindIsolatedHandle.bind(_o)];
-            _dragEnter_decorators = [throwIfDisposed(), (_p = ElementHandle).bindIsolatedHandle.bind(_p)];
-            _dragOver_decorators = [throwIfDisposed(), (_q = ElementHandle).bindIsolatedHandle.bind(_q)];
-            _drop_decorators = [throwIfDisposed(), (_r = ElementHandle).bindIsolatedHandle.bind(_r)];
-            _dragAndDrop_decorators = [throwIfDisposed(), (_s = ElementHandle).bindIsolatedHandle.bind(_s)];
-            _select_decorators = [throwIfDisposed(), (_t = ElementHandle).bindIsolatedHandle.bind(_t)];
-            _tap_decorators = [throwIfDisposed(), (_u = ElementHandle).bindIsolatedHandle.bind(_u)];
-            _touchStart_decorators = [throwIfDisposed(), (_v = ElementHandle).bindIsolatedHandle.bind(_v)];
-            _touchMove_decorators = [throwIfDisposed(), (_w = ElementHandle).bindIsolatedHandle.bind(_w)];
-            _touchEnd_decorators = [throwIfDisposed(), (_x = ElementHandle).bindIsolatedHandle.bind(_x)];
-            _focus_decorators = [throwIfDisposed(), (_y = ElementHandle).bindIsolatedHandle.bind(_y)];
-            _type_decorators = [throwIfDisposed(), (_z = ElementHandle).bindIsolatedHandle.bind(_z)];
-            _press_decorators = [throwIfDisposed(), (_0 = ElementHandle).bindIsolatedHandle.bind(_0)];
-            _boundingBox_decorators = [throwIfDisposed(), (_1 = ElementHandle).bindIsolatedHandle.bind(_1)];
-            _boxModel_decorators = [throwIfDisposed(), (_2 = ElementHandle).bindIsolatedHandle.bind(_2)];
-            _screenshot_decorators = [throwIfDisposed(), (_3 = ElementHandle).bindIsolatedHandle.bind(_3)];
-            _isIntersectingViewport_decorators = [throwIfDisposed(), (_4 = ElementHandle).bindIsolatedHandle.bind(_4)];
-            _scrollIntoView_decorators = [throwIfDisposed(), (_5 = ElementHandle).bindIsolatedHandle.bind(_5)];
-            __esDecorate$6(this, null, _getProperty_decorators, { kind: "method", name: "getProperty", static: false, private: false, access: { has: obj => "getProperty" in obj, get: obj => obj.getProperty }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate$6(this, null, _getProperties_decorators, { kind: "method", name: "getProperties", static: false, private: false, access: { has: obj => "getProperties" in obj, get: obj => obj.getProperties }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate$6(this, null, _jsonValue_decorators, { kind: "method", name: "jsonValue", static: false, private: false, access: { has: obj => "jsonValue" in obj, get: obj => obj.jsonValue }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate$6(this, null, _$_decorators, { kind: "method", name: "$", static: false, private: false, access: { has: obj => "$" in obj, get: obj => obj.$ }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate$6(this, null, _$$_decorators, { kind: "method", name: "$$", static: false, private: false, access: { has: obj => "$$" in obj, get: obj => obj.$$ }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate$6(this, _private_$$_descriptor = { value: __setFunctionName$2(async function (selector) {
-                    return await this.#$$impl(selector);
-                }, "#$$") }, _private_$$_decorators, { kind: "method", name: "#$$", static: false, private: true, access: { has: obj => #$$ in obj, get: obj => obj.#$$ }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate$6(this, null, _waitForSelector_decorators, { kind: "method", name: "waitForSelector", static: false, private: false, access: { has: obj => "waitForSelector" in obj, get: obj => obj.waitForSelector }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate$6(this, null, _isVisible_decorators, { kind: "method", name: "isVisible", static: false, private: false, access: { has: obj => "isVisible" in obj, get: obj => obj.isVisible }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate$6(this, null, _isHidden_decorators, { kind: "method", name: "isHidden", static: false, private: false, access: { has: obj => "isHidden" in obj, get: obj => obj.isHidden }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate$6(this, null, _toElement_decorators, { kind: "method", name: "toElement", static: false, private: false, access: { has: obj => "toElement" in obj, get: obj => obj.toElement }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate$6(this, null, _clickablePoint_decorators, { kind: "method", name: "clickablePoint", static: false, private: false, access: { has: obj => "clickablePoint" in obj, get: obj => obj.clickablePoint }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate$6(this, null, _hover_decorators, { kind: "method", name: "hover", static: false, private: false, access: { has: obj => "hover" in obj, get: obj => obj.hover }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate$6(this, null, _click_decorators, { kind: "method", name: "click", static: false, private: false, access: { has: obj => "click" in obj, get: obj => obj.click }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate$6(this, null, _drag_decorators, { kind: "method", name: "drag", static: false, private: false, access: { has: obj => "drag" in obj, get: obj => obj.drag }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate$6(this, null, _dragEnter_decorators, { kind: "method", name: "dragEnter", static: false, private: false, access: { has: obj => "dragEnter" in obj, get: obj => obj.dragEnter }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate$6(this, null, _dragOver_decorators, { kind: "method", name: "dragOver", static: false, private: false, access: { has: obj => "dragOver" in obj, get: obj => obj.dragOver }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate$6(this, null, _drop_decorators, { kind: "method", name: "drop", static: false, private: false, access: { has: obj => "drop" in obj, get: obj => obj.drop }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate$6(this, null, _dragAndDrop_decorators, { kind: "method", name: "dragAndDrop", static: false, private: false, access: { has: obj => "dragAndDrop" in obj, get: obj => obj.dragAndDrop }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate$6(this, null, _select_decorators, { kind: "method", name: "select", static: false, private: false, access: { has: obj => "select" in obj, get: obj => obj.select }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate$6(this, null, _tap_decorators, { kind: "method", name: "tap", static: false, private: false, access: { has: obj => "tap" in obj, get: obj => obj.tap }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate$6(this, null, _touchStart_decorators, { kind: "method", name: "touchStart", static: false, private: false, access: { has: obj => "touchStart" in obj, get: obj => obj.touchStart }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate$6(this, null, _touchMove_decorators, { kind: "method", name: "touchMove", static: false, private: false, access: { has: obj => "touchMove" in obj, get: obj => obj.touchMove }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate$6(this, null, _touchEnd_decorators, { kind: "method", name: "touchEnd", static: false, private: false, access: { has: obj => "touchEnd" in obj, get: obj => obj.touchEnd }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate$6(this, null, _focus_decorators, { kind: "method", name: "focus", static: false, private: false, access: { has: obj => "focus" in obj, get: obj => obj.focus }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate$6(this, null, _type_decorators, { kind: "method", name: "type", static: false, private: false, access: { has: obj => "type" in obj, get: obj => obj.type }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate$6(this, null, _press_decorators, { kind: "method", name: "press", static: false, private: false, access: { has: obj => "press" in obj, get: obj => obj.press }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate$6(this, null, _boundingBox_decorators, { kind: "method", name: "boundingBox", static: false, private: false, access: { has: obj => "boundingBox" in obj, get: obj => obj.boundingBox }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate$6(this, null, _boxModel_decorators, { kind: "method", name: "boxModel", static: false, private: false, access: { has: obj => "boxModel" in obj, get: obj => obj.boxModel }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate$6(this, null, _screenshot_decorators, { kind: "method", name: "screenshot", static: false, private: false, access: { has: obj => "screenshot" in obj, get: obj => obj.screenshot }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate$6(this, null, _isIntersectingViewport_decorators, { kind: "method", name: "isIntersectingViewport", static: false, private: false, access: { has: obj => "isIntersectingViewport" in obj, get: obj => obj.isIntersectingViewport }, metadata: _metadata }, null, _instanceExtraInitializers);
-            __esDecorate$6(this, null, _scrollIntoView_decorators, { kind: "method", name: "scrollIntoView", static: false, private: false, access: { has: obj => "scrollIntoView" in obj, get: obj => obj.scrollIntoView }, metadata: _metadata }, null, _instanceExtraInitializers);
-            if (_metadata) Object.defineProperty(this, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
-        }
-        /**
-         * @internal
-         * Cached isolatedHandle to prevent
-         * trying to adopt it multiple times
-         */
-        isolatedHandle = __runInitializers$6(this, _instanceExtraInitializers);
-        /**
-         * A given method will have it's `this` replaced with an isolated version of
-         * `this` when decorated with this decorator.
-         *
-         * All changes of isolated `this` are reflected on the actual `this`.
-         *
-         * @internal
-         */
-        static bindIsolatedHandle(target, _) {
-            return async function (...args) {
-                // If the handle is already isolated, then we don't need to adopt it
-                // again.
-                if (this.realm === this.frame.isolatedRealm()) {
-                    return await target.call(this, ...args);
-                }
-                let adoptedThis;
-                if (this['isolatedHandle']) {
-                    adoptedThis = this['isolatedHandle'];
-                }
-                else {
-                    this['isolatedHandle'] = adoptedThis = await this.frame
-                        .isolatedRealm()
-                        .adoptHandle(this);
-                }
-                const result = await target.call(adoptedThis, ...args);
-                // If the function returns `adoptedThis`, then we return `this`.
-                if (result === adoptedThis) {
-                    return this;
-                }
-                // If the function returns a handle, transfer it into the current realm.
-                if (result instanceof JSHandle) {
-                    return await this.realm.transferHandle(result);
-                }
-                // If the function returns an array of handlers, transfer them into the
-                // current realm.
-                if (Array.isArray(result)) {
-                    await Promise.all(result.map(async (item, index, result) => {
-                        if (item instanceof JSHandle) {
-                            result[index] = await this.realm.transferHandle(item);
-                        }
-                    }));
-                }
-                if (result instanceof Map) {
-                    await Promise.all([...result.entries()].map(async ([key, value]) => {
-                        if (value instanceof JSHandle) {
-                            result.set(key, await this.realm.transferHandle(value));
-                        }
-                    }));
-                }
-                return result;
-            };
-        }
-        /**
-         * @internal
-         */
-        handle;
-        /**
-         * @internal
-         */
-        constructor(handle) {
-            super();
-            this.handle = handle;
-            this[_isElementHandle] = true;
-        }
-        /**
-         * @internal
-         */
-        get id() {
-            return this.handle.id;
-        }
-        /**
-         * @internal
-         */
-        get disposed() {
-            return this.handle.disposed;
-        }
-        /**
-         * @internal
-         */
-        async getProperty(propertyName) {
-            return await this.handle.getProperty(propertyName);
-        }
-        /**
-         * @internal
-         */
-        async getProperties() {
-            return await this.handle.getProperties();
-        }
-        /**
-         * @internal
-         */
-        async evaluate(pageFunction, ...args) {
-            pageFunction = withSourcePuppeteerURLIfNone(this.evaluate.name, pageFunction);
-            return await this.handle.evaluate(pageFunction, ...args);
-        }
-        /**
-         * @internal
-         */
-        async evaluateHandle(pageFunction, ...args) {
-            pageFunction = withSourcePuppeteerURLIfNone(this.evaluateHandle.name, pageFunction);
-            return await this.handle.evaluateHandle(pageFunction, ...args);
-        }
-        /**
-         * @internal
-         */
-        async jsonValue() {
-            return await this.handle.jsonValue();
-        }
-        /**
-         * @internal
-         */
-        toString() {
-            return this.handle.toString();
-        }
-        /**
-         * @internal
-         */
-        remoteObject() {
-            return this.handle.remoteObject();
-        }
-        /**
-         * @internal
-         */
-        dispose() {
-            return this.handle.dispose();
-        }
-        /**
-         * @internal
-         */
-        asElement() {
-            return this;
-        }
-        /**
-         * Queries the current element for an element matching the given selector.
-         *
-         * @param selector -
-         * {@link https://pptr.dev/guides/page-interactions#selectors | selector}
-         * to query page for.
-         * {@link https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Selectors | CSS selectors}
-         * can be passed as-is and a
-         * {@link https://pptr.dev/guides/page-interactions#non-css-selectors | Puppeteer-specific selector syntax}
-         * allows quering by
-         * {@link https://pptr.dev/guides/page-interactions#text-selectors--p-text | text},
-         * {@link https://pptr.dev/guides/page-interactions#aria-selectors--p-aria | a11y role and name},
-         * and
-         * {@link https://pptr.dev/guides/page-interactions#xpath-selectors--p-xpath | xpath}
-         * and
-         * {@link https://pptr.dev/guides/page-interactions#querying-elements-in-shadow-dom | combining these queries across shadow roots}.
-         * Alternatively, you can specify the selector type using a
-         * {@link https://pptr.dev/guides/page-interactions#prefixed-selector-syntax | prefix}.
-         * @returns A {@link ElementHandle | element handle} to the first element
-         * matching the given selector. Otherwise, `null`.
-         */
-        async $(selector) {
-            const { updatedSelector, QueryHandler } = getQueryHandlerAndSelector(selector);
-            return (await QueryHandler.queryOne(this, updatedSelector));
-        }
-        /**
-         * Queries the current element for all elements matching the given selector.
-         *
-         * @param selector -
-         * {@link https://pptr.dev/guides/page-interactions#selectors | selector}
-         * to query page for.
-         * {@link https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Selectors | CSS selectors}
-         * can be passed as-is and a
-         * {@link https://pptr.dev/guides/page-interactions#non-css-selectors | Puppeteer-specific selector syntax}
-         * allows quering by
-         * {@link https://pptr.dev/guides/page-interactions#text-selectors--p-text | text},
-         * {@link https://pptr.dev/guides/page-interactions#aria-selectors--p-aria | a11y role and name},
-         * and
-         * {@link https://pptr.dev/guides/page-interactions#xpath-selectors--p-xpath | xpath}
-         * and
-         * {@link https://pptr.dev/guides/page-interactions#querying-elements-in-shadow-dom | combining these queries across shadow roots}.
-         * Alternatively, you can specify the selector type using a
-         * {@link https://pptr.dev/guides/page-interactions#prefixed-selector-syntax | prefix}.
-         * @returns An array of {@link ElementHandle | element handles} that point to
-         * elements matching the given selector.
-         */
-        async $$(selector, options) {
-            if (options?.isolate === false) {
-                return await this.#$$impl(selector);
-            }
-            return await this.#$$(selector);
-        }
-        /**
-         * Isolates {@link ElementHandle.$$} if needed.
-         *
-         * @internal
-         */
-        get #$$() { return _private_$$_descriptor.value; }
-        /**
-         * Implementation for {@link ElementHandle.$$}.
-         *
-         * @internal
-         */
-        async #$$impl(selector) {
-            const { updatedSelector, QueryHandler } = getQueryHandlerAndSelector(selector);
-            return await AsyncIterableUtil.collect(QueryHandler.queryAll(this, updatedSelector));
-        }
-        /**
-         * Runs the given function on the first element matching the given selector in
-         * the current element.
-         *
-         * If the given function returns a promise, then this method will wait till
-         * the promise resolves.
-         *
-         * @example
-         *
-         * ```ts
-         * const tweetHandle = await page.$('.tweet');
-         * expect(await tweetHandle.$eval('.like', node => node.innerText)).toBe(
-         *   '100'
-         * );
-         * expect(await tweetHandle.$eval('.retweets', node => node.innerText)).toBe(
-         *   '10'
-         * );
-         * ```
-         *
-         * @param selector -
-         * {@link https://pptr.dev/guides/page-interactions#selectors | selector}
-         * to query page for.
-         * {@link https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Selectors | CSS selectors}
-         * can be passed as-is and a
-         * {@link https://pptr.dev/guides/page-interactions#non-css-selectors | Puppeteer-specific selector syntax}
-         * allows quering by
-         * {@link https://pptr.dev/guides/page-interactions#text-selectors--p-text | text},
-         * {@link https://pptr.dev/guides/page-interactions#aria-selectors--p-aria | a11y role and name},
-         * and
-         * {@link https://pptr.dev/guides/page-interactions#xpath-selectors--p-xpath | xpath}
-         * and
-         * {@link https://pptr.dev/guides/page-interactions#querying-elements-in-shadow-dom | combining these queries across shadow roots}.
-         * Alternatively, you can specify the selector type using a
-         * {@link https://pptr.dev/guides/page-interactions#prefixed-selector-syntax | prefix}.
-         * @param pageFunction - The function to be evaluated in this element's page's
-         * context. The first element matching the selector will be passed in as the
-         * first argument.
-         * @param args - Additional arguments to pass to `pageFunction`.
-         * @returns A promise to the result of the function.
-         */
-        async $eval(selector, pageFunction, ...args) {
-            const env_1 = { stack: [], error: void 0, hasError: false };
-            try {
-                pageFunction = withSourcePuppeteerURLIfNone(this.$eval.name, pageFunction);
-                const elementHandle = __addDisposableResource$7(env_1, await this.$(selector), false);
-                if (!elementHandle) {
-                    throw new Error(`Error: failed to find element matching selector "${selector}"`);
-                }
-                return await elementHandle.evaluate(pageFunction, ...args);
-            }
-            catch (e_1) {
-                env_1.error = e_1;
-                env_1.hasError = true;
-            }
-            finally {
-                __disposeResources$7(env_1);
-            }
-        }
-        /**
-         * Runs the given function on an array of elements matching the given selector
-         * in the current element.
-         *
-         * If the given function returns a promise, then this method will wait till
-         * the promise resolves.
-         *
-         * @example
-         * HTML:
-         *
-         * ```html
-         * <div class="feed">
-         *   <div class="tweet">Hello!</div>
-         *   <div class="tweet">Hi!</div>
-         * </div>
-         * ```
-         *
-         * JavaScript:
-         *
-         * ```ts
-         * const feedHandle = await page.$('.feed');
-         * expect(
-         *   await feedHandle.$$eval('.tweet', nodes => nodes.map(n => n.innerText))
-         * ).toEqual(['Hello!', 'Hi!']);
-         * ```
-         *
-         * @param selector -
-         * {@link https://pptr.dev/guides/page-interactions#selectors | selector}
-         * to query page for.
-         * {@link https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Selectors | CSS selectors}
-         * can be passed as-is and a
-         * {@link https://pptr.dev/guides/page-interactions#non-css-selectors | Puppeteer-specific selector syntax}
-         * allows quering by
-         * {@link https://pptr.dev/guides/page-interactions#text-selectors--p-text | text},
-         * {@link https://pptr.dev/guides/page-interactions#aria-selectors--p-aria | a11y role and name},
-         * and
-         * {@link https://pptr.dev/guides/page-interactions#xpath-selectors--p-xpath | xpath}
-         * and
-         * {@link https://pptr.dev/guides/page-interactions#querying-elements-in-shadow-dom | combining these queries across shadow roots}.
-         * Alternatively, you can specify the selector type using a
-         * {@link https://pptr.dev/guides/page-interactions#prefixed-selector-syntax | prefix}.
-         * @param pageFunction - The function to be evaluated in the element's page's
-         * context. An array of elements matching the given selector will be passed to
-         * the function as its first argument.
-         * @param args - Additional arguments to pass to `pageFunction`.
-         * @returns A promise to the result of the function.
-         */
-        async $$eval(selector, pageFunction, ...args) {
-            const env_2 = { stack: [], error: void 0, hasError: false };
-            try {
-                pageFunction = withSourcePuppeteerURLIfNone(this.$$eval.name, pageFunction);
-                const results = await this.$$(selector);
-                const elements = __addDisposableResource$7(env_2, await this.evaluateHandle((_, ...elements) => {
-                    return elements;
-                }, ...results), false);
-                const [result] = await Promise.all([
-                    elements.evaluate(pageFunction, ...args),
-                    ...results.map(results => {
-                        return results.dispose();
-                    }),
-                ]);
-                return result;
-            }
-            catch (e_2) {
-                env_2.error = e_2;
-                env_2.hasError = true;
-            }
-            finally {
-                __disposeResources$7(env_2);
-            }
-        }
-        /**
-         * Wait for an element matching the given selector to appear in the current
-         * element.
-         *
-         * Unlike {@link Frame.waitForSelector}, this method does not work across
-         * navigations or if the element is detached from DOM.
-         *
-         * @example
-         *
-         * ```ts
-         * import puppeteer from 'puppeteer';
-         *
-         * (async () => {
-         *   const browser = await puppeteer.launch();
-         *   const page = await browser.newPage();
-         *   let currentURL;
-         *   page
-         *     .mainFrame()
-         *     .waitForSelector('img')
-         *     .then(() => console.log('First URL with image: ' + currentURL));
-         *
-         *   for (currentURL of [
-         *     'https://example.com',
-         *     'https://google.com',
-         *     'https://bbc.com',
-         *   ]) {
-         *     await page.goto(currentURL);
-         *   }
-         *   await browser.close();
-         * })();
-         * ```
-         *
-         * @param selector - The selector to query and wait for.
-         * @param options - Options for customizing waiting behavior.
-         * @returns An element matching the given selector.
-         * @throws Throws if an element matching the given selector doesn't appear.
-         */
-        async waitForSelector(selector, options = {}) {
-            const { updatedSelector, QueryHandler, polling } = getQueryHandlerAndSelector(selector);
-            return (await QueryHandler.waitFor(this, updatedSelector, {
-                polling,
-                ...options,
-            }));
-        }
-        async #checkVisibility(visibility) {
-            return await this.evaluate(async (element, PuppeteerUtil, visibility) => {
-                return Boolean(PuppeteerUtil.checkVisibility(element, visibility));
-            }, LazyArg.create(context => {
-                return context.puppeteerUtil;
-            }), visibility);
-        }
-        /**
-         * An element is considered to be visible if all of the following is
-         * true:
-         *
-         * - the element has
-         *   {@link https://developer.mozilla.org/en-US/docs/Web/API/Window/getComputedStyle | computed styles}.
-         *
-         * - the element has a non-empty
-         *   {@link https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect | bounding client rect}.
-         *
-         * - the element's {@link https://developer.mozilla.org/en-US/docs/Web/CSS/visibility | visibility}
-         *   is not `hidden` or `collapse`.
-         */
-        async isVisible() {
-            return await this.#checkVisibility(true);
-        }
-        /**
-         * An element is considered to be hidden if at least one of the following is true:
-         *
-         * - the element has no
-         *   {@link https://developer.mozilla.org/en-US/docs/Web/API/Window/getComputedStyle | computed styles}.
-         *
-         * - the element has an empty
-         *   {@link https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect | bounding client rect}.
-         *
-         * - the element's {@link https://developer.mozilla.org/en-US/docs/Web/CSS/visibility | visibility}
-         *   is `hidden` or `collapse`.
-         */
-        async isHidden() {
-            return await this.#checkVisibility(false);
-        }
-        /**
-         * Converts the current handle to the given element type.
-         *
-         * @example
-         *
-         * ```ts
-         * const element: ElementHandle<Element> = await page.$(
-         *   '.class-name-of-anchor'
-         * );
-         * // DO NOT DISPOSE `element`, this will be always be the same handle.
-         * const anchor: ElementHandle<HTMLAnchorElement> =
-         *   await element.toElement('a');
-         * ```
-         *
-         * @param tagName - The tag name of the desired element type.
-         * @throws An error if the handle does not match. **The handle will not be
-         * automatically disposed.**
-         */
-        async toElement(tagName) {
-            const isMatchingTagName = await this.evaluate((node, tagName) => {
-                return node.nodeName === tagName.toUpperCase();
-            }, tagName);
-            if (!isMatchingTagName) {
-                throw new Error(`Element is not a(n) \`${tagName}\` element`);
-            }
-            return this;
-        }
-        /**
-         * Returns the middle point within an element unless a specific offset is provided.
-         */
-        async clickablePoint(offset) {
-            const box = await this.#clickableBox();
-            if (!box) {
-                throw new Error('Node is either not clickable or not an Element');
-            }
-            if (offset !== undefined) {
-                return {
-                    x: box.x + offset.x,
-                    y: box.y + offset.y,
-                };
-            }
-            return {
-                x: box.x + box.width / 2,
-                y: box.y + box.height / 2,
-            };
-        }
-        /**
-         * This method scrolls element into view if needed, and then
-         * uses {@link Page.mouse} to hover over the center of the element.
-         * If the element is detached from DOM, the method throws an error.
-         */
-        async hover() {
-            await this.scrollIntoViewIfNeeded();
-            const { x, y } = await this.clickablePoint();
-            await this.frame.page().mouse.move(x, y);
-        }
-        /**
-         * This method scrolls element into view if needed, and then
-         * uses {@link Page.mouse} to click in the center of the element.
-         * If the element is detached from DOM, the method throws an error.
-         */
-        async click(options = {}) {
-            await this.scrollIntoViewIfNeeded();
-            const { x, y } = await this.clickablePoint(options.offset);
-            await this.frame.page().mouse.click(x, y, options);
-        }
-        /**
-         * Drags an element over the given element or point.
-         *
-         * @returns DEPRECATED. When drag interception is enabled, the drag payload is
-         * returned.
-         */
-        async drag(target) {
-            await this.scrollIntoViewIfNeeded();
-            const page = this.frame.page();
-            if (page.isDragInterceptionEnabled()) {
-                const source = await this.clickablePoint();
-                if (target instanceof ElementHandle) {
-                    target = await target.clickablePoint();
-                }
-                return await page.mouse.drag(source, target);
-            }
-            try {
-                if (!page._isDragging) {
-                    page._isDragging = true;
-                    await this.hover();
-                    await page.mouse.down();
-                }
-                if (target instanceof ElementHandle) {
-                    await target.hover();
-                }
-                else {
-                    await page.mouse.move(target.x, target.y);
-                }
-            }
-            catch (error) {
-                page._isDragging = false;
-                throw error;
-            }
-        }
-        /**
-         * @deprecated Do not use. `dragenter` will automatically be performed during dragging.
-         */
-        async dragEnter(data = { items: [], dragOperationsMask: 1 }) {
-            const page = this.frame.page();
-            await this.scrollIntoViewIfNeeded();
-            const target = await this.clickablePoint();
-            await page.mouse.dragEnter(target, data);
-        }
-        /**
-         * @deprecated Do not use. `dragover` will automatically be performed during dragging.
-         */
-        async dragOver(data = { items: [], dragOperationsMask: 1 }) {
-            const page = this.frame.page();
-            await this.scrollIntoViewIfNeeded();
-            const target = await this.clickablePoint();
-            await page.mouse.dragOver(target, data);
-        }
-        /**
-         * @internal
-         */
-        async drop(dataOrElement = {
-            items: [],
-            dragOperationsMask: 1,
-        }) {
-            const page = this.frame.page();
-            if ('items' in dataOrElement) {
-                await this.scrollIntoViewIfNeeded();
-                const destination = await this.clickablePoint();
-                await page.mouse.drop(destination, dataOrElement);
-            }
-            else {
-                // Note if the rest errors, we still want dragging off because the errors
-                // is most likely something implying the mouse is no longer dragging.
-                await dataOrElement.drag(this);
-                page._isDragging = false;
-                await page.mouse.up();
-            }
-        }
-        /**
-         * @deprecated Use `ElementHandle.drop` instead.
-         */
-        async dragAndDrop(target, options) {
-            const page = this.frame.page();
-            assert(page.isDragInterceptionEnabled(), 'Drag Interception is not enabled!');
-            await this.scrollIntoViewIfNeeded();
-            const startPoint = await this.clickablePoint();
-            const targetPoint = await target.clickablePoint();
-            await page.mouse.dragAndDrop(startPoint, targetPoint, options);
-        }
-        /**
-         * Triggers a `change` and `input` event once all the provided options have been
-         * selected. If there's no `<select>` element matching `selector`, the method
-         * throws an error.
-         *
-         * @example
-         *
-         * ```ts
-         * handle.select('blue'); // single selection
-         * handle.select('red', 'green', 'blue'); // multiple selections
-         * ```
-         *
-         * @param values - Values of options to select. If the `<select>` has the
-         * `multiple` attribute, all values are considered, otherwise only the first
-         * one is taken into account.
-         */
-        async select(...values) {
-            for (const value of values) {
-                assert(isString(value), 'Values must be strings. Found value "' +
-                    value +
-                    '" of type "' +
-                    typeof value +
-                    '"');
-            }
-            return await this.evaluate((element, vals) => {
-                const values = new Set(vals);
-                if (!(element instanceof HTMLSelectElement)) {
-                    throw new Error('Element is not a <select> element.');
-                }
-                const selectedValues = new Set();
-                if (!element.multiple) {
-                    for (const option of element.options) {
-                        option.selected = false;
-                    }
-                    for (const option of element.options) {
-                        if (values.has(option.value)) {
-                            option.selected = true;
-                            selectedValues.add(option.value);
-                            break;
-                        }
-                    }
-                }
-                else {
-                    for (const option of element.options) {
-                        option.selected = values.has(option.value);
-                        if (option.selected) {
-                            selectedValues.add(option.value);
-                        }
-                    }
-                }
-                element.dispatchEvent(new Event('input', { bubbles: true }));
-                element.dispatchEvent(new Event('change', { bubbles: true }));
-                return [...selectedValues.values()];
-            }, values);
-        }
-        /**
-         * This method scrolls element into view if needed, and then uses
-         * {@link Touchscreen.tap} to tap in the center of the element.
-         * If the element is detached from DOM, the method throws an error.
-         */
-        async tap() {
-            await this.scrollIntoViewIfNeeded();
-            const { x, y } = await this.clickablePoint();
-            await this.frame.page().touchscreen.tap(x, y);
-        }
-        async touchStart() {
-            await this.scrollIntoViewIfNeeded();
-            const { x, y } = await this.clickablePoint();
-            await this.frame.page().touchscreen.touchStart(x, y);
-        }
-        async touchMove() {
-            await this.scrollIntoViewIfNeeded();
-            const { x, y } = await this.clickablePoint();
-            await this.frame.page().touchscreen.touchMove(x, y);
-        }
-        async touchEnd() {
-            await this.scrollIntoViewIfNeeded();
-            await this.frame.page().touchscreen.touchEnd();
-        }
-        /**
-         * Calls {@link https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/focus | focus} on the element.
-         */
-        async focus() {
-            await this.evaluate(element => {
-                if (!(element instanceof HTMLElement)) {
-                    throw new Error('Cannot focus non-HTMLElement');
-                }
-                return element.focus();
-            });
-        }
-        /**
-         * Focuses the element, and then sends a `keydown`, `keypress`/`input`, and
-         * `keyup` event for each character in the text.
-         *
-         * To press a special key, like `Control` or `ArrowDown`,
-         * use {@link ElementHandle.press}.
-         *
-         * @example
-         *
-         * ```ts
-         * await elementHandle.type('Hello'); // Types instantly
-         * await elementHandle.type('World', {delay: 100}); // Types slower, like a user
-         * ```
-         *
-         * @example
-         * An example of typing into a text field and then submitting the form:
-         *
-         * ```ts
-         * const elementHandle = await page.$('input');
-         * await elementHandle.type('some text');
-         * await elementHandle.press('Enter');
-         * ```
-         *
-         * @param options - Delay in milliseconds. Defaults to 0.
-         */
-        async type(text, options) {
-            await this.focus();
-            await this.frame.page().keyboard.type(text, options);
-        }
-        /**
-         * Focuses the element, and then uses {@link Keyboard.down} and {@link Keyboard.up}.
-         *
-         * @remarks
-         * If `key` is a single character and no modifier keys besides `Shift`
-         * are being held down, a `keypress`/`input` event will also be generated.
-         * The `text` option can be specified to force an input event to be generated.
-         *
-         * **NOTE** Modifier keys DO affect `elementHandle.press`. Holding down `Shift`
-         * will type the text in upper case.
-         *
-         * @param key - Name of key to press, such as `ArrowLeft`.
-         * See {@link KeyInput} for a list of all key names.
-         */
-        async press(key, options) {
-            await this.focus();
-            await this.frame.page().keyboard.press(key, options);
-        }
-        async #clickableBox() {
-            const boxes = await this.evaluate(element => {
-                if (!(element instanceof Element)) {
-                    return null;
-                }
-                return [...element.getClientRects()].map(rect => {
-                    return { x: rect.x, y: rect.y, width: rect.width, height: rect.height };
-                });
-            });
-            if (!boxes?.length) {
-                return null;
-            }
-            await this.#intersectBoundingBoxesWithFrame(boxes);
-            let frame = this.frame;
-            let parentFrame;
-            while ((parentFrame = frame?.parentFrame())) {
-                const env_3 = { stack: [], error: void 0, hasError: false };
-                try {
-                    const handle = __addDisposableResource$7(env_3, await frame.frameElement(), false);
-                    if (!handle) {
-                        throw new Error('Unsupported frame type');
-                    }
-                    const parentBox = await handle.evaluate(element => {
-                        // Element is not visible.
-                        if (element.getClientRects().length === 0) {
-                            return null;
-                        }
-                        const rect = element.getBoundingClientRect();
-                        const style = window.getComputedStyle(element);
-                        return {
-                            left: rect.left +
-                                parseInt(style.paddingLeft, 10) +
-                                parseInt(style.borderLeftWidth, 10),
-                            top: rect.top +
-                                parseInt(style.paddingTop, 10) +
-                                parseInt(style.borderTopWidth, 10),
-                        };
-                    });
-                    if (!parentBox) {
-                        return null;
-                    }
-                    for (const box of boxes) {
-                        box.x += parentBox.left;
-                        box.y += parentBox.top;
-                    }
-                    await handle.#intersectBoundingBoxesWithFrame(boxes);
-                    frame = parentFrame;
-                }
-                catch (e_3) {
-                    env_3.error = e_3;
-                    env_3.hasError = true;
-                }
-                finally {
-                    __disposeResources$7(env_3);
-                }
-            }
-            const box = boxes.find(box => {
-                return box.width >= 1 && box.height >= 1;
-            });
-            if (!box) {
-                return null;
-            }
-            return {
-                x: box.x,
-                y: box.y,
-                height: box.height,
-                width: box.width,
-            };
-        }
-        async #intersectBoundingBoxesWithFrame(boxes) {
-            const { documentWidth, documentHeight } = await this.frame
-                .isolatedRealm()
-                .evaluate(() => {
-                return {
-                    documentWidth: document.documentElement.clientWidth,
-                    documentHeight: document.documentElement.clientHeight,
-                };
-            });
-            for (const box of boxes) {
-                intersectBoundingBox(box, documentWidth, documentHeight);
-            }
-        }
-        /**
-         * This method returns the bounding box of the element (relative to the main frame),
-         * or `null` if the element is {@link https://drafts.csswg.org/css-display-4/#box-generation | not part of the layout}
-         * (example: `display: none`).
-         */
-        async boundingBox() {
-            const box = await this.evaluate(element => {
-                if (!(element instanceof Element)) {
-                    return null;
-                }
-                // Element is not visible.
-                if (element.getClientRects().length === 0) {
-                    return null;
-                }
-                const rect = element.getBoundingClientRect();
-                return { x: rect.x, y: rect.y, width: rect.width, height: rect.height };
-            });
-            if (!box) {
-                return null;
-            }
-            const offset = await this.#getTopLeftCornerOfFrame();
-            if (!offset) {
-                return null;
-            }
-            return {
-                x: box.x + offset.x,
-                y: box.y + offset.y,
-                height: box.height,
-                width: box.width,
-            };
-        }
-        /**
-         * This method returns boxes of the element,
-         * or `null` if the element is {@link https://drafts.csswg.org/css-display-4/#box-generation | not part of the layout}
-         * (example: `display: none`).
-         *
-         * @remarks
-         *
-         * Boxes are represented as an array of points;
-         * Each Point is an object `{x, y}`. Box points are sorted clock-wise.
-         */
-        async boxModel() {
-            const model = await this.evaluate(element => {
-                if (!(element instanceof Element)) {
-                    return null;
-                }
-                // Element is not visible.
-                if (element.getClientRects().length === 0) {
-                    return null;
-                }
-                const rect = element.getBoundingClientRect();
-                const style = window.getComputedStyle(element);
-                const offsets = {
-                    padding: {
-                        left: parseInt(style.paddingLeft, 10),
-                        top: parseInt(style.paddingTop, 10),
-                        right: parseInt(style.paddingRight, 10),
-                        bottom: parseInt(style.paddingBottom, 10),
-                    },
-                    margin: {
-                        left: -parseInt(style.marginLeft, 10),
-                        top: -parseInt(style.marginTop, 10),
-                        right: -parseInt(style.marginRight, 10),
-                        bottom: -parseInt(style.marginBottom, 10),
-                    },
-                    border: {
-                        left: parseInt(style.borderLeft, 10),
-                        top: parseInt(style.borderTop, 10),
-                        right: parseInt(style.borderRight, 10),
-                        bottom: parseInt(style.borderBottom, 10),
-                    },
-                };
-                const border = [
-                    { x: rect.left, y: rect.top },
-                    { x: rect.left + rect.width, y: rect.top },
-                    { x: rect.left + rect.width, y: rect.top + rect.bottom },
-                    { x: rect.left, y: rect.top + rect.bottom },
-                ];
-                const padding = transformQuadWithOffsets(border, offsets.border);
-                const content = transformQuadWithOffsets(padding, offsets.padding);
-                const margin = transformQuadWithOffsets(border, offsets.margin);
-                return {
-                    content,
-                    padding,
-                    border,
-                    margin,
-                    width: rect.width,
-                    height: rect.height,
-                };
-                function transformQuadWithOffsets(quad, offsets) {
-                    return [
-                        {
-                            x: quad[0].x + offsets.left,
-                            y: quad[0].y + offsets.top,
-                        },
-                        {
-                            x: quad[1].x - offsets.right,
-                            y: quad[1].y + offsets.top,
-                        },
-                        {
-                            x: quad[2].x - offsets.right,
-                            y: quad[2].y - offsets.bottom,
-                        },
-                        {
-                            x: quad[3].x + offsets.left,
-                            y: quad[3].y - offsets.bottom,
-                        },
-                    ];
-                }
-            });
-            if (!model) {
-                return null;
-            }
-            const offset = await this.#getTopLeftCornerOfFrame();
-            if (!offset) {
-                return null;
-            }
-            for (const attribute of [
-                'content',
-                'padding',
-                'border',
-                'margin',
-            ]) {
-                for (const point of model[attribute]) {
-                    point.x += offset.x;
-                    point.y += offset.y;
-                }
-            }
-            return model;
-        }
-        async #getTopLeftCornerOfFrame() {
-            const point = { x: 0, y: 0 };
-            let frame = this.frame;
-            let parentFrame;
-            while ((parentFrame = frame?.parentFrame())) {
-                const env_4 = { stack: [], error: void 0, hasError: false };
-                try {
-                    const handle = __addDisposableResource$7(env_4, await frame.frameElement(), false);
-                    if (!handle) {
-                        throw new Error('Unsupported frame type');
-                    }
-                    const parentBox = await handle.evaluate(element => {
-                        // Element is not visible.
-                        if (element.getClientRects().length === 0) {
-                            return null;
-                        }
-                        const rect = element.getBoundingClientRect();
-                        const style = window.getComputedStyle(element);
-                        return {
-                            left: rect.left +
-                                parseInt(style.paddingLeft, 10) +
-                                parseInt(style.borderLeftWidth, 10),
-                            top: rect.top +
-                                parseInt(style.paddingTop, 10) +
-                                parseInt(style.borderTopWidth, 10),
-                        };
-                    });
-                    if (!parentBox) {
-                        return null;
-                    }
-                    point.x += parentBox.left;
-                    point.y += parentBox.top;
-                    frame = parentFrame;
-                }
-                catch (e_4) {
-                    env_4.error = e_4;
-                    env_4.hasError = true;
-                }
-                finally {
-                    __disposeResources$7(env_4);
-                }
-            }
-            return point;
-        }
-        async screenshot(options = {}) {
-            const { scrollIntoView = true, clip } = options;
-            const page = this.frame.page();
-            // Only scroll the element into view if the user wants it.
-            if (scrollIntoView) {
-                await this.scrollIntoViewIfNeeded();
-            }
-            const elementClip = await this.#nonEmptyVisibleBoundingBox();
-            const [pageLeft, pageTop] = await this.evaluate(() => {
-                if (!window.visualViewport) {
-                    throw new Error('window.visualViewport is not supported.');
-                }
-                return [
-                    window.visualViewport.pageLeft,
-                    window.visualViewport.pageTop,
-                ];
-            });
-            elementClip.x += pageLeft;
-            elementClip.y += pageTop;
-            if (clip) {
-                elementClip.x += clip.x;
-                elementClip.y += clip.y;
-                elementClip.height = clip.height;
-                elementClip.width = clip.width;
-            }
-            return await page.screenshot({ ...options, clip: elementClip });
-        }
-        async #nonEmptyVisibleBoundingBox() {
-            const box = await this.boundingBox();
-            assert(box, 'Node is either not visible or not an HTMLElement');
-            assert(box.width !== 0, 'Node has 0 width.');
-            assert(box.height !== 0, 'Node has 0 height.');
-            return box;
-        }
-        /**
-         * @internal
-         */
-        async assertConnectedElement() {
-            const error = await this.evaluate(async (element) => {
-                if (!element.isConnected) {
-                    return 'Node is detached from document';
-                }
-                if (element.nodeType !== Node.ELEMENT_NODE) {
-                    return 'Node is not of type HTMLElement';
-                }
-                return;
-            });
-            if (error) {
-                throw new Error(error);
-            }
-        }
-        /**
-         * @internal
-         */
-        async scrollIntoViewIfNeeded() {
-            if (await this.isIntersectingViewport({
-                threshold: 1,
-            })) {
-                return;
-            }
-            await this.scrollIntoView();
-        }
-        /**
-         * Resolves to true if the element is visible in the current viewport. If an
-         * element is an SVG, we check if the svg owner element is in the viewport
-         * instead. See https://crbug.com/963246.
-         *
-         * @param options - Threshold for the intersection between 0 (no intersection) and 1
-         * (full intersection). Defaults to 1.
-         */
-        async isIntersectingViewport(options = {}) {
-            const env_5 = { stack: [], error: void 0, hasError: false };
-            try {
-                await this.assertConnectedElement();
-                // eslint-disable-next-line rulesdir/use-using -- Returns `this`.
-                const handle = await this.#asSVGElementHandle();
-                const target = __addDisposableResource$7(env_5, handle && (await handle.#getOwnerSVGElement()), false);
-                return await (target ?? this).evaluate(async (element, threshold) => {
-                    const visibleRatio = await new Promise(resolve => {
-                        const observer = new IntersectionObserver(entries => {
-                            resolve(entries[0].intersectionRatio);
-                            observer.disconnect();
-                        });
-                        observer.observe(element);
-                    });
-                    return threshold === 1 ? visibleRatio === 1 : visibleRatio > threshold;
-                }, options.threshold ?? 0);
-            }
-            catch (e_5) {
-                env_5.error = e_5;
-                env_5.hasError = true;
-            }
-            finally {
-                __disposeResources$7(env_5);
-            }
-        }
-        /**
-         * Scrolls the element into view using either the automation protocol client
-         * or by calling element.scrollIntoView.
-         */
-        async scrollIntoView() {
-            await this.assertConnectedElement();
-            await this.evaluate(async (element) => {
-                element.scrollIntoView({
-                    block: 'center',
-                    inline: 'center',
-                    behavior: 'instant',
-                });
-            });
-        }
-        /**
-         * Returns true if an element is an SVGElement (included svg, path, rect
-         * etc.).
-         */
-        async #asSVGElementHandle() {
-            if (await this.evaluate(element => {
-                return element instanceof SVGElement;
-            })) {
-                return this;
-            }
-            else {
-                return null;
-            }
-        }
-        async #getOwnerSVGElement() {
-            // SVGSVGElement.ownerSVGElement === null.
-            return await this.evaluateHandle(element => {
-                if (element instanceof SVGSVGElement) {
-                    return element;
-                }
-                return element.ownerSVGElement;
-            });
-        }
-    };
-})();
-function intersectBoundingBox(box, width, height) {
-    box.width = Math.max(box.x >= 0
-        ? Math.min(width - box.x, box.width)
-        : Math.min(width, box.width + box.x), 0);
-    box.height = Math.max(box.y >= 0
-        ? Math.min(height - box.y, box.height)
-        : Math.min(height, box.height + box.y), 0);
-}
-
-var __addDisposableResource$6 = (undefined && undefined.__addDisposableResource) || function (env, value, async) {
-    if (value !== null && value !== void 0) {
-        if (typeof value !== "object" && typeof value !== "function") throw new TypeError("Object expected.");
-        var dispose;
-        if (async) {
-            if (!Symbol.asyncDispose) throw new TypeError("Symbol.asyncDispose is not defined.");
-            dispose = value[Symbol.asyncDispose];
-        }
-        if (dispose === void 0) {
-            if (!Symbol.dispose) throw new TypeError("Symbol.dispose is not defined.");
-            dispose = value[Symbol.dispose];
-        }
-        if (typeof dispose !== "function") throw new TypeError("Object not disposable.");
-        env.stack.push({ value: value, dispose: dispose, async: async });
-    }
-    else if (async) {
-        env.stack.push({ async: true });
-    }
-    return value;
-};
-var __disposeResources$6 = (undefined && undefined.__disposeResources) || (function (SuppressedError) {
-    return function (env) {
-        function fail(e) {
-            env.error = env.hasError ? new SuppressedError(e, env.error, "An error was suppressed during disposal.") : e;
-            env.hasError = true;
-        }
-        function next() {
-            while (env.stack.length) {
-                var rec = env.stack.pop();
-                try {
-                    var result = rec.dispose && rec.dispose.call(rec.value);
-                    if (rec.async) return Promise.resolve(result).then(next, function(e) { fail(e); return next(); });
-                }
-                catch (e) {
-                    fail(e);
-                }
-            }
+            if (s === 1) return env.hasError ? Promise.reject(env.error) : Promise.resolve();
             if (env.hasError) throw env.error;
         }
         return next();
@@ -7155,6 +6280,20 @@ var LocatorEvent;
  * @public
  */
 class Locator extends EventEmitter {
+    #logger;
+    /**
+     * @internal
+     */
+    constructor(logger) {
+        super(undefined, logger);
+        this.#logger = logger;
+    }
+    /**
+     * @internal
+     */
+    get logger() {
+        return this.#logger;
+    }
     /**
      * Creates a race between multiple locators trying to locate elements in
      * parallel but ensures that only a single element receives the action.
@@ -7363,13 +6502,16 @@ class Locator extends EventEmitter {
             return this.emit(LocatorEvent.Action, undefined);
         }), mergeMap(handle => {
             return from(handle.click(options)).pipe(catchError(err => {
-                void handle.dispose().catch(debugError);
+                void handle.dispose().catch(error => {
+                    this.#logger?.(DEBUG_PREFIXES.error)?.(error);
+                });
                 throw err;
             }));
         }), this.operators.retryAndRaceWithSignalAndTimer(signal, cause));
     }
     #fill(value, options) {
         const signal = options?.signal;
+        const typingThreshold = options?.typingThreshold ?? 100;
         const cause = new Error('Locator.fill');
         return this._wait(options).pipe(this.operators.conditions([
             this.#ensureElementIsInTheViewportIfNeeded,
@@ -7386,21 +6528,27 @@ class Locator extends EventEmitter {
                     return 'typeable-input';
                 }
                 if (el instanceof HTMLInputElement) {
-                    if (new Set([
-                        'textarea',
-                        'text',
-                        'url',
-                        'tel',
-                        'search',
-                        'password',
-                        'number',
-                        'email',
-                    ]).has(el.type)) {
-                        return 'typeable-input';
+                    switch (el.type) {
+                        case 'checkbox':
+                        case 'radio':
+                            return 'checkable-input';
+                        case 'text':
+                        case 'url':
+                        case 'tel':
+                        case 'search':
+                        case 'password':
+                        case 'number':
+                        case 'email':
+                            return 'typeable-input';
+                        default:
+                            return 'other-input';
                     }
-                    else {
-                        return 'other-input';
-                    }
+                }
+                switch (el.getAttribute('role')) {
+                    case 'checkbox':
+                    case 'radio':
+                    case 'switch':
+                        return 'checkable-input';
                 }
                 if (el.isContentEditable) {
                     return 'contenteditable';
@@ -7408,58 +6556,102 @@ class Locator extends EventEmitter {
                 return 'unknown';
             }))
                 .pipe(mergeMap(inputType => {
+                const fillDirectly = () => {
+                    return from(handle.focus()).pipe(mergeMap(() => {
+                        return from(handle.evaluate((input, newValue) => {
+                            const element = input;
+                            const valString = String(newValue);
+                            const currentValue = element.isContentEditable
+                                ? element.innerText
+                                : element.value;
+                            if (currentValue === valString) {
+                                return;
+                            }
+                            if (element.isContentEditable) {
+                                element.innerText = valString;
+                            }
+                            else {
+                                element.value = valString;
+                            }
+                            element.dispatchEvent(new Event('input', { bubbles: true }));
+                            element.dispatchEvent(new Event('change', { bubbles: true }));
+                        }, value));
+                    }));
+                };
+                const toggleIfNeeded = () => {
+                    return from(handle.evaluate(toggleEl => {
+                        if (toggleEl.indeterminate ||
+                            toggleEl.getAttribute('aria-checked') === 'mixed') {
+                            return 'mixed';
+                        }
+                        return (toggleEl.checked ||
+                            toggleEl.getAttribute('aria-checked') === 'true');
+                    })).pipe(mergeMap(currentState => {
+                        if (currentState === 'mixed' || currentState !== !!value) {
+                            return from(handle.click());
+                        }
+                        return of(undefined);
+                    }));
+                };
                 switch (inputType) {
+                    case 'checkable-input':
+                        return toggleIfNeeded();
                     case 'select':
                         return from(handle.select(value).then(noop));
                     case 'contenteditable':
                     case 'typeable-input':
-                        return from(handle.evaluate((input, newValue) => {
-                            const currentValue = input.isContentEditable
-                                ? input.innerText
-                                : input.value;
-                            // Clear the input if the current value does not match the filled
-                            // out value.
-                            if (newValue.length <= currentValue.length ||
-                                !newValue.startsWith(input.value)) {
-                                if (input.isContentEditable) {
-                                    input.innerText = '';
+                        if (typeof value === 'string' &&
+                            value.length < typingThreshold) {
+                            return from(handle.evaluate((input, newValue) => {
+                                const element = input;
+                                const valString = String(newValue);
+                                const currentValue = element.isContentEditable
+                                    ? element.innerText
+                                    : input.value;
+                                if (currentValue === valString) {
+                                    return '';
+                                }
+                                // Clear the input if the current value does not match the filled
+                                // out value.
+                                if (!valString.startsWith(currentValue) ||
+                                    !currentValue) {
+                                    if (element.isContentEditable) {
+                                        element.innerText = '';
+                                    }
+                                    else {
+                                        input.value = '';
+                                    }
+                                    return valString;
+                                }
+                                // If the value is partially filled out, only type the rest. Move
+                                // cursor to the end of the common prefix.
+                                if (element.isContentEditable) {
+                                    element.innerText = '';
+                                    element.innerText = currentValue;
                                 }
                                 else {
                                     input.value = '';
+                                    input.value = currentValue;
                                 }
-                                return newValue;
-                            }
-                            const originalValue = input.isContentEditable
-                                ? input.innerText
-                                : input.value;
-                            // If the value is partially filled out, only type the rest. Move
-                            // cursor to the end of the common prefix.
-                            if (input.isContentEditable) {
-                                input.innerText = '';
-                                input.innerText = originalValue;
-                            }
-                            else {
-                                input.value = '';
-                                input.value = originalValue;
-                            }
-                            return newValue.substring(originalValue.length);
-                        }, value)).pipe(mergeMap(textToType => {
-                            return from(handle.type(textToType));
-                        }));
+                                return valString.substring(currentValue.length);
+                            }, value)).pipe(mergeMap(textToType => {
+                                if (!textToType) {
+                                    return of(undefined);
+                                }
+                                return from(handle.type(textToType));
+                            }));
+                        }
+                        return fillDirectly();
                     case 'other-input':
-                        return from(handle.focus()).pipe(mergeMap(() => {
-                            return from(handle.evaluate((input, value) => {
-                                input.value = value;
-                                input.dispatchEvent(new Event('input', { bubbles: true }));
-                                input.dispatchEvent(new Event('change', { bubbles: true }));
-                            }, value));
-                        }));
+                        return fillDirectly();
                     case 'unknown':
                         throw new Error(`Element cannot be filled out.`);
                 }
             }))
                 .pipe(catchError(err => {
-                void handle.dispose().catch(debugError);
+                void handle.dispose().catch(error => {
+                    this.#logger?.(DEBUG_PREFIXES.error)?.(error);
+                });
                 throw err;
             }));
         }), this.operators.retryAndRaceWithSignalAndTimer(signal, cause));
@@ -7474,7 +6666,9 @@ class Locator extends EventEmitter {
             return this.emit(LocatorEvent.Action, undefined);
         }), mergeMap(handle => {
             return from(handle.hover()).pipe(catchError(err => {
-                void handle.dispose().catch(debugError);
+                void handle.dispose().catch(error => {
+                    this.#logger?.(DEBUG_PREFIXES.error)?.(error);
+                });
                 throw err;
             }));
         }), this.operators.retryAndRaceWithSignalAndTimer(signal, cause));
@@ -7496,7 +6690,9 @@ class Locator extends EventEmitter {
                     el.scrollLeft = scrollLeft;
                 }
             }, options?.scrollTop, options?.scrollLeft)).pipe(catchError(err => {
-                void handle.dispose().catch(debugError);
+                void handle.dispose().catch(error => {
+                    this.#logger?.(DEBUG_PREFIXES.error)?.(error);
+                });
                 throw err;
             }));
         }), this.operators.retryAndRaceWithSignalAndTimer(signal, cause));
@@ -7526,7 +6722,7 @@ class Locator extends EventEmitter {
     async wait(options) {
         const env_1 = { stack: [], error: void 0, hasError: false };
         try {
-            const handle = __addDisposableResource$6(env_1, await this.waitHandle(options), false);
+            const handle = __addDisposableResource$9(env_1, await this.waitHandle(options), false);
             return await handle.jsonValue();
         }
         catch (e_1) {
@@ -7534,7 +6730,7 @@ class Locator extends EventEmitter {
             env_1.hasError = true;
         }
         finally {
-            __disposeResources$6(env_1);
+            __disposeResources$9(env_1);
         }
     }
     /**
@@ -7589,7 +6785,8 @@ class Locator extends EventEmitter {
      * Fills out the input identified by the locator using the provided value. The
      * type of the input is determined at runtime and the appropriate fill-out
      * method is chosen based on the type. `contenteditable`, select, textarea and
-     * input elements are supported.
+     * input elements are supported. For checkboxes, radio buttons and switches
+     * specify a boolean value.
      */
     fill(value, options) {
         return firstValueFrom(this.#fill(value, options));
@@ -7619,7 +6816,7 @@ class FunctionLocator extends Locator {
     #pageOrFrame;
     #func;
     constructor(pageOrFrame, func) {
-        super();
+        super(pageOrFrame.logger);
         this.#pageOrFrame = pageOrFrame;
         this.#func = func;
     }
@@ -7642,7 +6839,7 @@ class FunctionLocator extends Locator {
 class DelegatedLocator extends Locator {
     #delegate;
     constructor(delegate) {
-        super();
+        super(delegate.logger);
         this.#delegate = delegate;
         this.copyOptions(this.#delegate);
     }
@@ -7725,12 +6922,17 @@ class NodeLocator extends Locator {
             ? pageOrFrame.getDefaultTimeout()
             : pageOrFrame.page().getDefaultTimeout());
     }
+    static createFromHandle(pageOrFrame, handle) {
+        return new NodeLocator(pageOrFrame, handle).setTimeout('getDefaultTimeout' in pageOrFrame
+            ? pageOrFrame.getDefaultTimeout()
+            : pageOrFrame.page().getDefaultTimeout());
+    }
     #pageOrFrame;
-    #selector;
-    constructor(pageOrFrame, selector) {
-        super();
+    #selectorOrHandle;
+    constructor(pageOrFrame, selectorOrHandle) {
+        super(pageOrFrame.logger);
         this.#pageOrFrame = pageOrFrame;
-        this.#selector = selector;
+        this.#selectorOrHandle = selectorOrHandle;
     }
     /**
      * Waits for the element to become visible or hidden. visibility === 'visible'
@@ -7756,16 +6958,23 @@ class NodeLocator extends Locator {
         })().pipe(first(identity), retry({ delay: RETRY_DELAY }), ignoreElements());
     };
     _clone() {
-        return new NodeLocator(this.#pageOrFrame, this.#selector).copyOptions(this);
+        return new NodeLocator(this.#pageOrFrame, 
+        // @ts-expect-error TSC does cannot parse private overloads.
+        this.#selectorOrHandle).copyOptions(this);
     }
     _wait(options) {
         const signal = options?.signal;
         return defer(() => {
-            return from(this.#pageOrFrame.waitForSelector(this.#selector, {
-                visible: false,
-                timeout: this._timeout,
-                signal,
-            }));
+            if (typeof this.#selectorOrHandle === 'string') {
+                return from(this.#pageOrFrame.waitForSelector(this.#selectorOrHandle, {
+                    visible: false,
+                    timeout: this._timeout,
+                    signal,
+                }));
+            }
+            else {
+                return of(this.#selectorOrHandle);
+            }
         }).pipe(filter((value) => {
             return value !== null;
         }), throwIfEmpty(), this.operators.conditions([this.#waitForVisibilityIfNeeded], signal));
@@ -7789,7 +6998,10 @@ class RaceLocator extends Locator {
     }
     #locators;
     constructor(locators) {
-        super();
+        super(locators[0]?.logger ??
+            (() => {
+                return undefined;
+            }));
         this.#locators = locators;
     }
     _clone() {
@@ -7813,6 +7025,1486 @@ class RaceLocator extends Locator {
  * @internal
  */
 const RETRY_DELAY = 100;
+
+/**
+ * @license
+ * Copyright 2023 Google Inc.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+var __runInitializers$6 = (undefined && undefined.__runInitializers) || function (thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+};
+var __esDecorate$6 = (undefined && undefined.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
+    function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
+    var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
+    var target = !descriptorIn && ctor ? contextIn["static"] ? ctor : ctor.prototype : null;
+    var descriptor = descriptorIn || (target ? Object.getOwnPropertyDescriptor(target, contextIn.name) : {});
+    var _, done = false;
+    for (var i = decorators.length - 1; i >= 0; i--) {
+        var context = {};
+        for (var p in contextIn) context[p] = p === "access" ? {} : contextIn[p];
+        for (var p in contextIn.access) context.access[p] = contextIn.access[p];
+        context.addInitializer = function (f) { if (done) throw new TypeError("Cannot add initializers after decoration has completed"); extraInitializers.push(accept(f || null)); };
+        var result = (0, decorators[i])(kind === "accessor" ? { get: descriptor.get, set: descriptor.set } : descriptor[key], context);
+        if (kind === "accessor") {
+            if (result === void 0) continue;
+            if (result === null || typeof result !== "object") throw new TypeError("Object expected");
+            if (_ = accept(result.get)) descriptor.get = _;
+            if (_ = accept(result.set)) descriptor.set = _;
+            if (_ = accept(result.init)) initializers.unshift(_);
+        }
+        else if (_ = accept(result)) {
+            if (kind === "field") initializers.unshift(_);
+            else descriptor[key] = _;
+        }
+    }
+    if (target) Object.defineProperty(target, contextIn.name, descriptor);
+    done = true;
+};
+var __addDisposableResource$8 = (undefined && undefined.__addDisposableResource) || function (env, value, async) {
+    if (value !== null && value !== void 0) {
+        if (typeof value !== "object" && typeof value !== "function") throw new TypeError("Object expected.");
+        var dispose, inner;
+        if (async) {
+            if (!Symbol.asyncDispose) throw new TypeError("Symbol.asyncDispose is not defined.");
+            dispose = value[Symbol.asyncDispose];
+        }
+        if (dispose === void 0) {
+            if (!Symbol.dispose) throw new TypeError("Symbol.dispose is not defined.");
+            dispose = value[Symbol.dispose];
+            if (async) inner = dispose;
+        }
+        if (typeof dispose !== "function") throw new TypeError("Object not disposable.");
+        if (inner) dispose = function() { try { inner.call(this); } catch (e) { return Promise.reject(e); } };
+        env.stack.push({ value: value, dispose: dispose, async: async });
+    }
+    else if (async) {
+        env.stack.push({ async: true });
+    }
+    return value;
+};
+var __disposeResources$8 = (undefined && undefined.__disposeResources) || (function (SuppressedError) {
+    return function (env) {
+        function fail(e) {
+            env.error = env.hasError ? new SuppressedError(e, env.error, "An error was suppressed during disposal.") : e;
+            env.hasError = true;
+        }
+        var r, s = 0;
+        function next() {
+            while (r = env.stack.pop()) {
+                try {
+                    if (!r.async && s === 1) return s = 0, env.stack.push(r), Promise.resolve().then(next);
+                    if (r.dispose) {
+                        var result = r.dispose.call(r.value);
+                        if (r.async) return s |= 2, Promise.resolve(result).then(next, function(e) { fail(e); return next(); });
+                    }
+                    else s |= 1;
+                }
+                catch (e) {
+                    fail(e);
+                }
+            }
+            if (s === 1) return env.hasError ? Promise.reject(env.error) : Promise.resolve();
+            if (env.hasError) throw env.error;
+        }
+        return next();
+    };
+})(typeof SuppressedError === "function" ? SuppressedError : function (error, suppressed, message) {
+    var e = new Error(message);
+    return e.name = "SuppressedError", e.error = error, e.suppressed = suppressed, e;
+});
+var __setFunctionName$2 = (undefined && undefined.__setFunctionName) || function (f, name, prefix) {
+    if (typeof name === "symbol") name = name.description ? "[".concat(name.description, "]") : "";
+    return Object.defineProperty(f, "name", { configurable: true, value: prefix ? "".concat(prefix, " ", name) : name });
+};
+/**
+ * A given method will have it's `this` replaced with an isolated version of
+ * `this` when decorated with this decorator.
+ *
+ * All changes of isolated `this` are reflected on the actual `this`.
+ *
+ * @internal
+ */
+function bindIsolatedHandle(target, _) {
+    return async function (...args) {
+        // If the handle is already isolated, then we don't need to adopt it
+        // again.
+        if (this.realm === this.frame.isolatedRealm()) {
+            return await target.call(this, ...args);
+        }
+        let adoptedThis;
+        if (this['isolatedHandle']) {
+            adoptedThis = this['isolatedHandle'];
+        }
+        else {
+            this['isolatedHandle'] = adoptedThis = await this.frame
+                .isolatedRealm()
+                .adoptHandle(this);
+        }
+        const result = await target.call(adoptedThis, ...args);
+        // If the function returns `adoptedThis`, then we return `this`.
+        if (result === adoptedThis) {
+            return this;
+        }
+        // If the function returns a handle, transfer it into the current realm.
+        if (result instanceof JSHandle) {
+            return await this.realm.transferHandle(result);
+        }
+        // If the function returns an array of handlers, transfer them into the
+        // current realm.
+        if (Array.isArray(result)) {
+            await Promise.all(result.map(async (item, index, result) => {
+                if (item instanceof JSHandle) {
+                    result[index] = await this.realm.transferHandle(item);
+                }
+            }));
+        }
+        if (result instanceof Map) {
+            await Promise.all([...result.entries()].map(async ([key, value]) => {
+                if (value instanceof JSHandle) {
+                    result.set(key, await this.realm.transferHandle(value));
+                }
+            }));
+        }
+        return result;
+    };
+}
+/**
+ * ElementHandle represents an in-page DOM element.
+ *
+ * @remarks
+ * ElementHandles can be created with the {@link Page.$} method.
+ *
+ * ```ts
+ * import puppeteer from 'puppeteer';
+ *
+ * const browser = await puppeteer.launch();
+ * const page = await browser.newPage();
+ * await page.goto('https://example.com');
+ * const hrefElement = await page.$('a');
+ * await hrefElement.click();
+ * // ...
+ * ```
+ *
+ * ElementHandle prevents the DOM element from being garbage-collected unless the
+ * handle is {@link JSHandle.dispose | disposed}. ElementHandles are auto-disposed
+ * when their associated frame is navigated away or the parent
+ * context gets destroyed.
+ *
+ * ElementHandle instances can be used as arguments in {@link Page.$eval} and
+ * {@link Page.evaluate} methods.
+ *
+ * If you're using TypeScript, ElementHandle takes a generic argument that
+ * denotes the type of element the handle is holding within. For example, if you
+ * have a handle to a `<select>` element, you can type it as
+ * `ElementHandle<HTMLSelectElement>` and you get some nicer type checks.
+ *
+ * @public
+ */
+let ElementHandle = (() => {
+    let _classSuper = JSHandle;
+    let _instanceExtraInitializers = [];
+    let _getProperty_decorators;
+    let _getProperties_decorators;
+    let _jsonValue_decorators;
+    let _$_decorators;
+    let _$$_decorators;
+    let _private_$$_decorators;
+    let _private_$$_descriptor;
+    let _waitForSelector_decorators;
+    let _isVisible_decorators;
+    let _isHidden_decorators;
+    let _toElement_decorators;
+    let _clickablePoint_decorators;
+    let _hover_decorators;
+    let _click_decorators;
+    let _drag_decorators;
+    let _dragEnter_decorators;
+    let _dragOver_decorators;
+    let _drop_decorators;
+    let _dragAndDrop_decorators;
+    let _select_decorators;
+    let _tap_decorators;
+    let _touchStart_decorators;
+    let _touchMove_decorators;
+    let _touchEnd_decorators;
+    let _focus_decorators;
+    let _type_decorators;
+    let _press_decorators;
+    let _boundingBox_decorators;
+    let _boxModel_decorators;
+    let _screenshot_decorators;
+    let _isIntersectingViewport_decorators;
+    let _scrollIntoView_decorators;
+    let _asLocator_decorators;
+    return class ElementHandle extends _classSuper {
+        static {
+            const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
+            _getProperty_decorators = [throwIfDisposed(), bindIsolatedHandle];
+            _getProperties_decorators = [throwIfDisposed(), bindIsolatedHandle];
+            _jsonValue_decorators = [throwIfDisposed(), bindIsolatedHandle];
+            _$_decorators = [throwIfDisposed(), bindIsolatedHandle];
+            _$$_decorators = [throwIfDisposed()];
+            _private_$$_decorators = [bindIsolatedHandle];
+            _waitForSelector_decorators = [throwIfDisposed(), bindIsolatedHandle];
+            _isVisible_decorators = [throwIfDisposed(), bindIsolatedHandle];
+            _isHidden_decorators = [throwIfDisposed(), bindIsolatedHandle];
+            _toElement_decorators = [throwIfDisposed(), bindIsolatedHandle];
+            _clickablePoint_decorators = [throwIfDisposed(), bindIsolatedHandle];
+            _hover_decorators = [throwIfDisposed(), bindIsolatedHandle];
+            _click_decorators = [throwIfDisposed(), bindIsolatedHandle];
+            _drag_decorators = [throwIfDisposed(), bindIsolatedHandle];
+            _dragEnter_decorators = [throwIfDisposed(), bindIsolatedHandle];
+            _dragOver_decorators = [throwIfDisposed(), bindIsolatedHandle];
+            _drop_decorators = [throwIfDisposed(), bindIsolatedHandle];
+            _dragAndDrop_decorators = [throwIfDisposed(), bindIsolatedHandle];
+            _select_decorators = [throwIfDisposed(), bindIsolatedHandle];
+            _tap_decorators = [throwIfDisposed(), bindIsolatedHandle];
+            _touchStart_decorators = [throwIfDisposed(), bindIsolatedHandle];
+            _touchMove_decorators = [throwIfDisposed(), bindIsolatedHandle];
+            _touchEnd_decorators = [throwIfDisposed(), bindIsolatedHandle];
+            _focus_decorators = [throwIfDisposed(), bindIsolatedHandle];
+            _type_decorators = [throwIfDisposed(), bindIsolatedHandle];
+            _press_decorators = [throwIfDisposed(), bindIsolatedHandle];
+            _boundingBox_decorators = [throwIfDisposed(), bindIsolatedHandle];
+            _boxModel_decorators = [throwIfDisposed(), bindIsolatedHandle];
+            _screenshot_decorators = [throwIfDisposed(), bindIsolatedHandle];
+            _isIntersectingViewport_decorators = [throwIfDisposed(), bindIsolatedHandle];
+            _scrollIntoView_decorators = [throwIfDisposed(), bindIsolatedHandle];
+            _asLocator_decorators = [throwIfDisposed()];
+            __esDecorate$6(this, null, _getProperty_decorators, { kind: "method", name: "getProperty", static: false, private: false, access: { has: obj => "getProperty" in obj, get: obj => obj.getProperty }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate$6(this, null, _getProperties_decorators, { kind: "method", name: "getProperties", static: false, private: false, access: { has: obj => "getProperties" in obj, get: obj => obj.getProperties }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate$6(this, null, _jsonValue_decorators, { kind: "method", name: "jsonValue", static: false, private: false, access: { has: obj => "jsonValue" in obj, get: obj => obj.jsonValue }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate$6(this, null, _$_decorators, { kind: "method", name: "$", static: false, private: false, access: { has: obj => "$" in obj, get: obj => obj.$ }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate$6(this, null, _$$_decorators, { kind: "method", name: "$$", static: false, private: false, access: { has: obj => "$$" in obj, get: obj => obj.$$ }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate$6(this, _private_$$_descriptor = { value: __setFunctionName$2(async function (selector) {
+                    return await this.#$$impl(selector);
+                }, "#$$") }, _private_$$_decorators, { kind: "method", name: "#$$", static: false, private: true, access: { has: obj => #$$ in obj, get: obj => obj.#$$ }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate$6(this, null, _waitForSelector_decorators, { kind: "method", name: "waitForSelector", static: false, private: false, access: { has: obj => "waitForSelector" in obj, get: obj => obj.waitForSelector }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate$6(this, null, _isVisible_decorators, { kind: "method", name: "isVisible", static: false, private: false, access: { has: obj => "isVisible" in obj, get: obj => obj.isVisible }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate$6(this, null, _isHidden_decorators, { kind: "method", name: "isHidden", static: false, private: false, access: { has: obj => "isHidden" in obj, get: obj => obj.isHidden }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate$6(this, null, _toElement_decorators, { kind: "method", name: "toElement", static: false, private: false, access: { has: obj => "toElement" in obj, get: obj => obj.toElement }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate$6(this, null, _clickablePoint_decorators, { kind: "method", name: "clickablePoint", static: false, private: false, access: { has: obj => "clickablePoint" in obj, get: obj => obj.clickablePoint }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate$6(this, null, _hover_decorators, { kind: "method", name: "hover", static: false, private: false, access: { has: obj => "hover" in obj, get: obj => obj.hover }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate$6(this, null, _click_decorators, { kind: "method", name: "click", static: false, private: false, access: { has: obj => "click" in obj, get: obj => obj.click }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate$6(this, null, _drag_decorators, { kind: "method", name: "drag", static: false, private: false, access: { has: obj => "drag" in obj, get: obj => obj.drag }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate$6(this, null, _dragEnter_decorators, { kind: "method", name: "dragEnter", static: false, private: false, access: { has: obj => "dragEnter" in obj, get: obj => obj.dragEnter }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate$6(this, null, _dragOver_decorators, { kind: "method", name: "dragOver", static: false, private: false, access: { has: obj => "dragOver" in obj, get: obj => obj.dragOver }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate$6(this, null, _drop_decorators, { kind: "method", name: "drop", static: false, private: false, access: { has: obj => "drop" in obj, get: obj => obj.drop }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate$6(this, null, _dragAndDrop_decorators, { kind: "method", name: "dragAndDrop", static: false, private: false, access: { has: obj => "dragAndDrop" in obj, get: obj => obj.dragAndDrop }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate$6(this, null, _select_decorators, { kind: "method", name: "select", static: false, private: false, access: { has: obj => "select" in obj, get: obj => obj.select }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate$6(this, null, _tap_decorators, { kind: "method", name: "tap", static: false, private: false, access: { has: obj => "tap" in obj, get: obj => obj.tap }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate$6(this, null, _touchStart_decorators, { kind: "method", name: "touchStart", static: false, private: false, access: { has: obj => "touchStart" in obj, get: obj => obj.touchStart }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate$6(this, null, _touchMove_decorators, { kind: "method", name: "touchMove", static: false, private: false, access: { has: obj => "touchMove" in obj, get: obj => obj.touchMove }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate$6(this, null, _touchEnd_decorators, { kind: "method", name: "touchEnd", static: false, private: false, access: { has: obj => "touchEnd" in obj, get: obj => obj.touchEnd }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate$6(this, null, _focus_decorators, { kind: "method", name: "focus", static: false, private: false, access: { has: obj => "focus" in obj, get: obj => obj.focus }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate$6(this, null, _type_decorators, { kind: "method", name: "type", static: false, private: false, access: { has: obj => "type" in obj, get: obj => obj.type }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate$6(this, null, _press_decorators, { kind: "method", name: "press", static: false, private: false, access: { has: obj => "press" in obj, get: obj => obj.press }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate$6(this, null, _boundingBox_decorators, { kind: "method", name: "boundingBox", static: false, private: false, access: { has: obj => "boundingBox" in obj, get: obj => obj.boundingBox }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate$6(this, null, _boxModel_decorators, { kind: "method", name: "boxModel", static: false, private: false, access: { has: obj => "boxModel" in obj, get: obj => obj.boxModel }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate$6(this, null, _screenshot_decorators, { kind: "method", name: "screenshot", static: false, private: false, access: { has: obj => "screenshot" in obj, get: obj => obj.screenshot }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate$6(this, null, _isIntersectingViewport_decorators, { kind: "method", name: "isIntersectingViewport", static: false, private: false, access: { has: obj => "isIntersectingViewport" in obj, get: obj => obj.isIntersectingViewport }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate$6(this, null, _scrollIntoView_decorators, { kind: "method", name: "scrollIntoView", static: false, private: false, access: { has: obj => "scrollIntoView" in obj, get: obj => obj.scrollIntoView }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate$6(this, null, _asLocator_decorators, { kind: "method", name: "asLocator", static: false, private: false, access: { has: obj => "asLocator" in obj, get: obj => obj.asLocator }, metadata: _metadata }, null, _instanceExtraInitializers);
+            if (_metadata) Object.defineProperty(this, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+        }
+        /**
+         * @internal
+         * Cached isolatedHandle to prevent
+         * trying to adopt it multiple times
+         */
+        isolatedHandle = __runInitializers$6(this, _instanceExtraInitializers);
+        /**
+         * @internal
+         */
+        handle;
+        /**
+         * @internal
+         */
+        constructor(handle, logger) {
+            super(logger);
+            this.handle = handle;
+            this[_isElementHandle] = true;
+        }
+        /**
+         * @internal
+         */
+        get id() {
+            return this.handle.id;
+        }
+        /**
+         * @internal
+         */
+        get disposed() {
+            return this.handle.disposed;
+        }
+        /**
+         * @internal
+         */
+        async getProperty(propertyName) {
+            return await this.handle.getProperty(propertyName);
+        }
+        /**
+         * @internal
+         */
+        async getProperties() {
+            return await this.handle.getProperties();
+        }
+        /**
+         * @internal
+         */
+        async evaluate(pageFunction, ...args) {
+            pageFunction = withSourcePuppeteerURLIfNone(this.evaluate.name, pageFunction);
+            return await this.handle.evaluate(pageFunction, ...args);
+        }
+        /**
+         * @internal
+         */
+        async evaluateHandle(pageFunction, ...args) {
+            pageFunction = withSourcePuppeteerURLIfNone(this.evaluateHandle.name, pageFunction);
+            return await this.handle.evaluateHandle(pageFunction, ...args);
+        }
+        /**
+         * @internal
+         */
+        async jsonValue() {
+            return await this.handle.jsonValue();
+        }
+        /**
+         * @internal
+         */
+        toString() {
+            return this.handle.toString();
+        }
+        /**
+         * @internal
+         */
+        remoteObject() {
+            return this.handle.remoteObject();
+        }
+        /**
+         * @internal
+         */
+        async dispose() {
+            await Promise.all([this.handle.dispose(), this.isolatedHandle?.dispose()]);
+        }
+        /**
+         * @internal
+         */
+        asElement() {
+            return this;
+        }
+        /**
+         * Queries the current element for an element matching the given selector.
+         *
+         * @param selector -
+         * {@link https://pptr.dev/guides/page-interactions#selectors | selector}
+         * to query the page for.
+         * {@link https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Selectors | CSS selectors}
+         * can be passed as-is and a
+         * {@link https://pptr.dev/guides/page-interactions#non-css-selectors | Puppeteer-specific selector syntax}
+         * allows querying by
+         * {@link https://pptr.dev/guides/page-interactions#text-selectors--p-text | text},
+         * {@link https://pptr.dev/guides/page-interactions#aria-selectors--p-aria | a11y role and name},
+         * and
+         * {@link https://pptr.dev/guides/page-interactions#xpath-selectors--p-xpath | xpath}
+         * and
+         * {@link https://pptr.dev/guides/page-interactions#querying-elements-in-shadow-dom | combining these queries across shadow roots}.
+         * Alternatively, you can specify the selector type using a
+         * {@link https://pptr.dev/guides/page-interactions#prefixed-selector-syntax | prefix}.
+         * @returns A {@link ElementHandle | element handle} to the first element
+         * matching the given selector. Otherwise, `null`.
+         */
+        async $(selector) {
+            const { updatedSelector, QueryHandler } = getQueryHandlerAndSelector(selector);
+            return (await QueryHandler.queryOne(this, updatedSelector));
+        }
+        /**
+         * Queries the current element for all elements matching the given selector.
+         *
+         * @param selector -
+         * {@link https://pptr.dev/guides/page-interactions#selectors | selector}
+         * to query the page for.
+         * {@link https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Selectors | CSS selectors}
+         * can be passed as-is and a
+         * {@link https://pptr.dev/guides/page-interactions#non-css-selectors | Puppeteer-specific selector syntax}
+         * allows querying by
+         * {@link https://pptr.dev/guides/page-interactions#text-selectors--p-text | text},
+         * {@link https://pptr.dev/guides/page-interactions#aria-selectors--p-aria | a11y role and name},
+         * and
+         * {@link https://pptr.dev/guides/page-interactions#xpath-selectors--p-xpath | xpath}
+         * and
+         * {@link https://pptr.dev/guides/page-interactions#querying-elements-in-shadow-dom | combining these queries across shadow roots}.
+         * Alternatively, you can specify the selector type using a
+         * {@link https://pptr.dev/guides/page-interactions#prefixed-selector-syntax | prefix}.
+         * @returns An array of {@link ElementHandle | element handles} that point to
+         * elements matching the given selector.
+         */
+        async $$(selector, options) {
+            if (options?.isolate === false) {
+                return await this.#$$impl(selector);
+            }
+            return await this.#$$(selector);
+        }
+        /**
+         * Isolates {@link ElementHandle.$$} if needed.
+         *
+         * @internal
+         */
+        get #$$() { return _private_$$_descriptor.value; }
+        /**
+         * Implementation for {@link ElementHandle.$$}.
+         *
+         * @internal
+         */
+        async #$$impl(selector) {
+            const { updatedSelector, QueryHandler } = getQueryHandlerAndSelector(selector);
+            return await AsyncIterableUtil.collect(QueryHandler.queryAll(this, updatedSelector));
+        }
+        /**
+         * Runs the given function on the first element matching the given selector in
+         * the current element.
+         *
+         * If the given function returns a promise, then this method will wait till
+         * the promise resolves.
+         *
+         * @example
+         *
+         * ```ts
+         * const tweetHandle = await page.$('.tweet');
+         * expect(await tweetHandle.$eval('.like', node => node.innerText)).toBe(
+         *   '100',
+         * );
+         * expect(await tweetHandle.$eval('.retweets', node => node.innerText)).toBe(
+         *   '10',
+         * );
+         * ```
+         *
+         * @param selector -
+         * {@link https://pptr.dev/guides/page-interactions#selectors | selector}
+         * to query the page for.
+         * {@link https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Selectors | CSS selectors}
+         * can be passed as-is and a
+         * {@link https://pptr.dev/guides/page-interactions#non-css-selectors | Puppeteer-specific selector syntax}
+         * allows querying by
+         * {@link https://pptr.dev/guides/page-interactions#text-selectors--p-text | text},
+         * {@link https://pptr.dev/guides/page-interactions#aria-selectors--p-aria | a11y role and name},
+         * and
+         * {@link https://pptr.dev/guides/page-interactions#xpath-selectors--p-xpath | xpath}
+         * and
+         * {@link https://pptr.dev/guides/page-interactions#querying-elements-in-shadow-dom | combining these queries across shadow roots}.
+         * Alternatively, you can specify the selector type using a
+         * {@link https://pptr.dev/guides/page-interactions#prefixed-selector-syntax | prefix}.
+         * @param pageFunction - The function to be evaluated in this element's page's
+         * context. The first element matching the selector will be passed in as the
+         * first argument.
+         * @param args - Additional arguments to pass to `pageFunction`.
+         * @returns A promise to the result of the function.
+         */
+        async $eval(selector, pageFunction, ...args) {
+            const env_1 = { stack: [], error: void 0, hasError: false };
+            try {
+                pageFunction = withSourcePuppeteerURLIfNone(this.$eval.name, pageFunction);
+                const elementHandle = __addDisposableResource$8(env_1, await this.$(selector), false);
+                if (!elementHandle) {
+                    throw new Error(`Error: failed to find element matching selector "${selector}"`);
+                }
+                return await elementHandle.evaluate(pageFunction, ...args);
+            }
+            catch (e_1) {
+                env_1.error = e_1;
+                env_1.hasError = true;
+            }
+            finally {
+                __disposeResources$8(env_1);
+            }
+        }
+        /**
+         * Runs the given function on an array of elements matching the given selector
+         * in the current element.
+         *
+         * If the given function returns a promise, then this method will wait till
+         * the promise resolves.
+         *
+         * @example
+         * HTML:
+         *
+         * ```html
+         * <div class="feed">
+         *   <div class="tweet">Hello!</div>
+         *   <div class="tweet">Hi!</div>
+         * </div>
+         * ```
+         *
+         * JavaScript:
+         *
+         * ```ts
+         * const feedHandle = await page.$('.feed');
+         *
+         * const listOfTweets = await feedHandle.$$eval('.tweet', nodes =>
+         *   nodes.map(n => n.innerText),
+         * );
+         * ```
+         *
+         * @param selector -
+         * {@link https://pptr.dev/guides/page-interactions#selectors | selector}
+         * to query the page for.
+         * {@link https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Selectors | CSS selectors}
+         * can be passed as-is and a
+         * {@link https://pptr.dev/guides/page-interactions#non-css-selectors | Puppeteer-specific selector syntax}
+         * allows querying by
+         * {@link https://pptr.dev/guides/page-interactions#text-selectors--p-text | text},
+         * {@link https://pptr.dev/guides/page-interactions#aria-selectors--p-aria | a11y role and name},
+         * and
+         * {@link https://pptr.dev/guides/page-interactions#xpath-selectors--p-xpath | xpath}
+         * and
+         * {@link https://pptr.dev/guides/page-interactions#querying-elements-in-shadow-dom | combining these queries across shadow roots}.
+         * Alternatively, you can specify the selector type using a
+         * {@link https://pptr.dev/guides/page-interactions#prefixed-selector-syntax | prefix}.
+         * @param pageFunction - The function to be evaluated in the element's page's
+         * context. An array of elements matching the given selector will be passed to
+         * the function as its first argument.
+         * @param args - Additional arguments to pass to `pageFunction`.
+         * @returns A promise to the result of the function.
+         */
+        async $$eval(selector, pageFunction, ...args) {
+            const env_2 = { stack: [], error: void 0, hasError: false };
+            try {
+                pageFunction = withSourcePuppeteerURLIfNone(this.$$eval.name, pageFunction);
+                const results = await this.$$(selector);
+                const elements = __addDisposableResource$8(env_2, await this.evaluateHandle((_, ...elements) => {
+                    return elements;
+                }, ...results), false);
+                const [result] = await Promise.all([
+                    elements.evaluate(pageFunction, ...args),
+                    ...results.map(results => {
+                        return results.dispose();
+                    }),
+                ]);
+                return result;
+            }
+            catch (e_2) {
+                env_2.error = e_2;
+                env_2.hasError = true;
+            }
+            finally {
+                __disposeResources$8(env_2);
+            }
+        }
+        /**
+         * Wait for an element matching the given selector to appear in the current
+         * element.
+         *
+         * Unlike {@link Frame.waitForSelector}, this method does not work across
+         * navigations or if the element is detached from DOM.
+         *
+         * @example
+         *
+         * ```ts
+         * import puppeteer from 'puppeteer';
+         *
+         * const browser = await puppeteer.launch();
+         * const page = await browser.newPage();
+         * let currentURL;
+         * page
+         *   .mainFrame()
+         *   .waitForSelector('img')
+         *   .then(() => console.log('First URL with image: ' + currentURL));
+         *
+         * for (currentURL of [
+         *   'https://example.com',
+         *   'https://google.com',
+         *   'https://bbc.com',
+         * ]) {
+         *   await page.goto(currentURL);
+         * }
+         * await browser.close();
+         * ```
+         *
+         * @param selector - The selector to query and wait for.
+         * @param options - Options for customizing waiting behavior.
+         * @returns An element matching the given selector.
+         * @throws Throws if an element matching the given selector doesn't appear.
+         */
+        async waitForSelector(selector, options = {}) {
+            const { updatedSelector, QueryHandler, polling } = getQueryHandlerAndSelector(selector);
+            return (await QueryHandler.waitFor(this, updatedSelector, {
+                polling,
+                ...options,
+            }));
+        }
+        async #checkVisibility(visibility) {
+            return await this.evaluate(async (element, PuppeteerUtil, visibility) => {
+                return Boolean(PuppeteerUtil.checkVisibility(element, visibility));
+            }, LazyArg.create(context => {
+                return context.puppeteerUtil;
+            }), visibility);
+        }
+        /**
+         * An element is considered to be visible if all of the following is
+         * true:
+         *
+         * - the element has
+         *   {@link https://developer.mozilla.org/en-US/docs/Web/API/Window/getComputedStyle | computed styles}.
+         *
+         * - the element has a non-empty
+         *   {@link https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect | bounding client rect}.
+         *
+         * - the element's {@link https://developer.mozilla.org/en-US/docs/Web/CSS/visibility | visibility}
+         *   is not `hidden` or `collapse`.
+         */
+        async isVisible() {
+            return await this.#checkVisibility(true);
+        }
+        /**
+         * An element is considered to be hidden if at least one of the following is true:
+         *
+         * - the element has no
+         *   {@link https://developer.mozilla.org/en-US/docs/Web/API/Window/getComputedStyle | computed styles}.
+         *
+         * - the element has an empty
+         *   {@link https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect | bounding client rect}.
+         *
+         * - the element's {@link https://developer.mozilla.org/en-US/docs/Web/CSS/visibility | visibility}
+         *   is `hidden` or `collapse`.
+         */
+        async isHidden() {
+            return await this.#checkVisibility(false);
+        }
+        /**
+         * Converts the current handle to the given element type.
+         *
+         * @example
+         *
+         * ```ts
+         * const element: ElementHandle<Element> = await page.$(
+         *   '.class-name-of-anchor',
+         * );
+         * // DO NOT DISPOSE `element`, this will be always be the same handle.
+         * const anchor: ElementHandle<HTMLAnchorElement> =
+         *   await element.toElement('a');
+         * ```
+         *
+         * @param tagName - The tag name of the desired element type.
+         * @throws An error if the handle does not match. **The handle will not be
+         * automatically disposed.**
+         */
+        async toElement(tagName) {
+            const isMatchingTagName = await this.evaluate((node, tagName) => {
+                return node.nodeName === tagName.toUpperCase();
+            }, tagName);
+            if (!isMatchingTagName) {
+                throw new Error(`Element is not a(n) \`${tagName}\` element`);
+            }
+            return this;
+        }
+        /**
+         * Returns the middle point within an element unless a specific offset is provided.
+         */
+        async clickablePoint(offset) {
+            const box = await this.#clickableBox();
+            if (!box) {
+                throw new Error('Node is either not clickable or not an Element');
+            }
+            if (offset !== undefined) {
+                return {
+                    x: box.x + offset.x,
+                    y: box.y + offset.y,
+                };
+            }
+            return {
+                x: box.x + box.width / 2,
+                y: box.y + box.height / 2,
+            };
+        }
+        /**
+         * This method scrolls element into view if needed, and then
+         * uses {@link Page.mouse} to hover over the center of the element.
+         * If the element is detached from DOM, the method throws an error.
+         */
+        async hover() {
+            await this.scrollIntoViewIfNeeded();
+            const { x, y } = await this.clickablePoint();
+            await this.frame.page().mouse.move(x, y);
+        }
+        /**
+         * This method scrolls element into view if needed, and then
+         * uses {@link Page.mouse} to click in the center of the element.
+         * If the element is detached from DOM, the method throws an error.
+         */
+        async click(options = {}) {
+            await this.scrollIntoViewIfNeeded();
+            const { x, y } = await this.clickablePoint(options.offset);
+            try {
+                await this.frame.page().mouse.click(x, y, options);
+            }
+            finally {
+                if (options.debugHighlight) {
+                    await this.frame.page().evaluate((x, y) => {
+                        const highlight = document.createElement('div');
+                        highlight.innerHTML = `<style>
+        @scope {
+          :scope {
+              position: fixed;
+              left: ${x}px;
+              top: ${y}px;
+              width: 10px;
+              height: 10px;
+              border-radius: 50%;
+              animation: colorChange 10s 1 normal;
+              animation-fill-mode: forwards;
+          }
+
+          @keyframes colorChange {
+              from {
+                  background-color: red;
+              }
+              to {
+                  background-color: #FADADD00;
+              }
+          }
+        }
+      </style>`;
+                        highlight.addEventListener('animationend', () => {
+                            highlight.remove();
+                        }, { once: true });
+                        document.body.append(highlight);
+                    }, x, y);
+                }
+            }
+        }
+        /**
+         * Drags an element over the given element or point.
+         *
+         * @returns DEPRECATED. When drag interception is enabled, the drag payload is
+         * returned.
+         */
+        async drag(target) {
+            await this.scrollIntoViewIfNeeded();
+            const page = this.frame.page();
+            if (page.isDragInterceptionEnabled()) {
+                const source = await this.clickablePoint();
+                if (target instanceof ElementHandle) {
+                    target = await target.clickablePoint();
+                }
+                return await page.mouse.drag(source, target);
+            }
+            try {
+                if (!page._isDragging) {
+                    page._isDragging = true;
+                    await this.hover();
+                    await page.mouse.down();
+                }
+                if (target instanceof ElementHandle) {
+                    await target.hover();
+                }
+                else {
+                    await page.mouse.move(target.x, target.y);
+                }
+            }
+            catch (error) {
+                page._isDragging = false;
+                throw error;
+            }
+        }
+        /**
+         * @deprecated Do not use. `dragenter` will automatically be performed during dragging.
+         */
+        async dragEnter(data = { items: [], dragOperationsMask: 1 }) {
+            const page = this.frame.page();
+            await this.scrollIntoViewIfNeeded();
+            const target = await this.clickablePoint();
+            await page.mouse.dragEnter(target, data);
+        }
+        /**
+         * @deprecated Do not use. `dragover` will automatically be performed during dragging.
+         */
+        async dragOver(data = { items: [], dragOperationsMask: 1 }) {
+            const page = this.frame.page();
+            await this.scrollIntoViewIfNeeded();
+            const target = await this.clickablePoint();
+            await page.mouse.dragOver(target, data);
+        }
+        /**
+         * @internal
+         */
+        async drop(dataOrElement = {
+            items: [],
+            dragOperationsMask: 1,
+        }) {
+            const page = this.frame.page();
+            if ('items' in dataOrElement) {
+                await this.scrollIntoViewIfNeeded();
+                const destination = await this.clickablePoint();
+                await page.mouse.drop(destination, dataOrElement);
+            }
+            else {
+                // Note if the rest errors, we still want dragging off because the errors
+                // is most likely something implying the mouse is no longer dragging.
+                await dataOrElement.drag(this);
+                page._isDragging = false;
+                await page.mouse.up();
+            }
+        }
+        /**
+         * @deprecated Use `ElementHandle.drop` instead.
+         */
+        async dragAndDrop(target, options) {
+            const page = this.frame.page();
+            assert(page.isDragInterceptionEnabled(), 'Drag Interception is not enabled!');
+            await this.scrollIntoViewIfNeeded();
+            const startPoint = await this.clickablePoint();
+            const targetPoint = await target.clickablePoint();
+            await page.mouse.dragAndDrop(startPoint, targetPoint, options);
+        }
+        /**
+         * Triggers a `change` and `input` event once all the provided options have been
+         * selected. If there's no `<select>` element matching `selector`, the method
+         * throws an error.
+         *
+         * @example
+         *
+         * ```ts
+         * handle.select('blue'); // single selection
+         * handle.select('red', 'green', 'blue'); // multiple selections
+         * ```
+         *
+         * @param values - Values of options to select. If the `<select>` has the
+         * `multiple` attribute, all values are considered, otherwise only the first
+         * one is taken into account.
+         */
+        async select(...values) {
+            for (const value of values) {
+                assert(isString(value), 'Values must be strings. Found value "' +
+                    value +
+                    '" of type "' +
+                    typeof value +
+                    '"');
+            }
+            return await this.evaluate((element, vals) => {
+                const values = new Set(vals);
+                if (!(element instanceof HTMLSelectElement)) {
+                    throw new Error('Element is not a <select> element.');
+                }
+                const selectedValues = new Set();
+                if (!element.multiple) {
+                    for (const option of element.options) {
+                        option.selected = false;
+                    }
+                    for (const option of element.options) {
+                        if (values.has(option.value)) {
+                            option.selected = true;
+                            selectedValues.add(option.value);
+                            break;
+                        }
+                    }
+                }
+                else {
+                    for (const option of element.options) {
+                        option.selected = values.has(option.value);
+                        if (option.selected) {
+                            selectedValues.add(option.value);
+                        }
+                    }
+                }
+                element.dispatchEvent(new Event('input', { bubbles: true }));
+                element.dispatchEvent(new Event('change', { bubbles: true }));
+                return [...selectedValues.values()];
+            }, values);
+        }
+        /**
+         * This method scrolls element into view if needed, and then uses
+         * {@link Touchscreen.tap} to tap in the center of the element.
+         * If the element is detached from DOM, the method throws an error.
+         */
+        async tap() {
+            await this.scrollIntoViewIfNeeded();
+            const { x, y } = await this.clickablePoint();
+            await this.frame.page().touchscreen.tap(x, y);
+        }
+        /**
+         * This method scrolls the element into view if needed, and then
+         * starts a touch in the center of the element.
+         * @returns A {@link TouchHandle} representing the touch that was started
+         */
+        async touchStart() {
+            await this.scrollIntoViewIfNeeded();
+            const { x, y } = await this.clickablePoint();
+            return await this.frame.page().touchscreen.touchStart(x, y);
+        }
+        /**
+         * This method scrolls the element into view if needed, and then
+         * moves the touch to the center of the element.
+         * @param touch - An optional {@link TouchHandle}. If provided, this touch
+         * will be moved. If not provided, the first active touch will be moved.
+         */
+        async touchMove(touch) {
+            await this.scrollIntoViewIfNeeded();
+            const { x, y } = await this.clickablePoint();
+            if (touch) {
+                return await touch.move(x, y);
+            }
+            await this.frame.page().touchscreen.touchMove(x, y);
+        }
+        async touchEnd() {
+            await this.scrollIntoViewIfNeeded();
+            await this.frame.page().touchscreen.touchEnd();
+        }
+        /**
+         * Calls {@link https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/focus | focus} on the element.
+         */
+        async focus() {
+            await this.evaluate(element => {
+                if (!(element instanceof HTMLElement)) {
+                    throw new Error('Cannot focus non-HTMLElement');
+                }
+                return element.focus();
+            });
+        }
+        /**
+         * Focuses the element, and then sends a `keydown`, `keypress`/`input`, and
+         * `keyup` event for each character in the text.
+         *
+         * To press a special key, like `Control` or `ArrowDown`,
+         * use {@link ElementHandle.press}.
+         *
+         * @example
+         *
+         * ```ts
+         * await elementHandle.type('Hello'); // Types instantly
+         * await elementHandle.type('World', {delay: 100}); // Types slower, like a user
+         * ```
+         *
+         * @example
+         * An example of typing into a text field and then submitting the form:
+         *
+         * ```ts
+         * const elementHandle = await page.$('input');
+         * await elementHandle.type('some text');
+         * await elementHandle.press('Enter');
+         * ```
+         *
+         * @param options - Delay in milliseconds. Defaults to 0.
+         */
+        async type(text, options) {
+            await this.focus();
+            await this.frame.page().keyboard.type(text, options);
+        }
+        /**
+         * Focuses the element, and then uses {@link Keyboard.down} and {@link Keyboard.up}.
+         *
+         * @remarks
+         * If `key` is a single character and no modifier keys besides `Shift`
+         * are being held down, a `keypress`/`input` event will also be generated.
+         * The `text` option can be specified to force an input event to be generated.
+         *
+         * **NOTE** Modifier keys DO affect `elementHandle.press`. Holding down `Shift`
+         * will type the text in upper case.
+         *
+         * @param key - Name of key to press, such as `ArrowLeft`.
+         * See {@link KeyInput} for a list of all key names.
+         */
+        async press(key, options) {
+            await this.focus();
+            await this.frame.page().keyboard.press(key, options);
+        }
+        async #clickableBox() {
+            const boxes = await this.evaluate(element => {
+                if (!(element instanceof Element)) {
+                    return null;
+                }
+                return [...element.getClientRects()].map(rect => {
+                    return { x: rect.x, y: rect.y, width: rect.width, height: rect.height };
+                });
+            });
+            if (!boxes?.length) {
+                return null;
+            }
+            await this.#intersectBoundingBoxesWithFrame(boxes);
+            let frame = this.frame;
+            let parentFrame;
+            while ((parentFrame = frame?.parentFrame())) {
+                const env_3 = { stack: [], error: void 0, hasError: false };
+                try {
+                    const handle = __addDisposableResource$8(env_3, await frame.frameElement(), false);
+                    if (!handle) {
+                        throw new Error('Unsupported frame type');
+                    }
+                    const parentBox = await handle.evaluate(element => {
+                        // Element is not visible.
+                        if (element.getClientRects().length === 0) {
+                            return null;
+                        }
+                        const rect = element.getBoundingClientRect();
+                        const style = window.getComputedStyle(element);
+                        return {
+                            left: rect.left +
+                                parseInt(style.paddingLeft, 10) +
+                                parseInt(style.borderLeftWidth, 10),
+                            top: rect.top +
+                                parseInt(style.paddingTop, 10) +
+                                parseInt(style.borderTopWidth, 10),
+                        };
+                    });
+                    if (!parentBox) {
+                        return null;
+                    }
+                    for (const box of boxes) {
+                        box.x += parentBox.left;
+                        box.y += parentBox.top;
+                    }
+                    await handle.#intersectBoundingBoxesWithFrame(boxes);
+                    frame = parentFrame;
+                }
+                catch (e_3) {
+                    env_3.error = e_3;
+                    env_3.hasError = true;
+                }
+                finally {
+                    __disposeResources$8(env_3);
+                }
+            }
+            const box = boxes.find(box => {
+                return box.width >= 1 && box.height >= 1;
+            });
+            if (!box) {
+                return null;
+            }
+            return {
+                x: box.x,
+                y: box.y,
+                height: box.height,
+                width: box.width,
+            };
+        }
+        async #intersectBoundingBoxesWithFrame(boxes) {
+            const { documentWidth, documentHeight } = await this.frame
+                .isolatedRealm()
+                .evaluate(() => {
+                return {
+                    documentWidth: document.documentElement.clientWidth,
+                    documentHeight: document.documentElement.clientHeight,
+                };
+            });
+            for (const box of boxes) {
+                intersectBoundingBox(box, documentWidth, documentHeight);
+            }
+        }
+        /**
+         * This method returns the bounding box of the element (relative to the main frame),
+         * or `null` if the element is {@link https://drafts.csswg.org/css-display-4/#box-generation | not part of the layout}
+         * (example: `display: none`).
+         */
+        async boundingBox() {
+            const box = await this.evaluate(element => {
+                if (!(element instanceof Element)) {
+                    return null;
+                }
+                // Element is not visible.
+                if (element.getClientRects().length === 0) {
+                    return null;
+                }
+                const rect = element.getBoundingClientRect();
+                return { x: rect.x, y: rect.y, width: rect.width, height: rect.height };
+            });
+            if (!box) {
+                return null;
+            }
+            const offset = await this.#getTopLeftCornerOfFrame();
+            if (!offset) {
+                return null;
+            }
+            return {
+                x: box.x + offset.x,
+                y: box.y + offset.y,
+                height: box.height,
+                width: box.width,
+            };
+        }
+        /**
+         * This method returns boxes of the element,
+         * or `null` if the element is {@link https://drafts.csswg.org/css-display-4/#box-generation | not part of the layout}
+         * (example: `display: none`).
+         *
+         * @remarks
+         *
+         * Boxes are represented as an array of points;
+         * Each Point is an object `{x, y}`. Box points are sorted clock-wise.
+         */
+        async boxModel() {
+            const model = await this.evaluate(element => {
+                if (!(element instanceof Element)) {
+                    return null;
+                }
+                // Element is not visible.
+                if (element.getClientRects().length === 0) {
+                    return null;
+                }
+                const rect = element.getBoundingClientRect();
+                const style = window.getComputedStyle(element);
+                const offsets = {
+                    padding: {
+                        left: parseInt(style.paddingLeft, 10),
+                        top: parseInt(style.paddingTop, 10),
+                        right: parseInt(style.paddingRight, 10),
+                        bottom: parseInt(style.paddingBottom, 10),
+                    },
+                    margin: {
+                        left: -parseInt(style.marginLeft, 10),
+                        top: -parseInt(style.marginTop, 10),
+                        right: -parseInt(style.marginRight, 10),
+                        bottom: -parseInt(style.marginBottom, 10),
+                    },
+                    border: {
+                        left: parseInt(style.borderLeft, 10),
+                        top: parseInt(style.borderTop, 10),
+                        right: parseInt(style.borderRight, 10),
+                        bottom: parseInt(style.borderBottom, 10),
+                    },
+                };
+                const border = [
+                    { x: rect.left, y: rect.top },
+                    { x: rect.left + rect.width, y: rect.top },
+                    { x: rect.left + rect.width, y: rect.top + rect.height },
+                    { x: rect.left, y: rect.top + rect.height },
+                ];
+                const padding = transformQuadWithOffsets(border, offsets.border);
+                const content = transformQuadWithOffsets(padding, offsets.padding);
+                const margin = transformQuadWithOffsets(border, offsets.margin);
+                return {
+                    content,
+                    padding,
+                    border,
+                    margin,
+                    width: rect.width,
+                    height: rect.height,
+                };
+                function transformQuadWithOffsets(quad, offsets) {
+                    return [
+                        {
+                            x: quad[0].x + offsets.left,
+                            y: quad[0].y + offsets.top,
+                        },
+                        {
+                            x: quad[1].x - offsets.right,
+                            y: quad[1].y + offsets.top,
+                        },
+                        {
+                            x: quad[2].x - offsets.right,
+                            y: quad[2].y - offsets.bottom,
+                        },
+                        {
+                            x: quad[3].x + offsets.left,
+                            y: quad[3].y - offsets.bottom,
+                        },
+                    ];
+                }
+            });
+            if (!model) {
+                return null;
+            }
+            const offset = await this.#getTopLeftCornerOfFrame();
+            if (!offset) {
+                return null;
+            }
+            for (const attribute of [
+                'content',
+                'padding',
+                'border',
+                'margin',
+            ]) {
+                for (const point of model[attribute]) {
+                    point.x += offset.x;
+                    point.y += offset.y;
+                }
+            }
+            return model;
+        }
+        async #getTopLeftCornerOfFrame() {
+            const point = { x: 0, y: 0 };
+            let frame = this.frame;
+            let parentFrame;
+            while ((parentFrame = frame?.parentFrame())) {
+                const env_4 = { stack: [], error: void 0, hasError: false };
+                try {
+                    const handle = __addDisposableResource$8(env_4, await frame.frameElement(), false);
+                    if (!handle) {
+                        throw new Error('Unsupported frame type');
+                    }
+                    const parentBox = await handle.evaluate(element => {
+                        // Element is not visible.
+                        if (element.getClientRects().length === 0) {
+                            return null;
+                        }
+                        const rect = element.getBoundingClientRect();
+                        const style = window.getComputedStyle(element);
+                        return {
+                            left: rect.left +
+                                parseInt(style.paddingLeft, 10) +
+                                parseInt(style.borderLeftWidth, 10),
+                            top: rect.top +
+                                parseInt(style.paddingTop, 10) +
+                                parseInt(style.borderTopWidth, 10),
+                        };
+                    });
+                    if (!parentBox) {
+                        return null;
+                    }
+                    point.x += parentBox.left;
+                    point.y += parentBox.top;
+                    frame = parentFrame;
+                }
+                catch (e_4) {
+                    env_4.error = e_4;
+                    env_4.hasError = true;
+                }
+                finally {
+                    __disposeResources$8(env_4);
+                }
+            }
+            return point;
+        }
+        async screenshot(options = {}) {
+            const { scrollIntoView = true, clip } = options;
+            const page = this.frame.page();
+            // Only scroll the element into view if the user wants it.
+            if (scrollIntoView) {
+                await this.scrollIntoViewIfNeeded();
+            }
+            const elementClip = await this.#nonEmptyVisibleBoundingBox();
+            const [pageLeft, pageTop] = await this.evaluate(() => {
+                if (!window.visualViewport) {
+                    throw new Error('window.visualViewport is not supported.');
+                }
+                return [
+                    window.visualViewport.pageLeft,
+                    window.visualViewport.pageTop,
+                ];
+            });
+            elementClip.x += pageLeft;
+            elementClip.y += pageTop;
+            if (clip) {
+                elementClip.x += clip.x;
+                elementClip.y += clip.y;
+                elementClip.height = clip.height;
+                elementClip.width = clip.width;
+            }
+            return await page.screenshot({ ...options, clip: elementClip });
+        }
+        async #nonEmptyVisibleBoundingBox() {
+            const box = await this.boundingBox();
+            assert(box, 'Node is either not visible or not an HTMLElement');
+            assert(box.width !== 0, 'Node has 0 width.');
+            assert(box.height !== 0, 'Node has 0 height.');
+            return box;
+        }
+        /**
+         * @internal
+         */
+        async assertConnectedElement() {
+            const error = await this.evaluate(async (element) => {
+                if (!element.isConnected) {
+                    return 'Node is detached from document';
+                }
+                if (element.nodeType !== Node.ELEMENT_NODE) {
+                    return 'Node is not of type HTMLElement';
+                }
+                return;
+            });
+            if (error) {
+                throw new Error(error);
+            }
+        }
+        /**
+         * @internal
+         */
+        async scrollIntoViewIfNeeded() {
+            if (await this.isIntersectingViewport({
+                threshold: 1,
+            })) {
+                return;
+            }
+            await this.scrollIntoView();
+        }
+        /**
+         * Resolves to true if the element is visible in the current viewport. If an
+         * element is an SVG, we check if the svg owner element is in the viewport
+         * instead. See https://crbug.com/963246.
+         *
+         * @param options - Threshold for the intersection between 0 (no intersection) and 1
+         * (full intersection). Defaults to 1.
+         */
+        async isIntersectingViewport(options = {}) {
+            const env_5 = { stack: [], error: void 0, hasError: false };
+            try {
+                await this.assertConnectedElement();
+                // eslint-disable-next-line @puppeteer/use-using -- Returns `this`.
+                const handle = await this.#asSVGElementHandle();
+                const target = __addDisposableResource$8(env_5, handle && (await handle.#getOwnerSVGElement()), false);
+                return await (target ?? this).evaluate(async (element, threshold) => {
+                    const visibleRatio = await new Promise(resolve => {
+                        const observer = new IntersectionObserver(entries => {
+                            resolve(entries[0].intersectionRatio);
+                            observer.disconnect();
+                        });
+                        observer.observe(element);
+                    });
+                    return threshold === 1 ? visibleRatio === 1 : visibleRatio > threshold;
+                }, options.threshold ?? 0);
+            }
+            catch (e_5) {
+                env_5.error = e_5;
+                env_5.hasError = true;
+            }
+            finally {
+                __disposeResources$8(env_5);
+            }
+        }
+        /**
+         * Scrolls the element into view using either the automation protocol client
+         * or by calling element.scrollIntoView.
+         */
+        async scrollIntoView() {
+            await this.assertConnectedElement();
+            await this.evaluate(async (element) => {
+                element.scrollIntoView({
+                    block: 'center',
+                    inline: 'center',
+                    behavior: 'instant',
+                });
+            });
+        }
+        /**
+         * Creates a locator based on an ElementHandle. This would not allow
+         * refreshing the element handle if it is stale but it allows re-using other
+         * locator pre-conditions.
+         */
+        asLocator() {
+            return NodeLocator.createFromHandle(this.frame, this);
+        }
+        /**
+         * Returns true if an element is an SVGElement (included svg, path, rect
+         * etc.).
+         */
+        async #asSVGElementHandle() {
+            if (await this.evaluate(element => {
+                return element instanceof SVGElement;
+            })) {
+                return this;
+            }
+            else {
+                return null;
+            }
+        }
+        async #getOwnerSVGElement() {
+            // SVGSVGElement.ownerSVGElement === null.
+            return await this.evaluateHandle(element => {
+                if (element instanceof SVGSVGElement) {
+                    return element;
+                }
+                return element.ownerSVGElement;
+            });
+        }
+    };
+})();
+function intersectBoundingBox(box, width, height) {
+    box.width = Math.max(box.x >= 0
+        ? Math.min(width - box.x, box.width)
+        : Math.min(width, box.width + box.x), 0);
+    box.height = Math.max(box.y >= 0
+        ? Math.min(height - box.y, box.height)
+        : Math.min(height, box.height + box.y), 0);
+    box.x = Math.max(box.x, 0);
+    box.y = Math.max(box.y, 0);
+}
+
+/**
+ * @license
+ * Copyright 2026 Google Inc.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+/**
+ * {@link Extension} represents a browser extension installed in the browser.
+ * It provides access to the extension's ID, name, and version, as well as
+ * methods for interacting with the extension's background workers and pages.
+ *
+ * @example
+ * To get all extensions installed in the browser:
+ *
+ * ```ts
+ * const extensions = await browser.extensions();
+ * for (const [id, extension] of extensions) {
+ *   console.log(extension.name, id);
+ * }
+ * ```
+ *
+ * @experimental
+ * @public
+ */
+class Extension {
+    #id;
+    #version;
+    #name;
+    #path;
+    #enabled;
+    /**
+     * @internal
+     */
+    constructor(id, version, name, path, enabled) {
+        if (!id || !version) {
+            throw new Error('Extension ID and version are required');
+        }
+        this.#id = id;
+        this.#version = version;
+        this.#name = name;
+        this.#path = path;
+        this.#enabled = enabled;
+    }
+    /**
+     * Whether the extension is enabled.
+     *
+     * @public
+     */
+    get enabled() {
+        return this.#enabled;
+    }
+    /**
+     * The path in the file system where the extension is located.
+     *
+     * @public
+     */
+    get path() {
+        return this.#path;
+    }
+    /**
+     * The version of the extension as specified in its manifest.
+     *
+     * @public
+     */
+    get version() {
+        return this.#version;
+    }
+    /**
+     * The name of the extension as specified in its manifest.
+     *
+     * @public
+     */
+    get name() {
+        return this.#name;
+    }
+    /**
+     * The unique identifier of the extension.
+     *
+     * @public
+     */
+    get id() {
+        return this.#id;
+    }
+}
 
 /**
  * @license
@@ -7853,10 +8545,10 @@ var __esDecorate$5 = (undefined && undefined.__esDecorate) || function (ctor, de
     if (target) Object.defineProperty(target, contextIn.name, descriptor);
     done = true;
 };
-var __addDisposableResource$5 = (undefined && undefined.__addDisposableResource) || function (env, value, async) {
+var __addDisposableResource$7 = (undefined && undefined.__addDisposableResource) || function (env, value, async) {
     if (value !== null && value !== void 0) {
         if (typeof value !== "object" && typeof value !== "function") throw new TypeError("Object expected.");
-        var dispose;
+        var dispose, inner;
         if (async) {
             if (!Symbol.asyncDispose) throw new TypeError("Symbol.asyncDispose is not defined.");
             dispose = value[Symbol.asyncDispose];
@@ -7864,8 +8556,10 @@ var __addDisposableResource$5 = (undefined && undefined.__addDisposableResource)
         if (dispose === void 0) {
             if (!Symbol.dispose) throw new TypeError("Symbol.dispose is not defined.");
             dispose = value[Symbol.dispose];
+            if (async) inner = dispose;
         }
         if (typeof dispose !== "function") throw new TypeError("Object not disposable.");
+        if (inner) dispose = function() { try { inner.call(this); } catch (e) { return Promise.reject(e); } };
         env.stack.push({ value: value, dispose: dispose, async: async });
     }
     else if (async) {
@@ -7873,23 +8567,28 @@ var __addDisposableResource$5 = (undefined && undefined.__addDisposableResource)
     }
     return value;
 };
-var __disposeResources$5 = (undefined && undefined.__disposeResources) || (function (SuppressedError) {
+var __disposeResources$7 = (undefined && undefined.__disposeResources) || (function (SuppressedError) {
     return function (env) {
         function fail(e) {
             env.error = env.hasError ? new SuppressedError(e, env.error, "An error was suppressed during disposal.") : e;
             env.hasError = true;
         }
+        var r, s = 0;
         function next() {
-            while (env.stack.length) {
-                var rec = env.stack.pop();
+            while (r = env.stack.pop()) {
                 try {
-                    var result = rec.dispose && rec.dispose.call(rec.value);
-                    if (rec.async) return Promise.resolve(result).then(next, function(e) { fail(e); return next(); });
+                    if (!r.async && s === 1) return s = 0, env.stack.push(r), Promise.resolve().then(next);
+                    if (r.dispose) {
+                        var result = r.dispose.call(r.value);
+                        if (r.async) return s |= 2, Promise.resolve(result).then(next, function(e) { fail(e); return next(); });
+                    }
+                    else s |= 1;
                 }
                 catch (e) {
                     fail(e);
                 }
             }
+            if (s === 1) return env.hasError ? Promise.reject(env.error) : Promise.resolve();
             if (env.hasError) throw env.error;
         }
         return next();
@@ -7925,7 +8624,7 @@ const throwIfDetached = throwIfDisposed(frame => {
  *
  * To understand frames, you can think of frames as `<iframe>` elements. Just
  * like iframes, frames can be nested, and when JavaScript is executed in a
- * frame, the JavaScript does not effect frames inside the ambient frame the
+ * frame, the JavaScript does not affect frames inside the ambient frame the
  * JavaScript executes in.
  *
  * @example
@@ -7938,29 +8637,43 @@ const throwIfDetached = throwIfDisposed(frame => {
  * ```ts
  * import puppeteer from 'puppeteer';
  *
- * (async () => {
- *   const browser = await puppeteer.launch();
- *   const page = await browser.newPage();
- *   await page.goto('https://www.google.com/chrome/browser/canary.html');
- *   dumpFrameTree(page.mainFrame(), '');
- *   await browser.close();
+ * const browser = await puppeteer.launch();
+ * const page = await browser.newPage();
+ * await page.goto('https://www.google.com/chrome/browser/canary.html');
+ * dumpFrameTree(page.mainFrame(), '');
+ * await browser.close();
  *
- *   function dumpFrameTree(frame, indent) {
- *     console.log(indent + frame.url());
- *     for (const child of frame.childFrames()) {
- *       dumpFrameTree(child, indent + '  ');
- *     }
+ * function dumpFrameTree(frame, indent) {
+ *   console.log(indent + frame.url());
+ *   for (const child of frame.childFrames()) {
+ *     dumpFrameTree(child, indent + '  ');
  *   }
- * })();
+ * }
  * ```
  *
  * @example
  * An example of getting text from an iframe element:
  *
  * ```ts
- * const frame = page.frames().find(frame => frame.name() === 'myframe');
- * const text = await frame.$eval('.selector', element => element.textContent);
- * console.log(text);
+ * const frames = page.frames();
+ * let frame = null;
+ * for (const currentFrame of frames) {
+ *   const frameElement = await currentFrame.frameElement();
+ *   const name = await frameElement.evaluate(el => el.getAttribute('name'));
+ *   if (name === 'myframe') {
+ *     frame = currentFrame;
+ *     break;
+ *   }
+ * }
+ * if (frame) {
+ *   const text = await frame.$eval(
+ *     '.selector',
+ *     element => element.textContent,
+ *   );
+ *   console.log(text);
+ * } else {
+ *   console.error('Frame with name "myframe" not found.');
+ * }
  * ```
  *
  * @remarks
@@ -8060,8 +8773,13 @@ let Frame = (() => {
         /**
          * @internal
          */
-        constructor() {
-            super();
+        logger;
+        /**
+         * @internal
+         */
+        constructor(logger) {
+            super(undefined, logger);
+            this.logger = logger;
         }
         #_document;
         /**
@@ -8093,16 +8811,18 @@ let Frame = (() => {
                 if (!parentFrame) {
                     return null;
                 }
-                const list = __addDisposableResource$5(env_1, await parentFrame.isolatedRealm().evaluateHandle(() => {
+                const list = __addDisposableResource$7(env_1, await parentFrame.isolatedRealm().evaluateHandle(() => {
                     return document.querySelectorAll('iframe,frame');
                 }), false);
                 for await (const iframe_1 of transposeIterableHandle(list)) {
                     const env_2 = { stack: [], error: void 0, hasError: false };
                     try {
-                        const iframe = __addDisposableResource$5(env_2, iframe_1, false);
+                        const iframe = __addDisposableResource$7(env_2, iframe_1, false);
                         const frame = await iframe.contentFrame();
                         if (frame?._id === this._id) {
-                            return iframe.move();
+                            return (await parentFrame
+                                .mainRealm()
+                                .adoptHandle(iframe));
                         }
                     }
                     catch (e_1) {
@@ -8110,7 +8830,7 @@ let Frame = (() => {
                         env_2.hasError = true;
                     }
                     finally {
-                        __disposeResources$5(env_2);
+                        __disposeResources$7(env_2);
                     }
                 }
                 return null;
@@ -8120,7 +8840,7 @@ let Frame = (() => {
                 env_1.hasError = true;
             }
             finally {
-                __disposeResources$5(env_1);
+                __disposeResources$7(env_1);
             }
         }
         /**
@@ -8146,12 +8866,12 @@ let Frame = (() => {
         /**
          * @internal
          */
-        locator(selectorOrFunc) {
-            if (typeof selectorOrFunc === 'string') {
-                return NodeLocator.create(this, selectorOrFunc);
+        locator(input) {
+            if (typeof input === 'string') {
+                return NodeLocator.create(this, input);
             }
             else {
-                return FunctionLocator.create(this, selectorOrFunc);
+                return FunctionLocator.create(this, input);
             }
         }
         /**
@@ -8159,11 +8879,11 @@ let Frame = (() => {
          *
          * @param selector -
          * {@link https://pptr.dev/guides/page-interactions#selectors | selector}
-         * to query page for.
+         * to query the page for.
          * {@link https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Selectors | CSS selectors}
          * can be passed as-is and a
          * {@link https://pptr.dev/guides/page-interactions#non-css-selectors | Puppeteer-specific selector syntax}
-         * allows quering by
+         * allows querying by
          * {@link https://pptr.dev/guides/page-interactions#text-selectors--p-text | text},
          * {@link https://pptr.dev/guides/page-interactions#aria-selectors--p-aria | a11y role and name},
          * and
@@ -8177,7 +8897,7 @@ let Frame = (() => {
          * matching the given selector. Otherwise, `null`.
          */
         async $(selector) {
-            // eslint-disable-next-line rulesdir/use-using -- This is cached.
+            // eslint-disable-next-line @puppeteer/use-using -- This is cached.
             const document = await this.#document();
             return await document.$(selector);
         }
@@ -8186,11 +8906,11 @@ let Frame = (() => {
          *
          * @param selector -
          * {@link https://pptr.dev/guides/page-interactions#selectors | selector}
-         * to query page for.
+         * to query the page for.
          * {@link https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Selectors | CSS selectors}
          * can be passed as-is and a
          * {@link https://pptr.dev/guides/page-interactions#non-css-selectors | Puppeteer-specific selector syntax}
-         * allows quering by
+         * allows querying by
          * {@link https://pptr.dev/guides/page-interactions#text-selectors--p-text | text},
          * {@link https://pptr.dev/guides/page-interactions#aria-selectors--p-aria | a11y role and name},
          * and
@@ -8204,7 +8924,7 @@ let Frame = (() => {
          * elements matching the given selector.
          */
         async $$(selector, options) {
-            // eslint-disable-next-line rulesdir/use-using -- This is cached.
+            // eslint-disable-next-line @puppeteer/use-using -- This is cached.
             const document = await this.#document();
             return await document.$$(selector, options);
         }
@@ -8223,11 +8943,11 @@ let Frame = (() => {
          *
          * @param selector -
          * {@link https://pptr.dev/guides/page-interactions#selectors | selector}
-         * to query page for.
+         * to query the page for.
          * {@link https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Selectors | CSS selectors}
          * can be passed as-is and a
          * {@link https://pptr.dev/guides/page-interactions#non-css-selectors | Puppeteer-specific selector syntax}
-         * allows quering by
+         * allows querying by
          * {@link https://pptr.dev/guides/page-interactions#text-selectors--p-text | text},
          * {@link https://pptr.dev/guides/page-interactions#aria-selectors--p-aria | a11y role and name},
          * and
@@ -8244,7 +8964,7 @@ let Frame = (() => {
          */
         async $eval(selector, pageFunction, ...args) {
             pageFunction = withSourcePuppeteerURLIfNone(this.$eval.name, pageFunction);
-            // eslint-disable-next-line rulesdir/use-using -- This is cached.
+            // eslint-disable-next-line @puppeteer/use-using -- This is cached.
             const document = await this.#document();
             return await document.$eval(selector, pageFunction, ...args);
         }
@@ -8263,11 +8983,11 @@ let Frame = (() => {
          *
          * @param selector -
          * {@link https://pptr.dev/guides/page-interactions#selectors | selector}
-         * to query page for.
+         * to query the page for.
          * {@link https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Selectors | CSS selectors}
          * can be passed as-is and a
          * {@link https://pptr.dev/guides/page-interactions#non-css-selectors | Puppeteer-specific selector syntax}
-         * allows quering by
+         * allows querying by
          * {@link https://pptr.dev/guides/page-interactions#text-selectors--p-text | text},
          * {@link https://pptr.dev/guides/page-interactions#aria-selectors--p-aria | a11y role and name},
          * and
@@ -8284,7 +9004,7 @@ let Frame = (() => {
          */
         async $$eval(selector, pageFunction, ...args) {
             pageFunction = withSourcePuppeteerURLIfNone(this.$$eval.name, pageFunction);
-            // eslint-disable-next-line rulesdir/use-using -- This is cached.
+            // eslint-disable-next-line @puppeteer/use-using -- This is cached.
             const document = await this.#document();
             return await document.$$eval(selector, pageFunction, ...args);
         }
@@ -8298,24 +9018,22 @@ let Frame = (() => {
          * ```ts
          * import puppeteer from 'puppeteer';
          *
-         * (async () => {
-         *   const browser = await puppeteer.launch();
-         *   const page = await browser.newPage();
-         *   let currentURL;
-         *   page
-         *     .mainFrame()
-         *     .waitForSelector('img')
-         *     .then(() => console.log('First URL with image: ' + currentURL));
+         * const browser = await puppeteer.launch();
+         * const page = await browser.newPage();
+         * let currentURL;
+         * page
+         *   .mainFrame()
+         *   .waitForSelector('img')
+         *   .then(() => console.log('First URL with image: ' + currentURL));
          *
-         *   for (currentURL of [
-         *     'https://example.com',
-         *     'https://google.com',
-         *     'https://bbc.com',
-         *   ]) {
-         *     await page.goto(currentURL);
-         *   }
-         *   await browser.close();
-         * })();
+         * for (currentURL of [
+         *   'https://example.com',
+         *   'https://google.com',
+         *   'https://bbc.com',
+         * ]) {
+         *   await page.goto(currentURL);
+         * }
+         * await browser.close();
          * ```
          *
          * @param selector - The selector to query and wait for.
@@ -8337,14 +9055,14 @@ let Frame = (() => {
          * ```ts
          * import puppeteer from 'puppeteer';
          *
-         * (async () => {
-         * .  const browser = await puppeteer.launch();
-         * .  const page = await browser.newPage();
-         * .  const watchDog = page.mainFrame().waitForFunction('window.innerWidth < 100');
-         * .  page.setViewport({width: 50, height: 50});
-         * .  await watchDog;
-         * .  await browser.close();
-         * })();
+         * const browser = await puppeteer.launch();
+         * const page = await browser.newPage();
+         * const watchDog = page
+         *   .mainFrame()
+         *   .waitForFunction('window.innerWidth < 100');
+         * page.setViewport({width: 50, height: 50});
+         * await watchDog;
+         * await browser.close();
          * ```
          *
          * To pass arguments from Node.js to the predicate of `page.waitForFunction` function:
@@ -8354,12 +9072,12 @@ let Frame = (() => {
          * await frame.waitForFunction(
          *   selector => !!document.querySelector(selector),
          *   {}, // empty options object
-         *   selector
+         *   selector,
          * );
          * ```
          *
          * @param pageFunction - the function to evaluate in the frame context.
-         * @param options - options to configure the polling method and timeout.
+         * @param options - options to configure the polling method, timeout and signal.
          * @param args - arguments to pass to the `pageFunction`.
          * @returns the promise which resolve when the `pageFunction` returns a truthy value.
          */
@@ -8443,8 +9161,7 @@ let Frame = (() => {
                 throw new Error('Exactly one of `url`, `path`, or `content` must be specified.');
             }
             if (path) {
-                const fs = await importFSPromises();
-                content = await fs.readFile(path, 'utf8');
+                content = await environment.value.fs.promises.readFile(path, 'utf8');
                 content += `//# sourceURL=${path.replace(/\n/g, '')}`;
             }
             type = type ?? 'text/javascript';
@@ -8483,8 +9200,7 @@ let Frame = (() => {
                 throw new Error('Exactly one of `url`, `path`, or `content` must be specified.');
             }
             if (path) {
-                const fs = await importFSPromises();
-                content = await fs.readFile(path, 'utf8');
+                content = await environment.value.fs.promises.readFile(path, 'utf8');
                 content += '/*# sourceURL=' + path.replace(/\n/g, '') + '*/';
                 options.content = content;
             }
@@ -8533,7 +9249,7 @@ let Frame = (() => {
         async click(selector, options = {}) {
             const env_3 = { stack: [], error: void 0, hasError: false };
             try {
-                const handle = __addDisposableResource$5(env_3, await this.$(selector), false);
+                const handle = __addDisposableResource$7(env_3, await this.$(selector), false);
                 assert(handle, `No element found for selector: ${selector}`);
                 await handle.click(options);
                 await handle.dispose();
@@ -8543,7 +9259,7 @@ let Frame = (() => {
                 env_3.hasError = true;
             }
             finally {
-                __disposeResources$5(env_3);
+                __disposeResources$7(env_3);
             }
         }
         /**
@@ -8555,7 +9271,7 @@ let Frame = (() => {
         async focus(selector) {
             const env_4 = { stack: [], error: void 0, hasError: false };
             try {
-                const handle = __addDisposableResource$5(env_4, await this.$(selector), false);
+                const handle = __addDisposableResource$7(env_4, await this.$(selector), false);
                 assert(handle, `No element found for selector: ${selector}`);
                 await handle.focus();
             }
@@ -8564,7 +9280,7 @@ let Frame = (() => {
                 env_4.hasError = true;
             }
             finally {
-                __disposeResources$5(env_4);
+                __disposeResources$7(env_4);
             }
         }
         /**
@@ -8577,7 +9293,7 @@ let Frame = (() => {
         async hover(selector) {
             const env_5 = { stack: [], error: void 0, hasError: false };
             try {
-                const handle = __addDisposableResource$5(env_5, await this.$(selector), false);
+                const handle = __addDisposableResource$7(env_5, await this.$(selector), false);
                 assert(handle, `No element found for selector: ${selector}`);
                 await handle.hover();
             }
@@ -8586,7 +9302,7 @@ let Frame = (() => {
                 env_5.hasError = true;
             }
             finally {
-                __disposeResources$5(env_5);
+                __disposeResources$7(env_5);
             }
         }
         /**
@@ -8610,7 +9326,7 @@ let Frame = (() => {
         async select(selector, ...values) {
             const env_6 = { stack: [], error: void 0, hasError: false };
             try {
-                const handle = __addDisposableResource$5(env_6, await this.$(selector), false);
+                const handle = __addDisposableResource$7(env_6, await this.$(selector), false);
                 assert(handle, `No element found for selector: ${selector}`);
                 return await handle.select(...values);
             }
@@ -8619,7 +9335,7 @@ let Frame = (() => {
                 env_6.hasError = true;
             }
             finally {
-                __disposeResources$5(env_6);
+                __disposeResources$7(env_6);
             }
         }
         /**
@@ -8631,7 +9347,7 @@ let Frame = (() => {
         async tap(selector) {
             const env_7 = { stack: [], error: void 0, hasError: false };
             try {
-                const handle = __addDisposableResource$5(env_7, await this.$(selector), false);
+                const handle = __addDisposableResource$7(env_7, await this.$(selector), false);
                 assert(handle, `No element found for selector: ${selector}`);
                 await handle.tap();
             }
@@ -8640,7 +9356,7 @@ let Frame = (() => {
                 env_7.hasError = true;
             }
             finally {
-                __disposeResources$5(env_7);
+                __disposeResources$7(env_7);
             }
         }
         /**
@@ -8667,7 +9383,7 @@ let Frame = (() => {
         async type(selector, text, options) {
             const env_8 = { stack: [], error: void 0, hasError: false };
             try {
-                const handle = __addDisposableResource$5(env_8, await this.$(selector), false);
+                const handle = __addDisposableResource$7(env_8, await this.$(selector), false);
                 assert(handle, `No element found for selector: ${selector}`);
                 await handle.type(text, options);
             }
@@ -8676,7 +9392,7 @@ let Frame = (() => {
                 env_8.hasError = true;
             }
             finally {
-                __disposeResources$5(env_8);
+                __disposeResources$7(env_8);
             }
         }
         /**
@@ -8698,6 +9414,7 @@ let Frame = (() => {
  * following events are emitted by Puppeteer's `page`:
  *
  * - `request`: emitted when the request is issued by the page.
+ *
  * - `requestfinished` - emitted when the response body is downloaded and the
  *   request is complete.
  *
@@ -8766,7 +9483,6 @@ class HTTPRequest {
      * `respond()` aren't called).
      */
     continueRequestOverrides() {
-        assert(this.interception.enabled, 'Request Interception is not enabled!');
         return this.interception.requestOverrides;
     }
     /**
@@ -8774,14 +9490,12 @@ class HTTPRequest {
      * interception is allowed to respond (ie, `abort()` is not called).
      */
     responseForRequest() {
-        assert(this.interception.enabled, 'Request Interception is not enabled!');
         return this.interception.response;
     }
     /**
      * The most recent reason for aborting the request
      */
     abortErrorReason() {
-        assert(this.interception.enabled, 'Request Interception is not enabled!');
         return this.interception.abortReason;
     }
     /**
@@ -8843,6 +9557,13 @@ class HTTPRequest {
         }
     }
     /**
+     * @internal
+     */
+    verifyInterception() {
+        assert(this.interception.enabled, 'Request Interception is not enabled!');
+        assert(!this.interception.handled, 'Request is already handled!');
+    }
+    /**
      * Continues request with optional request overrides.
      *
      * @example
@@ -8871,12 +9592,10 @@ class HTTPRequest {
      * Exception is immediately thrown if the request interception is not enabled.
      */
     async continue(overrides = {}, priority) {
-        // Request interception is not supported for data: urls.
-        if (this.url().startsWith('data:')) {
+        this.verifyInterception();
+        if (!this.canBeIntercepted()) {
             return;
         }
-        assert(this.interception.enabled, 'Request Interception is not enabled!');
-        assert(!this.interception.handled, 'Request is already handled!');
         if (priority === undefined) {
             return await this._continue(overrides);
         }
@@ -8932,12 +9651,10 @@ class HTTPRequest {
      * Exception is immediately thrown if the request interception is not enabled.
      */
     async respond(response, priority) {
-        // Mocking responses for dataURL requests is not currently supported.
-        if (this.url().startsWith('data:')) {
+        this.verifyInterception();
+        if (!this.canBeIntercepted()) {
             return;
         }
-        assert(this.interception.enabled, 'Request Interception is not enabled!');
-        assert(!this.interception.handled, 'Request is already handled!');
         if (priority === undefined) {
             return await this._respond(response);
         }
@@ -8973,14 +9690,12 @@ class HTTPRequest {
      * throw an exception immediately.
      */
     async abort(errorCode = 'failed', priority) {
-        // Request interception is not supported for data: urls.
-        if (this.url().startsWith('data:')) {
+        this.verifyInterception();
+        if (!this.canBeIntercepted()) {
             return;
         }
         const errorReason = errorReasons[errorCode];
         assert(errorReason, 'Unknown error code: ' + errorCode);
-        assert(this.interception.enabled, 'Request Interception is not enabled!');
-        assert(!this.interception.handled, 'Request is already handled!');
         if (priority === undefined) {
             return await this._abort(errorReason);
         }
@@ -9002,13 +9717,9 @@ class HTTPRequest {
         const byteBody = isString(body)
             ? new TextEncoder().encode(body)
             : body;
-        const bytes = [];
-        for (const byte of byteBody) {
-            bytes.push(String.fromCharCode(byte));
-        }
         return {
             contentLength: byteBody.byteLength,
-            base64: btoa(bytes.join('')),
+            base64: typedArrayToBase64(byteBody),
         };
     }
 }
@@ -9029,13 +9740,17 @@ var InterceptResolutionAction;
  */
 function headersArray(headers) {
     const result = [];
-    for (const name in headers) {
+    for (const name of Object.keys(headers)) {
         const value = headers[name];
-        if (!Object.is(value, undefined)) {
-            const values = Array.isArray(value) ? value : [value];
-            result.push(...values.map(value => {
-                return { name, value: value + '' };
-            }));
+        if (value !== undefined) {
+            if (Array.isArray(value)) {
+                for (const v of value) {
+                    result.push({ name, value: v + '' });
+                }
+            }
+            else {
+                result.push({ name, value: value + '' });
+            }
         }
     }
     return result;
@@ -9131,10 +9846,11 @@ const errorReasons = {
 /**
  * @internal
  */
-function handleError(error) {
+function handleError(error, logger) {
     // Firefox throws an invalid argument error with a message starting with
     // 'Expected "header" [...]'.
     if (error.originalMessage.includes('Invalid header') ||
+        error.originalMessage.includes('Unsafe header') ||
         error.originalMessage.includes('Expected "header"') ||
         // WebDriver BiDi error for invalid values, for example, headers.
         error.originalMessage.includes('invalid argument')) {
@@ -9143,7 +9859,7 @@ function handleError(error) {
     // In certain cases, protocol will return error if the request was
     // already canceled or the page was closed. We should tolerate these
     // errors.
-    debugError(error);
+    logger?.(DEBUG_PREFIXES.error)?.(error);
 }
 
 /**
@@ -9171,11 +9887,22 @@ class HTTPResponse {
         return status === 0 || (status >= 200 && status <= 299);
     }
     /**
+     * {@inheritDoc HTTPResponse.content}
+     */
+    async buffer() {
+        const content = await this.content();
+        return Buffer.from(content);
+    }
+    /**
      * Promise which resolves to a text (utf8) representation of response body.
+     *
+     * @remarks
+     *
+     * This method will throw if the content is not utf-8 string
      */
     async text() {
-        const content = await this.buffer();
-        return content.toString('utf8');
+        const content = await this.content();
+        return new TextDecoder('utf-8', { fatal: true }).decode(content);
     }
     /**
      * Promise which resolves to a JSON representation of response body.
@@ -9189,6 +9916,24 @@ class HTTPResponse {
         const content = await this.text();
         return JSON.parse(content);
     }
+}
+
+/**
+ * @license
+ * Copyright 2024 Google Inc.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+/**
+ * @internal
+ */
+function createIncrementalIdGenerator() {
+    let id = 0;
+    return () => {
+        if (id === Number.MAX_SAFE_INTEGER) {
+            id = 0;
+        }
+        return ++id;
+    };
 }
 
 /**
@@ -9296,7 +10041,7 @@ const MouseButton = Object.freeze({
  *     selection.addRange(range);
  *   },
  *   fromJSHandle,
- *   toJSHandle
+ *   toJSHandle,
  * );
  * ```
  *
@@ -9341,15 +10086,62 @@ class Touchscreen {
     /**
      * @internal
      */
+    idGenerator = createIncrementalIdGenerator();
+    /**
+     * @internal
+     */
+    touches = [];
+    /**
+     * @internal
+     */
     constructor() { }
+    /**
+     * @internal
+     */
+    removeHandle(handle) {
+        const index = this.touches.indexOf(handle);
+        if (index === -1) {
+            return;
+        }
+        this.touches.splice(index, 1);
+    }
     /**
      * Dispatches a `touchstart` and `touchend` event.
      * @param x - Horizontal position of the tap.
      * @param y - Vertical position of the tap.
      */
     async tap(x, y) {
-        await this.touchStart(x, y);
-        await this.touchEnd();
+        const touch = await this.touchStart(x, y);
+        await touch.end();
+    }
+    /**
+     * Dispatches a `touchMove` event on the first touch that is active.
+     * @param x - Horizontal position of the move.
+     * @param y - Vertical position of the move.
+     *
+     * @remarks
+     *
+     * Not every `touchMove` call results in a `touchmove` event being emitted,
+     * depending on the browser's optimizations. For example, Chrome
+     * {@link https://developer.chrome.com/blog/a-more-compatible-smoother-touch/#chromes-new-model-the-throttled-async-touchmove-model | throttles}
+     * touch move events.
+     */
+    async touchMove(x, y) {
+        const touch = this.touches[0];
+        if (!touch) {
+            throw new TouchError('Must start a new Touch first');
+        }
+        return await touch.move(x, y);
+    }
+    /**
+     * Dispatches a `touchend` event on the first touch that is active.
+     */
+    async touchEnd() {
+        const touch = this.touches.shift();
+        if (!touch) {
+            throw new TouchError('Must start a new Touch first');
+        }
+        await touch.end();
     }
 }
 
@@ -9431,10 +10223,10 @@ var __esDecorate$4 = (undefined && undefined.__esDecorate) || function (ctor, de
     if (target) Object.defineProperty(target, contextIn.name, descriptor);
     done = true;
 };
-var __addDisposableResource$4 = (undefined && undefined.__addDisposableResource) || function (env, value, async) {
+var __addDisposableResource$6 = (undefined && undefined.__addDisposableResource) || function (env, value, async) {
     if (value !== null && value !== void 0) {
         if (typeof value !== "object" && typeof value !== "function") throw new TypeError("Object expected.");
-        var dispose;
+        var dispose, inner;
         if (async) {
             if (!Symbol.asyncDispose) throw new TypeError("Symbol.asyncDispose is not defined.");
             dispose = value[Symbol.asyncDispose];
@@ -9442,8 +10234,10 @@ var __addDisposableResource$4 = (undefined && undefined.__addDisposableResource)
         if (dispose === void 0) {
             if (!Symbol.dispose) throw new TypeError("Symbol.dispose is not defined.");
             dispose = value[Symbol.dispose];
+            if (async) inner = dispose;
         }
         if (typeof dispose !== "function") throw new TypeError("Object not disposable.");
+        if (inner) dispose = function() { try { inner.call(this); } catch (e) { return Promise.reject(e); } };
         env.stack.push({ value: value, dispose: dispose, async: async });
     }
     else if (async) {
@@ -9451,23 +10245,28 @@ var __addDisposableResource$4 = (undefined && undefined.__addDisposableResource)
     }
     return value;
 };
-var __disposeResources$4 = (undefined && undefined.__disposeResources) || (function (SuppressedError) {
+var __disposeResources$6 = (undefined && undefined.__disposeResources) || (function (SuppressedError) {
     return function (env) {
         function fail(e) {
             env.error = env.hasError ? new SuppressedError(e, env.error, "An error was suppressed during disposal.") : e;
             env.hasError = true;
         }
+        var r, s = 0;
         function next() {
-            while (env.stack.length) {
-                var rec = env.stack.pop();
+            while (r = env.stack.pop()) {
                 try {
-                    var result = rec.dispose && rec.dispose.call(rec.value);
-                    if (rec.async) return Promise.resolve(result).then(next, function(e) { fail(e); return next(); });
+                    if (!r.async && s === 1) return s = 0, env.stack.push(r), Promise.resolve().then(next);
+                    if (r.dispose) {
+                        var result = r.dispose.call(r.value);
+                        if (r.async) return s |= 2, Promise.resolve(result).then(next, function(e) { fail(e); return next(); });
+                    }
+                    else s |= 1;
                 }
                 catch (e) {
                     fail(e);
                 }
             }
+            if (s === 1) return env.hasError ? Promise.reject(env.error) : Promise.resolve();
             if (env.hasError) throw env.error;
         }
         return next();
@@ -9505,13 +10304,11 @@ function setDefaultScreenshotOptions(options) {
  * ```ts
  * import puppeteer from 'puppeteer';
  *
- * (async () => {
- *   const browser = await puppeteer.launch();
- *   const page = await browser.newPage();
- *   await page.goto('https://example.com');
- *   await page.screenshot({path: 'screenshot.png'});
- *   await browser.close();
- * })();
+ * const browser = await puppeteer.launch();
+ * const page = await browser.newPage();
+ * await page.goto('https://example.com');
+ * await page.screenshot({path: 'screenshot.png'});
+ * await browser.close();
  * ```
  *
  * The Page class extends from Puppeteer's {@link EventEmitter} class and will
@@ -9555,13 +10352,26 @@ let Page = (() => {
          * @internal
          */
         _timeoutSettings = new TimeoutSettings();
+        /**
+         * Internal API to get an implementation-specific identifier
+         * for the tab. In Chrome, it is a tab target id. If unknown,
+         * returns an empty string.
+         *
+         * @internal
+         */
+        _tabId = '';
         #requestHandlers = new WeakMap();
         #inflight$ = new ReplaySubject(1);
         /**
          * @internal
          */
-        constructor() {
-            super();
+        logger;
+        /**
+         * @internal
+         */
+        constructor(logger) {
+            super(undefined, logger);
+            this.logger = logger;
             fromEmitterEvent(this, "request" /* PageEvent.Request */)
                 .pipe(mergeMap(originalRequest => {
                 return concat(of(1), merge(fromEmitterEvent(this, "requestfailed" /* PageEvent.RequestFailed */), fromEmitterEvent(this, "requestfinished" /* PageEvent.RequestFinished */), fromEmitterEvent(this, "response" /* PageEvent.Response */).pipe(map(response => {
@@ -9617,12 +10427,12 @@ let Page = (() => {
         get accessibility() {
             return this.mainFrame().accessibility;
         }
-        locator(selectorOrFunc) {
-            if (typeof selectorOrFunc === 'string') {
-                return NodeLocator.create(this, selectorOrFunc);
+        locator(input) {
+            if (typeof input === 'string') {
+                return NodeLocator.create(this, input);
             }
             else {
-                return FunctionLocator.create(this, selectorOrFunc);
+                return FunctionLocator.create(this, input);
             }
         }
         /**
@@ -9639,11 +10449,11 @@ let Page = (() => {
          *
          * @param selector -
          * {@link https://pptr.dev/guides/page-interactions#selectors | selector}
-         * to query page for.
+         * to query the page for.
          * {@link https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Selectors | CSS selectors}
          * can be passed as-is and a
          * {@link https://pptr.dev/guides/page-interactions#non-css-selectors | Puppeteer-specific selector syntax}
-         * allows quering by
+         * allows querying by
          * {@link https://pptr.dev/guides/page-interactions#text-selectors--p-text | text},
          * {@link https://pptr.dev/guides/page-interactions#aria-selectors--p-aria | a11y role and name},
          * and
@@ -9666,11 +10476,11 @@ let Page = (() => {
          *
          * @param selector -
          * {@link https://pptr.dev/guides/page-interactions#selectors | selector}
-         * to query page for.
+         * to query the page for.
          * {@link https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Selectors | CSS selectors}
          * can be passed as-is and a
          * {@link https://pptr.dev/guides/page-interactions#non-css-selectors | Puppeteer-specific selector syntax}
-         * allows quering by
+         * allows querying by
          * {@link https://pptr.dev/guides/page-interactions#text-selectors--p-text | text},
          * {@link https://pptr.dev/guides/page-interactions#aria-selectors--p-aria | a11y role and name},
          * and
@@ -9713,7 +10523,7 @@ let Page = (() => {
          * const aHandle = await page.evaluateHandle(() => document.body);
          * const resultHandle = await page.evaluateHandle(
          *   body => body.innerHTML,
-         *   aHandle
+         *   aHandle,
          * );
          * console.log(await resultHandle.jsonValue());
          * await resultHandle.dispose();
@@ -9727,7 +10537,7 @@ let Page = (() => {
          *
          * ```ts
          * const button = await page.evaluateHandle(() =>
-         *   document.querySelector('button')
+         *   document.querySelector('button'),
          * );
          * // can call `click` because `button` is an `ElementHandle`
          * await button.click();
@@ -9779,7 +10589,7 @@ let Page = (() => {
          * // as `value` is not on `Element`
          * const searchValue = await page.$eval(
          *   '#search',
-         *   (el: HTMLInputElement) => el.value
+         *   (el: HTMLInputElement) => el.value,
          * );
          * ```
          *
@@ -9794,17 +10604,17 @@ let Page = (() => {
          * // or if you want to be more explicit, provide it as the generic type.
          * const searchValue = await page.$eval<string>(
          *   '#search',
-         *   (el: HTMLInputElement) => el.value
+         *   (el: HTMLInputElement) => el.value,
          * );
          * ```
          *
          * @param selector -
          * {@link https://pptr.dev/guides/page-interactions#selectors | selector}
-         * to query page for.
+         * to query the page for.
          * {@link https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Selectors | CSS selectors}
          * can be passed as-is and a
          * {@link https://pptr.dev/guides/page-interactions#non-css-selectors | Puppeteer-specific selector syntax}
-         * allows quering by
+         * allows querying by
          * {@link https://pptr.dev/guides/page-interactions#text-selectors--p-text | text},
          * {@link https://pptr.dev/guides/page-interactions#aria-selectors--p-aria | a11y role and name},
          * and
@@ -9867,17 +10677,17 @@ let Page = (() => {
          *
          * ```ts
          * const allInputValues = await page.$$eval('input', elements =>
-         *   elements.map(e => e.textContent)
+         *   elements.map(e => e.textContent),
          * );
          * ```
          *
          * @param selector -
          * {@link https://pptr.dev/guides/page-interactions#selectors | selector}
-         * to query page for.
+         * to query the page for.
          * {@link https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Selectors | CSS selectors}
          * can be passed as-is and a
          * {@link https://pptr.dev/guides/page-interactions#non-css-selectors | Puppeteer-specific selector syntax}
-         * allows quering by
+         * allows querying by
          * {@link https://pptr.dev/guides/page-interactions#text-selectors--p-text | text},
          * {@link https://pptr.dev/guides/page-interactions#aria-selectors--p-aria | a11y role and name},
          * and
@@ -9985,10 +10795,10 @@ let Page = (() => {
          *
          * ```ts
          * const firstRequest = await page.waitForRequest(
-         *   'https://example.com/resource'
+         *   'https://example.com/resource',
          * );
          * const finalRequest = await page.waitForRequest(
-         *   request => request.url() === 'https://example.com'
+         *   request => request.url() === 'https://example.com',
          * );
          * return finalRequest.response()?.ok();
          * ```
@@ -9999,6 +10809,8 @@ let Page = (() => {
          * - `timeout`: Maximum wait time in milliseconds, defaults to `30` seconds, pass
          *   `0` to disable the timeout. The default value can be changed by using the
          *   {@link Page.setDefaultTimeout} method.
+         *
+         * - `signal`: A signal object that allows you to cancel a waitForRequest call.
          */
         waitForRequest(urlOrPredicate, options = {}) {
             const { timeout: ms = this._timeoutSettings.timeout(), signal } = options;
@@ -10021,11 +10833,11 @@ let Page = (() => {
          *
          * ```ts
          * const firstResponse = await page.waitForResponse(
-         *   'https://example.com/resource'
+         *   'https://example.com/resource',
          * );
          * const finalResponse = await page.waitForResponse(
          *   response =>
-         *     response.url() === 'https://example.com' && response.status() === 200
+         *     response.url() === 'https://example.com' && response.status() === 200,
          * );
          * const finalResponse = await page.waitForResponse(async response => {
          *   return (await response.text()).includes('<html>');
@@ -10039,6 +10851,8 @@ let Page = (() => {
          * - `timeout`: Maximum wait time in milliseconds, defaults to `30` seconds,
          *   pass `0` to disable the timeout. The default value can be changed by using
          *   the {@link Page.setDefaultTimeout} method.
+         *
+         * - `signal`: A signal object that allows you to cancel a waitForResponse call.
          */
         waitForResponse(urlOrPredicate, options = {}) {
             const { timeout: ms = this._timeoutSettings.timeout(), signal } = options;
@@ -10056,6 +10870,9 @@ let Page = (() => {
         /**
          * Waits for the network to be idle.
          *
+         * @remarks The function will always wait at least the
+         * set {@link WaitForNetworkIdleOptions.idleTime | IdleTime}.
+         *
          * @param options - Options to configure waiting behavior.
          * @returns A promise which resolves once the network is idle.
          */
@@ -10067,8 +10884,10 @@ let Page = (() => {
          */
         waitForNetworkIdle$(options = {}) {
             const { timeout: ms = this._timeoutSettings.timeout(), idleTime = NETWORK_IDLE_TIME, concurrency = 0, signal, } = options;
-            return this.#inflight$.pipe(switchMap(inflight => {
-                if (inflight > concurrency) {
+            return this.#inflight$.pipe(map(inflight => {
+                return inflight > concurrency;
+            }), distinctUntilChanged(), switchMap(isInflightOverConcurrency => {
+                if (isInflightOverConcurrency) {
                     return EMPTY;
                 }
                 return timer(idleTime);
@@ -10083,7 +10902,12 @@ let Page = (() => {
          *
          * ```ts
          * const frame = await page.waitForFrame(async frame => {
-         *   return frame.name() === 'Test';
+         *   const frameElement = await frame.frameElement();
+         *   if (!frameElement) {
+         *     return false;
+         *   }
+         *   const name = await frameElement.evaluate(el => el.getAttribute('name'));
+         *   return name === 'test';
          * });
          * ```
          */
@@ -10106,7 +10930,7 @@ let Page = (() => {
          *
          * @remarks
          * This method is a shortcut for calling two methods:
-         * {@link Page.setUserAgent} and {@link Page.setViewport}.
+         * {@link Page.(setUserAgent:2) } and {@link Page.setViewport}.
          *
          * This method will resize the page. A lot of websites don't expect phones to
          * change size, so you should emulate before navigating to the page.
@@ -10117,19 +10941,17 @@ let Page = (() => {
          * import {KnownDevices} from 'puppeteer';
          * const iPhone = KnownDevices['iPhone 15 Pro'];
          *
-         * (async () => {
-         *   const browser = await puppeteer.launch();
-         *   const page = await browser.newPage();
-         *   await page.emulate(iPhone);
-         *   await page.goto('https://www.google.com');
-         *   // other actions...
-         *   await browser.close();
-         * })();
+         * const browser = await puppeteer.launch();
+         * const page = await browser.newPage();
+         * await page.emulate(iPhone);
+         * await page.goto('https://www.google.com');
+         * // other actions...
+         * await browser.close();
          * ```
          */
         async emulate(device) {
             await Promise.all([
-                this.setUserAgent(device.userAgent),
+                this.setUserAgent({ userAgent: device.userAgent }),
                 this.setViewport(device.viewport),
             ]);
         }
@@ -10187,12 +11009,11 @@ let Page = (() => {
         /**
          * @internal
          */
-        async _maybeWriteBufferToFile(path, buffer) {
+        async _maybeWriteTypedArrayToFile(path, typedArray) {
             if (!path) {
                 return;
             }
-            const fs = await importFSPromises();
-            await fs.writeFile(path, buffer);
+            await environment.value.fs.promises.writeFile(path, typedArray);
         }
         /**
          * Captures a screencast of this {@link Page | page}.
@@ -10229,16 +11050,14 @@ let Page = (() => {
          *
          * @remarks
          *
-         * All recordings will be {@link https://www.webmproject.org/ | WebM} format using
-         * the {@link https://www.webmproject.org/vp9/ | VP9} video codec. The FPS is 30.
+         * By default, all recordings will be {@link https://www.webmproject.org/ | WebM} format using
+         * the {@link https://www.webmproject.org/vp9/ | VP9} video codec, with a frame rate of 30 FPS.
          *
          * You must have {@link https://ffmpeg.org/ | ffmpeg} installed on your system.
          */
         async screencast(options = {}) {
-            const [{ ScreenRecorder }, [width, height, devicePixelRatio]] = await Promise.all([
-                Promise.resolve().then(function () { return ScreenRecorder$1; }),
-                this.#getNativePixelDimensions(),
-            ]);
+            const ScreenRecorder = environment.value.ScreenRecorder;
+            const [width, height, devicePixelRatio] = await this.#getNativePixelDimensions();
             let crop;
             if (options.crop) {
                 const { x, y, width: cropWidth, height: cropHeight, } = roundRectangle(normalizeRectangle(options.crop));
@@ -10271,9 +11090,8 @@ let Page = (() => {
             }
             const recorder = new ScreenRecorder(this, width, height, {
                 ...options,
-                path: options.ffmpegPath,
                 crop,
-            });
+            }, this.logger);
             try {
                 await this._startScreencast();
             }
@@ -10282,7 +11100,7 @@ let Page = (() => {
                 throw error;
             }
             if (options.path) {
-                const { createWriteStream } = await import('fs');
+                const { createWriteStream } = environment.value.fs;
                 const stream = createWriteStream(options.path, 'binary');
                 recorder.pipe(stream);
             }
@@ -10329,11 +11147,13 @@ let Page = (() => {
             const env_1 = { stack: [], error: void 0, hasError: false };
             try {
                 const viewport = this.viewport();
-                const stack = __addDisposableResource$4(env_1, new DisposableStack(), false);
+                const stack = __addDisposableResource$6(env_1, new DisposableStack(), false);
                 if (viewport && viewport.deviceScaleFactor !== 0) {
                     await this.setViewport({ ...viewport, deviceScaleFactor: 0 });
                     stack.defer(() => {
-                        void this.setViewport(viewport).catch(debugError);
+                        void this.setViewport(viewport).catch(error => {
+                            this.logger?.(DEBUG_PREFIXES.error)?.(error);
+                        });
                     });
                 }
                 return await this.mainFrame()
@@ -10351,15 +11171,13 @@ let Page = (() => {
                 env_1.hasError = true;
             }
             finally {
-                __disposeResources$4(env_1);
+                __disposeResources$6(env_1);
             }
         }
         async screenshot(userOptions = {}) {
             const env_2 = { stack: [], error: void 0, hasError: false };
             try {
-                const _guard = __addDisposableResource$4(env_2, await this.browserContext().startScreenshot(), false);
-                await this.bringToFront();
-                // TODO: use structuredClone after Node 16 support is dropped.
+                const _guard = __addDisposableResource$6(env_2, await this.browserContext().startScreenshot(), false);
                 const options = {
                     ...userOptions,
                     clip: userOptions.clip
@@ -10405,7 +11223,7 @@ let Page = (() => {
                     }
                 }
                 setDefaultScreenshotOptions(options);
-                const stack = __addDisposableResource$4(env_2, new AsyncDisposableStack(), true);
+                const stack = __addDisposableResource$6(env_2, new AsyncDisposableStack(), true);
                 if (options.clip) {
                     if (options.fullPage) {
                         throw new Error("'clip' and 'fullPage' are mutually exclusive");
@@ -10433,7 +11251,9 @@ let Page = (() => {
                                 ...scrollDimensions,
                             });
                             stack.defer(async () => {
-                                await this.setViewport(viewport).catch(debugError);
+                                await this.setViewport(viewport).catch(error => {
+                                    this.logger?.(DEBUG_PREFIXES.error)?.(error);
+                                });
                             });
                         }
                     }
@@ -10445,16 +11265,16 @@ let Page = (() => {
                 if (options.encoding === 'base64') {
                     return data;
                 }
-                const buffer = Buffer.from(data, 'base64');
-                await this._maybeWriteBufferToFile(options.path, buffer);
-                return buffer;
+                const typedArray = stringToTypedArray(data, true);
+                await this._maybeWriteTypedArrayToFile(options.path, typedArray);
+                return typedArray;
             }
             catch (e_2) {
                 env_2.error = e_2;
                 env_2.hasError = true;
             }
             finally {
-                const result_1 = __disposeResources$4(env_2);
+                const result_1 = __disposeResources$6(env_2);
                 if (result_1)
                     await result_1;
             }
@@ -10490,7 +11310,21 @@ let Page = (() => {
          * ```
          *
          * Shortcut for {@link Frame.click | page.mainFrame().click(selector[, options]) }.
-         * @param selector - A `selector` to search for element to click. If there are
+         * @param selector -
+         * {@link https://pptr.dev/guides/page-interactions#selectors | selector}
+         * to query the page for.
+         * {@link https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Selectors | CSS selectors}
+         * can be passed as-is and a
+         * {@link https://pptr.dev/guides/page-interactions#non-css-selectors | Puppeteer-specific selector syntax}
+         * allows querying by
+         * {@link https://pptr.dev/guides/page-interactions#text-selectors--p-text | text},
+         * {@link https://pptr.dev/guides/page-interactions#aria-selectors--p-aria | a11y role and name},
+         * and
+         * {@link https://pptr.dev/guides/page-interactions#xpath-selectors--p-xpath | xpath}
+         * and
+         * {@link https://pptr.dev/guides/page-interactions#querying-elements-in-shadow-dom | combining these queries across shadow roots}.
+         * Alternatively, you can specify the selector type using a
+         * {@link https://pptr.dev/guides/page-interactions#prefixed-selector-syntax | prefix}. If there are
          * multiple elements satisfying the `selector`, the first will be clicked
          * @param options - `Object`
          * @returns Promise which resolves when the element matching `selector` is
@@ -10501,19 +11335,33 @@ let Page = (() => {
             return this.mainFrame().click(selector, options);
         }
         /**
-         * This method fetches an element with `selector` and focuses it. If there's no
-         * element matching `selector`, the method throws an error.
-         * @param selector - A
-         * {@link https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Selectors | selector }
-         * of an element to focus. If there are multiple elements satisfying the
-         * selector, the first will be focused.
-         * @returns Promise which resolves when the element matching selector is
-         * successfully focused. The promise will be rejected if there is no element
-         * matching selector.
+         * This method fetches an element with `selector` and focuses it. If
+         * there's no element matching `selector`, the method throws an error.
+         * @param selector -
+         * {@link https://pptr.dev/guides/page-interactions#selectors | selector}
+         * to query the page for.
+         * {@link https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Selectors | CSS selectors}
+         * can be passed as-is and a
+         * {@link https://pptr.dev/guides/page-interactions#non-css-selectors | Puppeteer-specific selector syntax}
+         * allows querying by
+         * {@link https://pptr.dev/guides/page-interactions#text-selectors--p-text | text},
+         * {@link https://pptr.dev/guides/page-interactions#aria-selectors--p-aria | a11y role and name},
+         * and
+         * {@link https://pptr.dev/guides/page-interactions#xpath-selectors--p-xpath | xpath}
+         * and
+         * {@link https://pptr.dev/guides/page-interactions#querying-elements-in-shadow-dom | combining these queries across shadow roots}.
+         * Alternatively, you can specify the selector type using a
+         * {@link https://pptr.dev/guides/page-interactions#prefixed-selector-syntax | prefix}.
+         * If there are multiple elements satisfying the selector, the first
+         * will be focused.
+         * @returns Promise which resolves when the element matching selector
+         * is successfully focused. The promise will be rejected if there is
+         * no element matching selector.
          *
          * @remarks
          *
-         * Shortcut for {@link Frame.focus | page.mainFrame().focus(selector)}.
+         * Shortcut for
+         * {@link Frame.focus | page.mainFrame().focus(selector)}.
          */
         focus(selector) {
             return this.mainFrame().focus(selector);
@@ -10523,10 +11371,22 @@ let Page = (() => {
          * needed, and then uses {@link Page.mouse}
          * to hover over the center of the element.
          * If there's no element matching `selector`, the method throws an error.
-         * @param selector - A
-         * {@link https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Selectors | selector}
-         * to search for element to hover. If there are multiple elements satisfying
-         * the selector, the first will be hovered.
+         * @param selector -
+         * {@link https://pptr.dev/guides/page-interactions#selectors | selector}
+         * to query the page for.
+         * {@link https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Selectors | CSS selectors}
+         * can be passed as-is and a
+         * {@link https://pptr.dev/guides/page-interactions#non-css-selectors | Puppeteer-specific selector syntax}
+         * allows querying by
+         * {@link https://pptr.dev/guides/page-interactions#text-selectors--p-text | text},
+         * {@link https://pptr.dev/guides/page-interactions#aria-selectors--p-aria | a11y role and name},
+         * and
+         * {@link https://pptr.dev/guides/page-interactions#xpath-selectors--p-xpath | xpath}
+         * and
+         * {@link https://pptr.dev/guides/page-interactions#querying-elements-in-shadow-dom | combining these queries across shadow roots}.
+         * Alternatively, you can specify the selector type using a
+         * {@link https://pptr.dev/guides/page-interactions#prefixed-selector-syntax | prefix}. If there are
+         * multiple elements satisfying the `selector`, the first will be hovered.
          * @returns Promise which resolves when the element matching `selector` is
          * successfully hovered. Promise gets rejected if there's no element matching
          * `selector`.
@@ -10550,9 +11410,21 @@ let Page = (() => {
          * page.select('select#colors', 'red', 'green', 'blue'); // multiple selections
          * ```
          *
-         * @param selector - A
-         * {@link https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Selectors | Selector}
-         * to query the page for
+         * @param selector -
+         * {@link https://pptr.dev/guides/page-interactions#selectors | selector}
+         * to query the page for.
+         * {@link https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Selectors | CSS selectors}
+         * can be passed as-is and a
+         * {@link https://pptr.dev/guides/page-interactions#non-css-selectors | Puppeteer-specific selector syntax}
+         * allows querying by
+         * {@link https://pptr.dev/guides/page-interactions#text-selectors--p-text | text},
+         * {@link https://pptr.dev/guides/page-interactions#aria-selectors--p-aria | a11y role and name},
+         * and
+         * {@link https://pptr.dev/guides/page-interactions#xpath-selectors--p-xpath | xpath}
+         * and
+         * {@link https://pptr.dev/guides/page-interactions#querying-elements-in-shadow-dom | combining these queries across shadow roots}.
+         * Alternatively, you can specify the selector type using a
+         * {@link https://pptr.dev/guides/page-interactions#prefixed-selector-syntax | prefix}.
          * @param values - Values of options to select. If the `<select>` has the
          * `multiple` attribute, all values are considered, otherwise only the first one
          * is taken into account.
@@ -10570,9 +11442,21 @@ let Page = (() => {
          * needed, and then uses {@link Page.touchscreen}
          * to tap in the center of the element.
          * If there's no element matching `selector`, the method throws an error.
-         * @param selector - A
-         * {@link https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Selectors | Selector}
-         * to search for element to tap. If there are multiple elements satisfying the
+         * @param selector -
+         * {@link https://pptr.dev/guides/page-interactions#selectors | selector}
+         * to query the page for.
+         * {@link https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Selectors | CSS selectors}
+         * can be passed as-is and a
+         * {@link https://pptr.dev/guides/page-interactions#non-css-selectors | Puppeteer-specific selector syntax}
+         * allows querying by
+         * {@link https://pptr.dev/guides/page-interactions#text-selectors--p-text | text},
+         * {@link https://pptr.dev/guides/page-interactions#aria-selectors--p-aria | a11y role and name},
+         * and
+         * {@link https://pptr.dev/guides/page-interactions#xpath-selectors--p-xpath | xpath}
+         * and
+         * {@link https://pptr.dev/guides/page-interactions#querying-elements-in-shadow-dom | combining these queries across shadow roots}.
+         * Alternatively, you can specify the selector type using a
+         * {@link https://pptr.dev/guides/page-interactions#prefixed-selector-syntax | prefix}. If there are multiple elements satisfying the
          * selector, the first will be tapped.
          *
          * @remarks
@@ -10596,10 +11480,21 @@ let Page = (() => {
          * // Types slower, like a user
          * ```
          *
-         * @param selector - A
-         * {@link https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Selectors | selector}
-         * of an element to type into. If there are multiple elements satisfying the
-         * selector, the first will be used.
+         * @param selector -
+         * {@link https://pptr.dev/guides/page-interactions#selectors | selector}
+         * to query the page for.
+         * {@link https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Selectors | CSS selectors}
+         * can be passed as-is and a
+         * {@link https://pptr.dev/guides/page-interactions#non-css-selectors | Puppeteer-specific selector syntax}
+         * allows querying by
+         * {@link https://pptr.dev/guides/page-interactions#text-selectors--p-text | text},
+         * {@link https://pptr.dev/guides/page-interactions#aria-selectors--p-aria | a11y role and name},
+         * and
+         * {@link https://pptr.dev/guides/page-interactions#xpath-selectors--p-xpath | xpath}
+         * and
+         * {@link https://pptr.dev/guides/page-interactions#querying-elements-in-shadow-dom | combining these queries across shadow roots}.
+         * Alternatively, you can specify the selector type using a
+         * {@link https://pptr.dev/guides/page-interactions#prefixed-selector-syntax | prefix}.
          * @param text - A text to type into a focused element.
          * @param options - have property `delay` which is the Time to wait between
          * key presses in milliseconds. Defaults to `0`.
@@ -10619,27 +11514,38 @@ let Page = (() => {
          *
          * ```ts
          * import puppeteer from 'puppeteer';
-         * (async () => {
-         *   const browser = await puppeteer.launch();
-         *   const page = await browser.newPage();
-         *   let currentURL;
-         *   page
-         *     .waitForSelector('img')
-         *     .then(() => console.log('First URL with image: ' + currentURL));
-         *   for (currentURL of [
-         *     'https://example.com',
-         *     'https://google.com',
-         *     'https://bbc.com',
-         *   ]) {
-         *     await page.goto(currentURL);
-         *   }
-         *   await browser.close();
-         * })();
+         *
+         * const browser = await puppeteer.launch();
+         * const page = await browser.newPage();
+         * let currentURL;
+         * page
+         *   .waitForSelector('img')
+         *   .then(() => console.log('First URL with image: ' + currentURL));
+         * for (currentURL of [
+         *   'https://example.com',
+         *   'https://google.com',
+         *   'https://bbc.com',
+         * ]) {
+         *   await page.goto(currentURL);
+         * }
+         * await browser.close();
          * ```
          *
-         * @param selector - A
-         * {@link https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Selectors | selector}
-         * of an element to wait for
+         * @param selector -
+         * {@link https://pptr.dev/guides/page-interactions#selectors | selector}
+         * to query the page for.
+         * {@link https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Selectors | CSS selectors}
+         * can be passed as-is and a
+         * {@link https://pptr.dev/guides/page-interactions#non-css-selectors | Puppeteer-specific selector syntax}
+         * allows querying by
+         * {@link https://pptr.dev/guides/page-interactions#text-selectors--p-text | text},
+         * {@link https://pptr.dev/guides/page-interactions#aria-selectors--p-aria | a11y role and name},
+         * and
+         * {@link https://pptr.dev/guides/page-interactions#xpath-selectors--p-xpath | xpath}
+         * and
+         * {@link https://pptr.dev/guides/page-interactions#querying-elements-in-shadow-dom | combining these queries across shadow roots}.
+         * Alternatively, you can specify the selector type using a
+         * {@link https://pptr.dev/guides/page-interactions#prefixed-selector-syntax | prefix}.
          * @param options - Optional waiting parameters
          * @returns Promise which resolves when element specified by selector string
          * is added to DOM. Resolves to `null` if waiting for hidden: `true` and
@@ -10659,6 +11565,8 @@ let Page = (() => {
          * - `timeout`: maximum time to wait for in milliseconds. Defaults to `30000`
          *   (30 seconds). Pass `0` to disable timeout. The default value can be changed
          *   by using the {@link Page.setDefaultTimeout} method.
+         *
+         * - `signal`: A signal object that allows you to cancel a waitForSelector call.
          */
         async waitForSelector(selector, options = {}) {
             return await this.mainFrame().waitForSelector(selector, options);
@@ -10672,14 +11580,13 @@ let Page = (() => {
          *
          * ```ts
          * import puppeteer from 'puppeteer';
-         * (async () => {
-         *   const browser = await puppeteer.launch();
-         *   const page = await browser.newPage();
-         *   const watchDog = page.waitForFunction('window.innerWidth < 100');
-         *   await page.setViewport({width: 50, height: 50});
-         *   await watchDog;
-         *   await browser.close();
-         * })();
+         *
+         * const browser = await puppeteer.launch();
+         * const page = await browser.newPage();
+         * const watchDog = page.waitForFunction('window.innerWidth < 100');
+         * await page.setViewport({width: 50, height: 50});
+         * await watchDog;
+         * await browser.close();
          * ```
          *
          * @example
@@ -10690,7 +11597,7 @@ let Page = (() => {
          * await page.waitForFunction(
          *   selector => !!document.querySelector(selector),
          *   {},
-         *   selector
+         *   selector,
          * );
          * ```
          *
@@ -10702,7 +11609,7 @@ let Page = (() => {
          * await page.waitForFunction(
          *   async username => {
          *     const githubResponse = await fetch(
-         *       `https://api.github.com/users/${username}`
+         *       `https://api.github.com/users/${username}`,
          *     );
          *     const githubUser = await githubResponse.json();
          *     // show the avatar
@@ -10713,7 +11620,7 @@ let Page = (() => {
          *     img.remove();
          *   },
          *   {},
-         *   username
+         *   username,
          * );
          * ```
          *
@@ -10724,15 +11631,16 @@ let Page = (() => {
         waitForFunction(pageFunction, options, ...args) {
             return this.mainFrame().waitForFunction(pageFunction, options, ...args);
         }
-        /** @internal */
         [(_screenshot_decorators = [guarded(function () {
                 return this.browser();
             })], disposeSymbol)]() {
-            return void this.close().catch(debugError);
+            return void this[asyncDisposeSymbol]().catch(error => {
+                this.logger?.(DEBUG_PREFIXES.error)?.(error);
+            });
         }
-        /** @internal */
-        [asyncDisposeSymbol]() {
-            return this.close();
+        async [asyncDisposeSymbol]() {
+            await this.close();
+            await super[asyncDisposeSymbol]();
         }
     };
 })();
@@ -10783,6 +11691,7 @@ class WaitTask {
     #fn;
     #args;
     #timeout;
+    #genericError = new Error('Waiting failed');
     #timeoutError;
     #result = Deferred.create();
     #poller;
@@ -10793,9 +11702,7 @@ class WaitTask {
         this.#polling = options.polling;
         this.#root = options.root;
         this.#signal = options.signal;
-        this.#signal?.addEventListener('abort', () => {
-            void this.terminate(this.#signal?.reason);
-        }, {
+        this.#signal?.addEventListener('abort', this.#onAbortSignal, {
             once: true,
         });
         switch (typeof fn) {
@@ -10874,19 +11781,21 @@ class WaitTask {
             }
             const badError = this.getBadError(error);
             if (badError) {
-                await this.terminate(badError);
+                this.#genericError.cause = badError;
+                await this.terminate(this.#genericError);
             }
         }
     }
     async terminate(error) {
         this.#world.taskManager.delete(this);
+        this.#signal?.removeEventListener('abort', this.#onAbortSignal);
         clearTimeout(this.#timeout);
         if (error && !this.#result.finished()) {
             this.#result.reject(error);
         }
         if (this.#poller) {
             try {
-                await this.#poller.evaluateHandle(async (poller) => {
+                await this.#poller.evaluate(async (poller) => {
                     await poller.stop();
                 });
                 if (this.#poller) {
@@ -10922,7 +11831,7 @@ class WaitTask {
             }
             // Errors coming from WebDriver BiDi. TODO: Adjust messages after
             // https://github.com/w3c/webdriver-bidi/issues/540 is resolved.
-            if (error.message.includes("AbortError: Actor 'MessageHandlerFrame' destroyed")) {
+            if (error.message.includes('DiscardedBrowsingContextError')) {
                 return;
             }
             return error;
@@ -10931,6 +11840,9 @@ class WaitTask {
             cause: error,
         });
     }
+    #onAbortSignal = () => {
+        void this.terminate(this.#signal?.reason);
+    };
 }
 /**
  * @internal
@@ -10962,14 +11874,41 @@ class TaskManager {
  * SPDX-License-Identifier: Apache-2.0
  */
 /**
- * @internal
+ * @public
  */
 class Realm {
+    /** @internal */
     timeoutSettings;
+    /** @internal */
     taskManager = new TaskManager();
+    /** @internal */
     constructor(timeoutSettings) {
         this.timeoutSettings = timeoutSettings;
     }
+    /**
+     * Waits for a function to return a truthy value when evaluated in
+     * the realm's context.
+     *
+     * Arguments can be passed from Node.js to `pageFunction`.
+     *
+     * @example
+     *
+     * ```ts
+     * const selector = '.foo';
+     * await realm.waitForFunction(
+     *   selector => !!document.querySelector(selector),
+     *   {},
+     *   selector,
+     * );
+     * ```
+     *
+     * @param pageFunction - A function to evaluate in the realm.
+     * @param options - Options for polling and timeouts.
+     * @param args - Arguments to pass to the function.
+     * @returns A promise that resolves when the function returns a truthy
+     * value.
+     * @public
+     */
     async waitForFunction(pageFunction, options = {}, ...args) {
         const { polling = 'raf', timeout = this.timeoutSettings.timeout(), root, signal, } = options;
         if (typeof polling === 'number' && polling < 0) {
@@ -10983,6 +11922,7 @@ class Realm {
         }, pageFunction, ...args);
         return await waitTask.result;
     }
+    /** @internal */
     get disposed() {
         return this.#disposed;
     }
@@ -10992,7 +11932,6 @@ class Realm {
         this.#disposed = true;
         this.taskManager.terminateAll(new Error('waitForFunction failed: frame got detached.'));
     }
-    /** @internal */
     [disposeSymbol]() {
         this.dispose();
     }
@@ -11023,15 +11962,18 @@ var TargetType;
 /**
  * Target represents a
  * {@link https://chromedevtools.github.io/devtools-protocol/tot/Target/ | CDP target}.
- * In CDP a target is something that can be debugged such a frame, a page or a
+ * In CDP a target is something that can be debugged, such as a frame, a page or a
  * worker.
  * @public
  */
 class Target {
+    logger;
     /**
      * @internal
      */
-    constructor() { }
+    constructor(logger) {
+        this.logger = logger;
+    }
     /**
      * If the target is not of type `"service_worker"` or `"shared_worker"`, returns `null`.
      */
@@ -11053,6 +11995,20 @@ class Target {
  * SPDX-License-Identifier: Apache-2.0
  */
 /**
+ * @public
+ */
+var WebWorkerEvent;
+(function (WebWorkerEvent) {
+    /**
+     * Emitted when the worker calls a console API.
+     */
+    WebWorkerEvent["Console"] = "console";
+    /**
+     * Emitted when the worker throws an exception.
+     */
+    WebWorkerEvent["Error"] = "error";
+})(WebWorkerEvent || (WebWorkerEvent = {}));
+/**
  * This class represents a
  * {@link https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API | WebWorker}.
  *
@@ -11064,10 +12020,10 @@ class Target {
  *
  * ```ts
  * page.on('workercreated', worker =>
- *   console.log('Worker created: ' + worker.url())
+ *   console.log('Worker created: ' + worker.url()),
  * );
  * page.on('workerdestroyed', worker =>
- *   console.log('Worker destroyed: ' + worker.url())
+ *   console.log('Worker destroyed: ' + worker.url()),
  * );
  *
  * console.log('Current workers:');
@@ -11144,6 +12100,20 @@ class WebWorker extends EventEmitter {
         func = withSourcePuppeteerURLIfNone(this.evaluateHandle.name, func);
         return await this.mainRealm().evaluateHandle(func, ...args);
     }
+    /**
+     * Waits for the provided function, `workerFunction`, to return a truthy value when
+     * evaluated in the page's context.
+     *
+     * @param workerFunction - Function to be evaluated in browser context until it
+     * returns a truthy value.
+     * @param options - Options for configuring waiting behavior.
+     */
+    waitForFunction(workerFunction, options = {}, ...args) {
+        return this.mainRealm().waitForFunction(workerFunction, {
+            polling: 100,
+            ...options,
+        }, ...args);
+    }
     async close() {
         throw new UnsupportedOperation('WebWorker.close() is not supported');
     }
@@ -11154,6 +12124,58 @@ class WebWorker extends EventEmitter {
  * Copyright 2018 Google Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
+var __addDisposableResource$5 = (undefined && undefined.__addDisposableResource) || function (env, value, async) {
+    if (value !== null && value !== void 0) {
+        if (typeof value !== "object" && typeof value !== "function") throw new TypeError("Object expected.");
+        var dispose, inner;
+        if (async) {
+            if (!Symbol.asyncDispose) throw new TypeError("Symbol.asyncDispose is not defined.");
+            dispose = value[Symbol.asyncDispose];
+        }
+        if (dispose === void 0) {
+            if (!Symbol.dispose) throw new TypeError("Symbol.dispose is not defined.");
+            dispose = value[Symbol.dispose];
+            if (async) inner = dispose;
+        }
+        if (typeof dispose !== "function") throw new TypeError("Object not disposable.");
+        if (inner) dispose = function() { try { inner.call(this); } catch (e) { return Promise.reject(e); } };
+        env.stack.push({ value: value, dispose: dispose, async: async });
+    }
+    else if (async) {
+        env.stack.push({ async: true });
+    }
+    return value;
+};
+var __disposeResources$5 = (undefined && undefined.__disposeResources) || (function (SuppressedError) {
+    return function (env) {
+        function fail(e) {
+            env.error = env.hasError ? new SuppressedError(e, env.error, "An error was suppressed during disposal.") : e;
+            env.hasError = true;
+        }
+        var r, s = 0;
+        function next() {
+            while (r = env.stack.pop()) {
+                try {
+                    if (!r.async && s === 1) return s = 0, env.stack.push(r), Promise.resolve().then(next);
+                    if (r.dispose) {
+                        var result = r.dispose.call(r.value);
+                        if (r.async) return s |= 2, Promise.resolve(result).then(next, function(e) { fail(e); return next(); });
+                    }
+                    else s |= 1;
+                }
+                catch (e) {
+                    fail(e);
+                }
+            }
+            if (s === 1) return env.hasError ? Promise.reject(env.error) : Promise.resolve();
+            if (env.hasError) throw env.error;
+        }
+        return next();
+    };
+})(typeof SuppressedError === "function" ? SuppressedError : function (error, suppressed, message) {
+    var e = new Error(message);
+    return e.name = "SuppressedError", e.error = error, e.suppressed = suppressed, e;
+});
 /**
  * The Accessibility class provides methods for inspecting the browser's
  * accessibility tree. The accessibility tree is used by assistive technology
@@ -11178,11 +12200,15 @@ class WebWorker extends EventEmitter {
  */
 class Accessibility {
     #realm;
+    #frameId;
+    #logger;
     /**
      * @internal
      */
-    constructor(realm) {
+    constructor(realm, frameId = '', logger) {
         this.#realm = realm;
+        this.#frameId = frameId;
+        this.#logger = logger;
     }
     /**
      * Captures the current state of the accessibility tree.
@@ -11224,8 +12250,10 @@ class Accessibility {
      * @returns An AXNode object representing the snapshot.
      */
     async snapshot(options = {}) {
-        const { interestingOnly = true, root = null } = options;
-        const { nodes } = await this.#realm.environment.client.send('Accessibility.getFullAXTree');
+        const { interestingOnly = true, root = null, includeIframes = false, } = options;
+        const { nodes } = await this.#realm.environment.client.send('Accessibility.getFullAXTree', {
+            frameId: this.#frameId,
+        });
         let backendNodeId;
         if (root) {
             const { node } = await this.#realm.environment.client.send('DOM.describeNode', {
@@ -11234,23 +12262,62 @@ class Accessibility {
             backendNodeId = node.backendNodeId;
         }
         const defaultRoot = AXNode.createTree(this.#realm, nodes);
+        const populateIframes = async (root) => {
+            if (root.payload.role?.value === 'Iframe') {
+                const env_1 = { stack: [], error: void 0, hasError: false };
+                try {
+                    if (!root.payload.backendDOMNodeId) {
+                        return;
+                    }
+                    const handle = __addDisposableResource$5(env_1, (await this.#realm.adoptBackendNode(root.payload.backendDOMNodeId)), false);
+                    if (!handle || !('contentFrame' in handle)) {
+                        return;
+                    }
+                    const frame = await handle.contentFrame();
+                    if (!frame) {
+                        return;
+                    }
+                    try {
+                        const iframeSnapshot = await frame.accessibility.snapshot(options);
+                        root.iframeSnapshot = iframeSnapshot ?? undefined;
+                    }
+                    catch (error) {
+                        // Frames can get detached at any time resulting in errors.
+                        this.#logger?.(DEBUG_PREFIXES.error)?.(error);
+                    }
+                }
+                catch (e_1) {
+                    env_1.error = e_1;
+                    env_1.hasError = true;
+                }
+                finally {
+                    __disposeResources$5(env_1);
+                }
+            }
+            await Promise.all(root.children.map(child => {
+                return populateIframes(child);
+            }));
+        };
         let needle = defaultRoot;
+        if (!defaultRoot) {
+            return null;
+        }
+        if (includeIframes) {
+            await populateIframes(defaultRoot);
+        }
         if (backendNodeId) {
             needle = defaultRoot.find(node => {
                 return node.payload.backendDOMNodeId === backendNodeId;
             });
-            if (!needle) {
-                return null;
-            }
+        }
+        if (!needle) {
+            return null;
         }
         if (!interestingOnly) {
             return this.serializeTree(needle)[0] ?? null;
         }
         const interestingNodes = new Set();
         this.collectInterestingNodes(interestingNodes, defaultRoot, false);
-        if (!interestingNodes.has(needle)) {
-            return null;
-        }
         return this.serializeTree(needle, interestingNodes)[0] ?? null;
     }
     serializeTree(node, interestingNodes) {
@@ -11265,10 +12332,16 @@ class Accessibility {
         if (children.length) {
             serializedNode.children = children;
         }
+        if (node.iframeSnapshot) {
+            if (!serializedNode.children) {
+                serializedNode.children = [];
+            }
+            serializedNode.children.push(node.iframeSnapshot);
+        }
         return [serializedNode];
     }
     collectInterestingNodes(collection, node, insideControl) {
-        if (node.isInteresting(insideControl)) {
+        if (node.isInteresting(insideControl) || node.iframeSnapshot) {
             collection.add(node);
         }
         if (node.isLeafNode()) {
@@ -11283,20 +12356,31 @@ class Accessibility {
 class AXNode {
     payload;
     children = [];
+    iframeSnapshot;
     #richlyEditable = false;
     #editable = false;
     #focusable = false;
     #hidden = false;
+    #busy = false;
+    #modal = false;
+    #hasErrormessage = false;
+    #hasDetails = false;
     #name;
     #role;
+    #description;
+    #roledescription;
+    #live;
     #ignored;
     #cachedHasFocusableChild;
     #realm;
     constructor(realm, payload) {
         this.payload = payload;
-        this.#name = this.payload.name ? this.payload.name.value : '';
         this.#role = this.payload.role ? this.payload.role.value : 'Unknown';
         this.#ignored = this.payload.ignored;
+        this.#name = this.payload.name ? this.payload.name.value : '';
+        this.#description = this.payload.description
+            ? this.payload.description.value
+            : undefined;
         this.#realm = realm;
         for (const property of this.payload.properties || []) {
             if (property.name === 'editable') {
@@ -11308,6 +12392,24 @@ class AXNode {
             }
             if (property.name === 'hidden') {
                 this.#hidden = property.value.value;
+            }
+            if (property.name === 'busy') {
+                this.#busy = property.value.value;
+            }
+            if (property.name === 'live') {
+                this.#live = property.value.value;
+            }
+            if (property.name === 'modal') {
+                this.#modal = property.value.value;
+            }
+            if (property.name === 'roledescription') {
+                this.#roledescription = property.value.value;
+            }
+            if (property.name === 'errormessage') {
+                this.#hasErrormessage = true;
+            }
+            if (property.name === 'details') {
+                this.#hasDetails = true;
             }
         }
     }
@@ -11378,12 +12480,8 @@ class AXNode {
             case 'progressbar':
                 return true;
         }
-        // Here and below: Android heuristics
         if (this.#hasFocusableChild()) {
             return false;
-        }
-        if (this.#focusable && this.#name) {
-            return true;
         }
         if (this.#role === 'heading' && this.#name) {
             return true;
@@ -11418,12 +12516,37 @@ class AXNode {
                 return false;
         }
     }
+    isLandmark() {
+        switch (this.#role) {
+            case 'banner':
+            case 'complementary':
+            case 'contentinfo':
+            case 'form':
+            case 'main':
+            case 'navigation':
+            case 'region':
+            case 'search':
+                return true;
+            default:
+                return false;
+        }
+    }
     isInteresting(insideControl) {
         const role = this.#role;
         if (role === 'Ignored' || this.#hidden || this.#ignored) {
             return false;
         }
-        if (this.#focusable || this.#richlyEditable) {
+        if (this.isLandmark()) {
+            return true;
+        }
+        if (this.#focusable ||
+            this.#richlyEditable ||
+            this.#busy ||
+            (this.#live && this.#live !== 'off') ||
+            this.#modal ||
+            this.#hasErrormessage ||
+            this.#hasDetails ||
+            this.#roledescription) {
             return true;
         }
         // If it's not focusable but has a control role, then it's interesting.
@@ -11434,7 +12557,7 @@ class AXNode {
         if (insideControl) {
             return false;
         }
-        return this.isLeafNode() && !!this.#name;
+        return this.isLeafNode() && (!!this.#name || !!this.#description);
     }
     serialize() {
         const properties = new Map();
@@ -11453,11 +12576,30 @@ class AXNode {
         const node = {
             role: this.#role,
             elementHandle: async () => {
-                if (!this.payload.backendDOMNodeId) {
-                    return null;
+                const env_2 = { stack: [], error: void 0, hasError: false };
+                try {
+                    if (!this.payload.backendDOMNodeId) {
+                        return null;
+                    }
+                    const handle = __addDisposableResource$5(env_2, await this.#realm.adoptBackendNode(this.payload.backendDOMNodeId), false);
+                    // Since Text nodes are not elements, we want to
+                    // return a handle to the parent element for them.
+                    return (await handle.evaluateHandle(node => {
+                        return node.nodeType === Node.TEXT_NODE ? node.parentElement : node;
+                    }));
                 }
-                return (await this.#realm.adoptBackendNode(this.payload.backendDOMNodeId));
+                catch (e_2) {
+                    env_2.error = e_2;
+                    env_2.hasError = true;
+                }
+                finally {
+                    __disposeResources$5(env_2);
+                }
             },
+            backendNodeId: this.payload.backendDOMNodeId,
+            // LoaderId is an experimental mechanism to establish unique IDs across
+            // navigations.
+            loaderId: this.#realm.environment._loaderId,
         };
         const userStringProperties = [
             'name',
@@ -11466,6 +12608,7 @@ class AXNode {
             'keyshortcuts',
             'roledescription',
             'valuetext',
+            'url',
         ];
         const getUserStringPropertyValue = (key) => {
             return properties.get(key);
@@ -11486,19 +12629,20 @@ class AXNode {
             'readonly',
             'required',
             'selected',
+            'busy',
+            'atomic',
         ];
         const getBooleanPropertyValue = (key) => {
-            return properties.get(key);
+            return !!properties.get(key);
         };
         for (const booleanProperty of booleanProperties) {
             // RootWebArea's treat focus differently than other nodes. They report whether
-            // their frame  has focus, not whether focus is specifically on the root
+            // their frame has focus, not whether focus is specifically on the root
             // node.
             if (booleanProperty === 'focused' && this.#role === 'RootWebArea') {
                 continue;
             }
-            const value = getBooleanPropertyValue(booleanProperty);
-            if (!value) {
+            if (!properties.has(booleanProperty)) {
                 continue;
             }
             node[booleanProperty] = getBooleanPropertyValue(booleanProperty);
@@ -11531,6 +12675,10 @@ class AXNode {
             'haspopup',
             'invalid',
             'orientation',
+            'live',
+            'relevant',
+            'errormessage',
+            'details',
         ];
         const getTokenPropertyValue = (key) => {
             return properties.get(key);
@@ -11557,14 +12705,14 @@ class AXNode {
                 }
             }
         }
-        return nodeById.values().next().value;
+        return nodeById.values().next().value ?? null;
     }
 }
 
-var __addDisposableResource$3 = (undefined && undefined.__addDisposableResource) || function (env, value, async) {
+var __addDisposableResource$4 = (undefined && undefined.__addDisposableResource) || function (env, value, async) {
     if (value !== null && value !== void 0) {
         if (typeof value !== "object" && typeof value !== "function") throw new TypeError("Object expected.");
-        var dispose;
+        var dispose, inner;
         if (async) {
             if (!Symbol.asyncDispose) throw new TypeError("Symbol.asyncDispose is not defined.");
             dispose = value[Symbol.asyncDispose];
@@ -11572,8 +12720,10 @@ var __addDisposableResource$3 = (undefined && undefined.__addDisposableResource)
         if (dispose === void 0) {
             if (!Symbol.dispose) throw new TypeError("Symbol.dispose is not defined.");
             dispose = value[Symbol.dispose];
+            if (async) inner = dispose;
         }
         if (typeof dispose !== "function") throw new TypeError("Object not disposable.");
+        if (inner) dispose = function() { try { inner.call(this); } catch (e) { return Promise.reject(e); } };
         env.stack.push({ value: value, dispose: dispose, async: async });
     }
     else if (async) {
@@ -11581,23 +12731,28 @@ var __addDisposableResource$3 = (undefined && undefined.__addDisposableResource)
     }
     return value;
 };
-var __disposeResources$3 = (undefined && undefined.__disposeResources) || (function (SuppressedError) {
+var __disposeResources$4 = (undefined && undefined.__disposeResources) || (function (SuppressedError) {
     return function (env) {
         function fail(e) {
             env.error = env.hasError ? new SuppressedError(e, env.error, "An error was suppressed during disposal.") : e;
             env.hasError = true;
         }
+        var r, s = 0;
         function next() {
-            while (env.stack.length) {
-                var rec = env.stack.pop();
+            while (r = env.stack.pop()) {
                 try {
-                    var result = rec.dispose && rec.dispose.call(rec.value);
-                    if (rec.async) return Promise.resolve(result).then(next, function(e) { fail(e); return next(); });
+                    if (!r.async && s === 1) return s = 0, env.stack.push(r), Promise.resolve().then(next);
+                    if (r.dispose) {
+                        var result = r.dispose.call(r.value);
+                        if (r.async) return s |= 2, Promise.resolve(result).then(next, function(e) { fail(e); return next(); });
+                    }
+                    else s |= 1;
                 }
                 catch (e) {
                     fail(e);
                 }
             }
+            if (s === 1) return env.hasError ? Promise.reject(env.error) : Promise.resolve();
             if (env.hasError) throw env.error;
         }
         return next();
@@ -11613,10 +12768,12 @@ class Binding {
     #name;
     #fn;
     #initSource;
-    constructor(name, fn, initSource) {
+    #logger;
+    constructor(name, fn, initSource, logger) {
         this.#name = name;
         this.#fn = fn;
         this.#initSource = initSource;
+        this.#logger = logger;
     }
     get name() {
         return this.#name;
@@ -11638,7 +12795,7 @@ class Binding {
                 const env_1 = { stack: [], error: void 0, hasError: false };
                 try {
                     // Getting non-trivial arguments.
-                    const handles = __addDisposableResource$3(env_1, await context.evaluateHandle((name, seq) => {
+                    const handles = __addDisposableResource$4(env_1, await context.evaluateHandle((name, seq) => {
                         // @ts-expect-error Code is evaluated in a different context.
                         return globalThis[name].args.get(seq);
                     }, this.#name, id), false);
@@ -11665,7 +12822,7 @@ class Binding {
                     env_1.hasError = true;
                 }
                 finally {
-                    __disposeResources$3(env_1);
+                    __disposeResources$4(env_1);
                 }
             }
             await context.evaluate((name, seq, result) => {
@@ -11691,7 +12848,9 @@ class Binding {
                     callbacks.get(seq).reject(error);
                     callbacks.delete(seq);
                 }, this.#name, id, error.message, error.stack)
-                    .catch(debugError);
+                    .catch(error => {
+                    this.#logger?.(DEBUG_PREFIXES.error)?.(error);
+                });
             }
             else {
                 await context
@@ -11701,141 +12860,212 @@ class Binding {
                     callbacks.get(seq).reject(error);
                     callbacks.delete(seq);
                 }, this.#name, id, error)
-                    .catch(debugError);
+                    .catch(error => {
+                    this.#logger?.(DEBUG_PREFIXES.error)?.(error);
+                });
             }
         }
     }
 }
 
 /**
- * @license
- * Copyright 2024 Google Inc.
- * SPDX-License-Identifier: Apache-2.0
- */
-var __addDisposableResource$2 = (undefined && undefined.__addDisposableResource) || function (env, value, async) {
-    if (value !== null && value !== void 0) {
-        if (typeof value !== "object" && typeof value !== "function") throw new TypeError("Object expected.");
-        var dispose;
-        if (async) {
-            if (!Symbol.asyncDispose) throw new TypeError("Symbol.asyncDispose is not defined.");
-            dispose = value[Symbol.asyncDispose];
-        }
-        if (dispose === void 0) {
-            if (!Symbol.dispose) throw new TypeError("Symbol.dispose is not defined.");
-            dispose = value[Symbol.dispose];
-        }
-        if (typeof dispose !== "function") throw new TypeError("Object not disposable.");
-        env.stack.push({ value: value, dispose: dispose, async: async });
-    }
-    else if (async) {
-        env.stack.push({ async: true });
-    }
-    return value;
-};
-var __disposeResources$2 = (undefined && undefined.__disposeResources) || (function (SuppressedError) {
-    return function (env) {
-        function fail(e) {
-            env.error = env.hasError ? new SuppressedError(e, env.error, "An error was suppressed during disposal.") : e;
-            env.hasError = true;
-        }
-        function next() {
-            while (env.stack.length) {
-                var rec = env.stack.pop();
-                try {
-                    var result = rec.dispose && rec.dispose.call(rec.value);
-                    if (rec.async) return Promise.resolve(result).then(next, function(e) { fail(e); return next(); });
-                }
-                catch (e) {
-                    fail(e);
-                }
-            }
-            if (env.hasError) throw env.error;
-        }
-        return next();
-    };
-})(typeof SuppressedError === "function" ? SuppressedError : function (error, suppressed, message) {
-    var e = new Error(message);
-    return e.name = "SuppressedError", e.error = error, e.suppressed = suppressed, e;
-});
-/**
  * @internal
  */
-class CdpBrowserContext extends BrowserContext {
+class CdpBluetoothEmulation {
     #connection;
-    #browser;
-    #id;
-    constructor(connection, browser, contextId) {
-        super();
+    constructor(connection) {
         this.#connection = connection;
-        this.#browser = browser;
-        this.#id = contextId;
     }
-    get id() {
-        return this.#id;
-    }
-    targets() {
-        return this.#browser.targets().filter(target => {
-            return target.browserContext() === this;
+    async emulateAdapter(state, leSupported = true) {
+        // Bluetooth spec requires overriding the existing adapter (step 6). From the CDP
+        // perspective, it means disabling the emulation first.
+        // https://webbluetoothcg.github.io/web-bluetooth/#bluetooth-simulateAdapter-command
+        await this.#connection.send('BluetoothEmulation.disable');
+        await this.#connection.send('BluetoothEmulation.enable', {
+            state,
+            leSupported,
         });
     }
-    async pages() {
-        const pages = await Promise.all(this.targets()
-            .filter(target => {
-            return (target.type() === 'page' ||
-                (target.type() === 'other' &&
-                    this.#browser._getIsPageTargetCallback()?.(target)));
-        })
-            .map(target => {
-            return target.page();
-        }));
-        return pages.filter((page) => {
-            return !!page;
-        });
+    async disableEmulation() {
+        await this.#connection.send('BluetoothEmulation.disable');
     }
-    isIncognito() {
-        return !!this.#id;
-    }
-    async overridePermissions(origin, permissions) {
-        const protocolPermissions = permissions.map(permission => {
-            const protocolPermission = WEB_PERMISSION_TO_PROTOCOL_PERMISSION.get(permission);
-            if (!protocolPermission) {
-                throw new Error('Unknown permission: ' + permission);
-            }
-            return protocolPermission;
-        });
-        await this.#connection.send('Browser.grantPermissions', {
-            origin,
-            browserContextId: this.#id || undefined,
-            permissions: protocolPermissions,
-        });
-    }
-    async clearPermissionOverrides() {
-        await this.#connection.send('Browser.resetPermissions', {
-            browserContextId: this.#id || undefined,
-        });
-    }
-    async newPage() {
-        const env_1 = { stack: [], error: void 0, hasError: false };
-        try {
-            const _guard = __addDisposableResource$2(env_1, await this.waitForScreenshotOperations(), false);
-            return await this.#browser._createPageInContext(this.#id);
-        }
-        catch (e_1) {
-            env_1.error = e_1;
-            env_1.hasError = true;
-        }
-        finally {
-            __disposeResources$2(env_1);
-        }
-    }
-    browser() {
-        return this.#browser;
-    }
-    async close() {
-        assert(this.#id, 'Non-incognito profiles cannot be closed!');
-        await this.#browser._disposeContext(this.#id);
+    async simulatePreconnectedPeripheral(preconnectedPeripheral) {
+        await this.#connection.send('BluetoothEmulation.simulatePreconnectedPeripheral', preconnectedPeripheral);
     }
 }
+
+/**
+ * @license
+ * Copyright 2020 Google Inc.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+/**
+ * ConsoleMessage objects are dispatched by page via the 'console' event.
+ * @public
+ */
+class ConsoleMessage {
+    #type;
+    #text;
+    #args;
+    #stackTraceLocations;
+    #frame;
+    #rawStackTrace;
+    #targetId;
+    /**
+     * @internal
+     */
+    constructor(type, text, args, stackTraceLocations, frame, rawStackTrace, targetId) {
+        this.#type = type;
+        this.#text = text;
+        this.#args = args;
+        this.#stackTraceLocations = stackTraceLocations;
+        this.#frame = frame;
+        this.#rawStackTrace = rawStackTrace;
+        this.#targetId = targetId;
+    }
+    /**
+     * The type of the console message.
+     */
+    type() {
+        return this.#type;
+    }
+    /**
+     * The text of the console message.
+     */
+    text() {
+        return this.#text;
+    }
+    /**
+     * An array of arguments passed to the console.
+     */
+    args() {
+        return this.#args;
+    }
+    /**
+     * The location of the console message.
+     */
+    location() {
+        return (this.#stackTraceLocations[0] ??
+            (this.#frame ? { url: this.#frame.url() } : {}));
+    }
+    /**
+     * The array of locations on the stack of the console message.
+     */
+    stackTrace() {
+        return this.#stackTraceLocations;
+    }
+    /**
+     * The underlying protocol stack trace if available.
+     *
+     * @internal
+     */
+    _rawStackTrace() {
+        return this.#rawStackTrace;
+    }
+    /**
+     * The targetId from which this console message originated.
+     *
+     * @internal
+     */
+    _targetId() {
+        return this.#targetId;
+    }
+}
+
+/**
+ * @license
+ * Copyright 2020 Google Inc.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+/**
+ * File choosers let you react to the page requesting for a file.
+ *
+ * @remarks
+ * `FileChooser` instances are returned via the {@link Page.waitForFileChooser} method.
+ *
+ * In browsers, only one file chooser can be opened at a time.
+ * All file choosers must be accepted or canceled. Not doing so will prevent
+ * subsequent file choosers from appearing.
+ *
+ * @example
+ *
+ * ```ts
+ * const [fileChooser] = await Promise.all([
+ *   page.waitForFileChooser(),
+ *   page.click('#upload-file-button'), // some button that triggers file selection
+ * ]);
+ * await fileChooser.accept(['/tmp/myfile.pdf']);
+ * ```
+ *
+ * @public
+ */
+class FileChooser {
+    #element;
+    #multiple;
+    #handled = false;
+    /**
+     * @internal
+     */
+    constructor(element, multiple) {
+        this.#element = element;
+        this.#multiple = multiple;
+    }
+    /**
+     * Whether file chooser allow for
+     * {@link https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/file#attr-multiple | multiple}
+     * file selection.
+     */
+    isMultiple() {
+        return this.#multiple;
+    }
+    /**
+     * Accept the file chooser request with the given file paths.
+     *
+     * @remarks This will not validate whether the file paths exists. Also, if a
+     * path is relative, then it is resolved against the
+     * {@link https://nodejs.org/api/process.html#process_process_cwd | current working directory}.
+     * For locals script connecting to remote chrome environments, paths must be
+     * absolute.
+     */
+    async accept(paths) {
+        assert(!this.#handled, 'Cannot accept FileChooser which is already handled!');
+        this.#handled = true;
+        await this.#element.uploadFile(...paths);
+    }
+    /**
+     * Closes the file chooser without selecting any files.
+     */
+    async cancel() {
+        assert(!this.#handled, 'Cannot cancel FileChooser which is already handled!');
+        this.#handled = true;
+        // XXX: These events should converted to trusted events. Perhaps do this
+        // in `DOM.setFileInputFiles`?
+        await this.#element.evaluate(element => {
+            element.dispatchEvent(new Event('cancel', { bubbles: true }));
+        });
+    }
+}
+
+/**
+ * @license
+ * Copyright 2022 Google Inc.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+/**
+ * We use symbols to prevent any external parties listening to these events.
+ * They are internal to Puppeteer.
+ *
+ * @internal
+ */
+// eslint-disable-next-line @typescript-eslint/no-namespace
+var NetworkManagerEvent;
+(function (NetworkManagerEvent) {
+    NetworkManagerEvent.Request = Symbol('NetworkManager.Request');
+    NetworkManagerEvent.RequestServedFromCache = Symbol('NetworkManager.RequestServedFromCache');
+    NetworkManagerEvent.Response = Symbol('NetworkManager.Response');
+    NetworkManagerEvent.RequestFailed = Symbol('NetworkManager.RequestFailed');
+    NetworkManagerEvent.RequestFinished = Symbol('NetworkManager.RequestFinished');
+})(NetworkManagerEvent || (NetworkManagerEvent = {}));
 
 /**
  * @license
@@ -11849,7 +13079,15 @@ class CdpBrowserContext extends BrowserContext {
  */
 class CallbackRegistry {
     #callbacks = new Map();
-    #idGenerator = createIncrementalIdGenerator();
+    #idGenerator;
+    #logger;
+    constructor(idGenerator, logger) {
+        this.#idGenerator = idGenerator;
+        this.#logger = logger;
+    }
+    has(id) {
+        return this.#callbacks.has(id);
+    }
     create(label, timeout, request) {
         const callback = new Callback(this.#idGenerator(), label, timeout);
         this.#callbacks.set(callback.id, callback);
@@ -11859,7 +13097,11 @@ class CallbackRegistry {
         catch (error) {
             // We still throw sync errors synchronously and clean up the scheduled
             // callback.
-            callback.promise.catch(debugError).finally(() => {
+            void callback.promise
+                .catch(err => {
+                this.#logger?.(DEBUG_PREFIXES.error)?.(err);
+            })
+                .finally(() => {
                 this.#callbacks.delete(callback.id);
             });
             callback.reject(error);
@@ -11876,6 +13118,13 @@ class CallbackRegistry {
             return;
         }
         this._reject(callback, message, originalMessage);
+    }
+    rejectRaw(id, error) {
+        const callback = this.#callbacks.get(id);
+        if (!callback) {
+            return;
+        }
+        callback.reject(error);
     }
     _reject(callback, errorMessage, originalMessage) {
         let error;
@@ -11955,15 +13204,6 @@ class Callback {
         return this.#label;
     }
 }
-/**
- * @internal
- */
-function createIncrementalIdGenerator() {
-    let id = 0;
-    return () => {
-        return ++id;
-    };
-}
 
 /**
  * @license
@@ -11976,26 +13216,30 @@ function createIncrementalIdGenerator() {
 class CdpCDPSession extends CDPSession {
     #sessionId;
     #targetType;
-    #callbacks = new CallbackRegistry();
+    #callbacks;
     #connection;
     #parentSessionId;
     #target;
+    #rawErrors = false;
+    #detached = false;
     /**
      * @internal
      */
-    constructor(connection, targetType, sessionId, parentSessionId) {
+    constructor(connection, targetType, sessionId, parentSessionId, rawErrors, logger) {
         super();
         this.#connection = connection;
         this.#targetType = targetType;
+        this.#callbacks = new CallbackRegistry(connection._idGenerator, logger);
         this.#sessionId = sessionId;
         this.#parentSessionId = parentSessionId;
+        this.#rawErrors = rawErrors;
     }
     /**
      * Sets the {@link CdpTarget} associated with the session instance.
      *
      * @internal
      */
-    _setTarget(target) {
+    setTarget(target) {
         this.#target = target;
     }
     /**
@@ -12003,34 +13247,52 @@ class CdpCDPSession extends CDPSession {
      *
      * @internal
      */
-    _target() {
+    target() {
         assert(this.#target, 'Target must exist');
         return this.#target;
     }
     connection() {
         return this.#connection;
     }
+    get detached() {
+        return this.#connection._closed || this.#detached;
+    }
     parentSession() {
         if (!this.#parentSessionId) {
-            // To make it work in Firefox that does not have parent (tab) sessions.
+            // In some cases, e.g., DevTools pages there is no parent session. In this
+            // case, we treat the current session as the parent session.
             return this;
         }
         const parent = this.#connection?.session(this.#parentSessionId);
         return parent ?? undefined;
     }
     send(method, params, options) {
-        if (!this.#connection) {
+        if (this.detached) {
             return Promise.reject(new TargetCloseError(`Protocol error (${method}): Session closed. Most likely the ${this.#targetType} has been closed.`));
         }
-        return this.#connection._rawSend(this.#callbacks, method, params, this.#sessionId, options);
+        return this.#connection
+            ._rawSend(this.#callbacks, method, params, this.#sessionId, options)
+            .catch(error => {
+            if (error instanceof Error &&
+                error.message.includes('Session with given id not found')) {
+                this.onClosed();
+                throw new TargetCloseError(`Protocol error (${method}): Session with given id not found.`);
+            }
+            throw error;
+        });
     }
     /**
      * @internal
      */
-    _onMessage(object) {
+    onMessage(object) {
         if (object.id) {
             if (object.error) {
-                this.#callbacks.reject(object.id, createProtocolErrorMessage(object), object.error.message);
+                if (this.#rawErrors) {
+                    this.#callbacks.rejectRaw(object.id, object.error);
+                }
+                else {
+                    this.#callbacks.reject(object.id, createProtocolErrorMessage(object), object.error.message);
+                }
             }
             else {
                 this.#callbacks.resolve(object.id, object.result);
@@ -12046,19 +13308,20 @@ class CdpCDPSession extends CDPSession {
      * won't emit any events and can't be used to send messages.
      */
     async detach() {
-        if (!this.#connection) {
+        if (this.detached) {
             throw new Error(`Session already detached. Most likely the ${this.#targetType} has been closed.`);
         }
         await this.#connection.send('Target.detachFromTarget', {
             sessionId: this.#sessionId,
         });
+        this.#detached = true;
     }
     /**
      * @internal
      */
-    _onClosed() {
+    onClosed() {
         this.#callbacks.clear();
-        this.#connection = undefined;
+        this.#detached = true;
         this.emit(CDPSessionEvent.Disconnected, undefined);
     }
     /**
@@ -12070,6 +13333,12 @@ class CdpCDPSession extends CDPSession {
     /**
      * @internal
      */
+    hasCallback(id) {
+        return this.#callbacks.has(id);
+    }
+    /**
+     * @internal
+     */
     getPendingProtocolErrors() {
         return this.#callbacks.getPendingProtocolErrors();
     }
@@ -12077,161 +13346,9 @@ class CdpCDPSession extends CDPSession {
 
 /**
  * @license
- * Copyright 2020 Google Inc.
- * SPDX-License-Identifier: Apache-2.0
- */
-/**
- * ConsoleMessage objects are dispatched by page via the 'console' event.
- * @public
- */
-class ConsoleMessage {
-    #type;
-    #text;
-    #args;
-    #stackTraceLocations;
-    /**
-     * @internal
-     */
-    constructor(type, text, args, stackTraceLocations) {
-        this.#type = type;
-        this.#text = text;
-        this.#args = args;
-        this.#stackTraceLocations = stackTraceLocations;
-    }
-    /**
-     * The type of the console message.
-     */
-    type() {
-        return this.#type;
-    }
-    /**
-     * The text of the console message.
-     */
-    text() {
-        return this.#text;
-    }
-    /**
-     * An array of arguments passed to the console.
-     */
-    args() {
-        return this.#args;
-    }
-    /**
-     * The location of the console message.
-     */
-    location() {
-        return this.#stackTraceLocations[0] ?? {};
-    }
-    /**
-     * The array of locations on the stack of the console message.
-     */
-    stackTrace() {
-        return this.#stackTraceLocations;
-    }
-}
-
-/**
- * @license
- * Copyright 2020 Google Inc.
- * SPDX-License-Identifier: Apache-2.0
- */
-/**
- * File choosers let you react to the page requesting for a file.
- *
- * @remarks
- * `FileChooser` instances are returned via the {@link Page.waitForFileChooser} method.
- *
- * In browsers, only one file chooser can be opened at a time.
- * All file choosers must be accepted or canceled. Not doing so will prevent
- * subsequent file choosers from appearing.
- *
- * @example
- *
- * ```ts
- * const [fileChooser] = await Promise.all([
- *   page.waitForFileChooser(),
- *   page.click('#upload-file-button'), // some button that triggers file selection
- * ]);
- * await fileChooser.accept(['/tmp/myfile.pdf']);
- * ```
- *
- * @public
- */
-class FileChooser {
-    #element;
-    #multiple;
-    #handled = false;
-    /**
-     * @internal
-     */
-    constructor(element, event) {
-        this.#element = element;
-        this.#multiple = event.mode !== 'selectSingle';
-    }
-    /**
-     * Whether file chooser allow for
-     * {@link https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/file#attr-multiple | multiple}
-     * file selection.
-     */
-    isMultiple() {
-        return this.#multiple;
-    }
-    /**
-     * Accept the file chooser request with the given file paths.
-     *
-     * @remarks This will not validate whether the file paths exists. Also, if a
-     * path is relative, then it is resolved against the
-     * {@link https://nodejs.org/api/process.html#process_process_cwd | current working directory}.
-     * For locals script connecting to remote chrome environments, paths must be
-     * absolute.
-     */
-    async accept(paths) {
-        assert(!this.#handled, 'Cannot accept FileChooser which is already handled!');
-        this.#handled = true;
-        await this.#element.uploadFile(...paths);
-    }
-    /**
-     * Closes the file chooser without selecting any files.
-     */
-    async cancel() {
-        assert(!this.#handled, 'Cannot cancel FileChooser which is already handled!');
-        this.#handled = true;
-        // XXX: These events should converted to trusted events. Perhaps do this
-        // in `DOM.setFileInputFiles`?
-        await this.#element.evaluate(element => {
-            element.dispatchEvent(new Event('cancel', { bubbles: true }));
-        });
-    }
-}
-
-/**
- * @license
- * Copyright 2022 Google Inc.
- * SPDX-License-Identifier: Apache-2.0
- */
-/**
- * We use symbols to prevent any external parties listening to these events.
- * They are internal to Puppeteer.
- *
- * @internal
- */
-// eslint-disable-next-line @typescript-eslint/no-namespace
-var NetworkManagerEvent;
-(function (NetworkManagerEvent) {
-    NetworkManagerEvent.Request = Symbol('NetworkManager.Request');
-    NetworkManagerEvent.RequestServedFromCache = Symbol('NetworkManager.RequestServedFromCache');
-    NetworkManagerEvent.Response = Symbol('NetworkManager.Response');
-    NetworkManagerEvent.RequestFailed = Symbol('NetworkManager.RequestFailed');
-    NetworkManagerEvent.RequestFinished = Symbol('NetworkManager.RequestFinished');
-})(NetworkManagerEvent || (NetworkManagerEvent = {}));
-
-/**
- * @license
  * Copyright 2017 Google Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
-const debugProtocolSend = debug('puppeteer:protocol:SEND ►');
-const debugProtocolReceive = debug('puppeteer:protocol:RECV ◀');
 /**
  * @public
  */
@@ -12243,10 +13360,25 @@ class Connection extends EventEmitter {
     #sessions = new Map();
     #closed = false;
     #manuallyAttached = new Set();
-    #callbacks = new CallbackRegistry();
-    constructor(url, transport, delay = 0, timeout) {
+    #rejectEmulateNetworkConditionsCalls = false;
+    #callbacks;
+    #rawErrors = false;
+    #idGenerator;
+    #debugProtocolSend;
+    #debugProtocolReceive;
+    #logger;
+    /**
+     * @internal
+     */
+    constructor(url, transport, delay = 0, timeout = undefined, rawErrors = false, idGenerator = createIncrementalIdGenerator(), logger) {
         super();
+        this.#logger = logger;
+        this.#rawErrors = rawErrors;
+        this.#idGenerator = idGenerator;
+        this.#callbacks = new CallbackRegistry(idGenerator, logger);
         this.#url = url;
+        this.#debugProtocolSend = logger?.(DEBUG_PREFIXES.cdpSend);
+        this.#debugProtocolReceive = logger?.(DEBUG_PREFIXES.cdpReceive);
         this.#delay = delay;
         this.#timeout = timeout ?? 180_000;
         this.#transport = transport;
@@ -12268,8 +13400,23 @@ class Connection extends EventEmitter {
     /**
      * @internal
      */
+    get rejectEmulateNetworkConditionsCalls() {
+        return this.#rejectEmulateNetworkConditionsCalls;
+    }
+    set rejectEmulateNetworkConditionsCalls(value) {
+        this.#rejectEmulateNetworkConditionsCalls = value;
+    }
+    /**
+     * @internal
+     */
     get _closed() {
         return this.#closed;
+    }
+    /**
+     * @internal
+     */
+    get _idGenerator() {
+        return this.#idGenerator;
     }
     /**
      * @internal
@@ -12278,11 +13425,17 @@ class Connection extends EventEmitter {
         return this.#sessions;
     }
     /**
+     * @internal
+     */
+    _session(sessionId) {
+        return this.#sessions.get(sessionId) || null;
+    }
+    /**
      * @param sessionId - The session id
      * @returns The current CDP session if it exists
      */
     session(sessionId) {
-        return this.#sessions.get(sessionId) || null;
+        return this._session(sessionId);
     }
     url() {
         return this.#url;
@@ -12301,7 +13454,11 @@ class Connection extends EventEmitter {
      */
     _rawSend(callbacks, method, params, sessionId, options) {
         if (this.#closed) {
-            return Promise.reject(new Error('Protocol error: Connection closed.'));
+            return Promise.reject(new ConnectionClosedError('Connection closed.'));
+        }
+        if (method === 'Network.emulateNetworkConditions' &&
+            this.rejectEmulateNetworkConditionsCalls) {
+            return Promise.reject(new Error('Cannot reset network conditions: rule-based emulation is enabled.'));
         }
         return callbacks.create(method, options?.timeout ?? this.#timeout, id => {
             const stringifiedMessage = JSON.stringify({
@@ -12310,7 +13467,7 @@ class Connection extends EventEmitter {
                 id,
                 sessionId,
             });
-            debugProtocolSend(stringifiedMessage);
+            this.#debugProtocolSend?.(stringifiedMessage);
             this.#transport.send(stringifiedMessage);
         });
     }
@@ -12329,11 +13486,11 @@ class Connection extends EventEmitter {
                 return setTimeout(r, this.#delay);
             });
         }
-        debugProtocolReceive(message);
+        this.#debugProtocolReceive?.(message);
         const object = JSON.parse(message);
         if (object.method === 'Target.attachedToTarget') {
             const sessionId = object.params.sessionId;
-            const session = new CdpCDPSession(this, object.params.targetInfo.type, sessionId, object.sessionId);
+            const session = new CdpCDPSession(this, object.params.targetInfo.type, sessionId, object.sessionId, this.#rawErrors, this.#logger);
             this.#sessions.set(sessionId, session);
             this.emit(CDPSessionEvent.SessionAttached, session);
             const parentSession = this.#sessions.get(object.sessionId);
@@ -12344,7 +13501,7 @@ class Connection extends EventEmitter {
         else if (object.method === 'Target.detachedFromTarget') {
             const session = this.#sessions.get(object.params.sessionId);
             if (session) {
-                session._onClosed();
+                session.onClosed();
                 this.#sessions.delete(object.params.sessionId);
                 this.emit(CDPSessionEvent.SessionDetached, session);
                 const parentSession = this.#sessions.get(object.sessionId);
@@ -12356,15 +13513,30 @@ class Connection extends EventEmitter {
         if (object.sessionId) {
             const session = this.#sessions.get(object.sessionId);
             if (session) {
-                session._onMessage(object);
+                session.onMessage(object);
             }
         }
         else if (object.id) {
-            if (object.error) {
-                this.#callbacks.reject(object.id, createProtocolErrorMessage(object), object.error.message);
+            if (this.#callbacks.has(object.id)) {
+                if (object.error) {
+                    if (this.#rawErrors) {
+                        this.#callbacks.rejectRaw(object.id, object.error);
+                    }
+                    else {
+                        this.#callbacks.reject(object.id, createProtocolErrorMessage(object), object.error.message);
+                    }
+                }
+                else {
+                    this.#callbacks.resolve(object.id, object.result);
+                }
             }
             else {
-                this.#callbacks.resolve(object.id, object.result);
+                for (const session of this.#sessions.values()) {
+                    if (session.hasCallback(object.id)) {
+                        session.onMessage(object);
+                        break;
+                    }
+                }
             }
         }
         else {
@@ -12380,7 +13552,7 @@ class Connection extends EventEmitter {
         this.#transport.onclose = undefined;
         this.#callbacks.clear();
         for (const session of this.#sessions.values()) {
-            session._onClosed();
+            session.onClosed();
         }
         this.#sessions.clear();
         this.emit(CDPSessionEvent.Disconnected, undefined);
@@ -12557,10 +13729,12 @@ class JSCoverage {
     #resetOnNavigation = false;
     #reportAnonymousScripts = false;
     #includeRawScriptCoverage = false;
+    #logger;
     /**
      * @internal
      */
-    constructor(client) {
+    constructor(client, logger) {
+        this.#logger = logger;
         this.#client = client;
     }
     /**
@@ -12617,7 +13791,7 @@ class JSCoverage {
         }
         catch (error) {
             // This might happen if the page has already navigated away.
-            debugError(error);
+            this.#logger?.(DEBUG_PREFIXES.error)?.(error);
         }
     }
     async stop() {
@@ -12666,7 +13840,9 @@ class CSSCoverage {
     #stylesheetSources = new Map();
     #eventListeners;
     #resetOnNavigation = false;
-    constructor(client) {
+    #logger;
+    constructor(client, logger) {
+        this.#logger = logger;
         this.#client = client;
     }
     /**
@@ -12714,7 +13890,7 @@ class CSSCoverage {
         }
         catch (error) {
             // This might happen if the page has already navigated away.
-            debugError(error);
+            this.#logger?.(DEBUG_PREFIXES.error)?.(error);
         }
     }
     async stop() {
@@ -12820,13 +13996,18 @@ class CdpDialog extends Dialog {
     constructor(client, type, message, defaultValue = '') {
         super(type, message, defaultValue);
         this.#client = client;
+        client.once('Page.javascriptDialogClosed', this.#onDialogClosed);
     }
     async handle(options) {
         await this.#client.send('Page.handleJavaScriptDialog', {
             accept: options.accept,
             promptText: options.text,
         });
+        this.#client.off('Page.javascriptDialogClosed', this.#onDialogClosed);
     }
+    #onDialogClosed = () => {
+        this.handled = true;
+    };
 }
 
 var __runInitializers$3 = (undefined && undefined.__runInitializers) || function (thisArg, initializers, value) {
@@ -12904,6 +14085,8 @@ let EmulationManager = (() => {
     let _private_emulateIdleState_descriptor;
     let _private_emulateTimezone_decorators;
     let _private_emulateTimezone_descriptor;
+    let _private_emulateLocale_decorators;
+    let _private_emulateLocale_descriptor;
     let _private_emulateVisionDeficiency_decorators;
     let _private_emulateVisionDeficiency_descriptor;
     let _private_emulateCpuThrottling_decorators;
@@ -12918,12 +14101,15 @@ let EmulationManager = (() => {
     let _private_setDefaultBackgroundColor_descriptor;
     let _private_setJavaScriptEnabled_decorators;
     let _private_setJavaScriptEnabled_descriptor;
+    let _private_emulateFocus_decorators;
+    let _private_emulateFocus_descriptor;
     return class EmulationManager {
         static {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(null) : void 0;
             _private_applyViewport_decorators = [invokeAtMostOnceForArguments];
             _private_emulateIdleState_decorators = [invokeAtMostOnceForArguments];
             _private_emulateTimezone_decorators = [invokeAtMostOnceForArguments];
+            _private_emulateLocale_decorators = [invokeAtMostOnceForArguments];
             _private_emulateVisionDeficiency_decorators = [invokeAtMostOnceForArguments];
             _private_emulateCpuThrottling_decorators = [invokeAtMostOnceForArguments];
             _private_emulateMediaFeatures_decorators = [invokeAtMostOnceForArguments];
@@ -12931,6 +14117,7 @@ let EmulationManager = (() => {
             _private_setGeolocation_decorators = [invokeAtMostOnceForArguments];
             _private_setDefaultBackgroundColor_decorators = [invokeAtMostOnceForArguments];
             _private_setJavaScriptEnabled_decorators = [invokeAtMostOnceForArguments];
+            _private_emulateFocus_decorators = [invokeAtMostOnceForArguments];
             __esDecorate$3(this, _private_applyViewport_descriptor = { value: __setFunctionName$1(async function (client, viewportState) {
                     if (!viewportState.viewport) {
                         await Promise.all([
@@ -12938,7 +14125,9 @@ let EmulationManager = (() => {
                             client.send('Emulation.setTouchEmulationEnabled', {
                                 enabled: false,
                             }),
-                        ]).catch(debugError);
+                        ]).catch(err => {
+                            return this.#logger?.(DEBUG_PREFIXES.error)?.(err);
+                        });
                         return;
                     }
                     const { viewport } = viewportState;
@@ -12961,7 +14150,7 @@ let EmulationManager = (() => {
                         })
                             .catch(err => {
                             if (err.message.includes('Target does not support metrics override')) {
-                                debugError(err);
+                                this.#logger?.(DEBUG_PREFIXES.error)?.(err);
                                 return;
                             }
                             throw err;
@@ -13001,6 +14190,14 @@ let EmulationManager = (() => {
                         throw error;
                     }
                 }, "#emulateTimezone") }, _private_emulateTimezone_decorators, { kind: "method", name: "#emulateTimezone", static: false, private: true, access: { has: obj => #emulateTimezone in obj, get: obj => obj.#emulateTimezone }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate$3(this, _private_emulateLocale_descriptor = { value: __setFunctionName$1(async function (client, localeState) {
+                    if (!localeState.active) {
+                        return;
+                    }
+                    await client.send('Emulation.setLocaleOverride', {
+                        locale: localeState.locale,
+                    });
+                }, "#emulateLocale") }, _private_emulateLocale_decorators, { kind: "method", name: "#emulateLocale", static: false, private: true, access: { has: obj => #emulateLocale in obj, get: obj => obj.#emulateLocale }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate$3(this, _private_emulateVisionDeficiency_descriptor = { value: __setFunctionName$1(async function (client, visionDeficiency) {
                     if (!visionDeficiency.active) {
                         return;
@@ -13061,6 +14258,14 @@ let EmulationManager = (() => {
                         value: !state.javaScriptEnabled,
                     });
                 }, "#setJavaScriptEnabled") }, _private_setJavaScriptEnabled_decorators, { kind: "method", name: "#setJavaScriptEnabled", static: false, private: true, access: { has: obj => #setJavaScriptEnabled in obj, get: obj => obj.#setJavaScriptEnabled }, metadata: _metadata }, null, _instanceExtraInitializers);
+            __esDecorate$3(this, _private_emulateFocus_descriptor = { value: __setFunctionName$1(async function (client, state) {
+                    if (!state.active) {
+                        return;
+                    }
+                    await client.send('Emulation.setFocusEmulationEnabled', {
+                        enabled: state.enabled,
+                    });
+                }, "#emulateFocus") }, _private_emulateFocus_decorators, { kind: "method", name: "#emulateFocus", static: false, private: true, access: { has: obj => #emulateFocus in obj, get: obj => obj.#emulateFocus }, metadata: _metadata }, null, _instanceExtraInitializers);
             if (_metadata) Object.defineProperty(this, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
         }
         #client = __runInitializers$3(this, _instanceExtraInitializers);
@@ -13076,6 +14281,9 @@ let EmulationManager = (() => {
         #timezoneState = new EmulatedState({
             active: false,
         }, this, this.#emulateTimezone);
+        #localeState = new EmulatedState({
+            active: false,
+        }, this, this.#emulateLocale);
         #visionDeficiencyState = new EmulatedState({
             active: false,
         }, this, this.#emulateVisionDeficiency);
@@ -13098,8 +14306,14 @@ let EmulationManager = (() => {
             javaScriptEnabled: true,
             active: false,
         }, this, this.#setJavaScriptEnabled);
+        #focusState = new EmulatedState({
+            enabled: true,
+            active: false,
+        }, this, this.#emulateFocus);
         #secondaryClients = new Set();
-        constructor(client) {
+        #logger;
+        constructor(client, logger) {
+            this.#logger = logger;
             this.#client = client;
         }
         updateClient(client) {
@@ -13120,7 +14334,9 @@ let EmulationManager = (() => {
             // We don't await here because we want to register all state changes before
             // the target is unpaused.
             void Promise.all(this.#states.map(s => {
-                return s.sync().catch(debugError);
+                return s.sync().catch(err => {
+                    return this.#logger?.(DEBUG_PREFIXES.error)?.(err);
+                });
             }));
         }
         get javascriptEnabled() {
@@ -13161,6 +14377,13 @@ let EmulationManager = (() => {
                 active: true,
             });
         }
+        get #emulateLocale() { return _private_emulateLocale_descriptor.value; }
+        async emulateLocale(locale) {
+            await this.#localeState.setState({
+                locale,
+                active: true,
+            });
+        }
         get #emulateVisionDeficiency() { return _private_emulateVisionDeficiency_descriptor.value; }
         async emulateVisionDeficiency(type) {
             const visionDeficiencies = new Set([
@@ -13169,6 +14392,7 @@ let EmulationManager = (() => {
                 'blurredVision',
                 'deuteranopia',
                 'protanopia',
+                'reducedContrast',
                 'tritanopia',
             ]);
             assert(!type || visionDeficiencies.has(type), `Unsupported vision deficiency: ${type}`);
@@ -13255,152 +14479,36 @@ let EmulationManager = (() => {
                 javaScriptEnabled: enabled,
             });
         }
+        get #emulateFocus() { return _private_emulateFocus_descriptor.value; }
+        async emulateFocus(enabled) {
+            await this.#focusState.setState({
+                active: true,
+                enabled,
+            });
+        }
     };
 })();
 
 /**
  * @license
- * Copyright 2022 Google Inc.
+ * Copyright 2026 Google Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
 /**
- * FirefoxTargetManager implements target management using
- * `Target.setDiscoverTargets` without using auto-attach. It, therefore, creates
- * targets that lazily establish their CDP sessions.
- *
- * Although the approach is potentially flaky, there is no other way for Firefox
- * because Firefox's CDP implementation does not support auto-attach.
- *
- * Firefox does not support targetInfoChanged and detachedFromTarget events:
- *
- * - https://bugzilla.mozilla.org/show_bug.cgi?id=1610855
- * - https://bugzilla.mozilla.org/show_bug.cgi?id=1636979
- *   @internal
+ * @internal
  */
-class FirefoxTargetManager extends EventEmitter {
-    #connection;
-    /**
-     * Keeps track of the following events: 'Target.targetCreated',
-     * 'Target.targetDestroyed'.
-     *
-     * A target becomes discovered when 'Target.targetCreated' is received.
-     * A target is removed from this map once 'Target.targetDestroyed' is
-     * received.
-     *
-     * `targetFilterCallback` has no effect on this map.
-     */
-    #discoveredTargetsByTargetId = new Map();
-    /**
-     * Keeps track of targets that were created via 'Target.targetCreated'
-     * and which one are not filtered out by `targetFilterCallback`.
-     *
-     * The target is removed from here once it's been destroyed.
-     */
-    #availableTargetsByTargetId = new Map();
-    /**
-     * Tracks which sessions attach to which target.
-     */
-    #availableTargetsBySessionId = new Map();
-    #targetFilterCallback;
-    #targetFactory;
-    #attachedToTargetListenersBySession = new WeakMap();
-    #initializeDeferred = Deferred.create();
-    #targetsIdsForInit = new Set();
-    constructor(connection, targetFactory, targetFilterCallback) {
-        super();
-        this.#connection = connection;
-        this.#targetFilterCallback = targetFilterCallback;
-        this.#targetFactory = targetFactory;
-        this.#connection.on('Target.targetCreated', this.#onTargetCreated);
-        this.#connection.on('Target.targetDestroyed', this.#onTargetDestroyed);
-        this.#connection.on(CDPSessionEvent.SessionDetached, this.#onSessionDetached);
-        this.setupAttachmentListeners(this.#connection);
+class CdpIssue {
+    #code;
+    #details;
+    constructor(issue) {
+        this.#code = issue.code;
+        this.#details = issue.details;
     }
-    setupAttachmentListeners(session) {
-        const listener = (event) => {
-            return this.#onAttachedToTarget(session, event);
-        };
-        assert(!this.#attachedToTargetListenersBySession.has(session));
-        this.#attachedToTargetListenersBySession.set(session, listener);
-        session.on('Target.attachedToTarget', listener);
+    get code() {
+        return this.#code;
     }
-    #onSessionDetached = (session) => {
-        this.removeSessionListeners(session);
-        this.#availableTargetsBySessionId.delete(session.id());
-    };
-    removeSessionListeners(session) {
-        if (this.#attachedToTargetListenersBySession.has(session)) {
-            session.off('Target.attachedToTarget', this.#attachedToTargetListenersBySession.get(session));
-            this.#attachedToTargetListenersBySession.delete(session);
-        }
-    }
-    getAvailableTargets() {
-        return this.#availableTargetsByTargetId;
-    }
-    getChildTargets(_target) {
-        return new Set();
-    }
-    dispose() {
-        this.#connection.off('Target.targetCreated', this.#onTargetCreated);
-        this.#connection.off('Target.targetDestroyed', this.#onTargetDestroyed);
-    }
-    async initialize() {
-        await this.#connection.send('Target.setDiscoverTargets', {
-            discover: true,
-            filter: [{}],
-        });
-        this.#targetsIdsForInit = new Set(this.#discoveredTargetsByTargetId.keys());
-        await this.#initializeDeferred.valueOrThrow();
-    }
-    #onTargetCreated = async (event) => {
-        if (this.#discoveredTargetsByTargetId.has(event.targetInfo.targetId)) {
-            return;
-        }
-        this.#discoveredTargetsByTargetId.set(event.targetInfo.targetId, event.targetInfo);
-        if (event.targetInfo.type === 'browser' && event.targetInfo.attached) {
-            const target = this.#targetFactory(event.targetInfo, undefined);
-            target._initialize();
-            this.#availableTargetsByTargetId.set(event.targetInfo.targetId, target);
-            this.#finishInitializationIfReady(target._targetId);
-            return;
-        }
-        const target = this.#targetFactory(event.targetInfo, undefined);
-        if (this.#targetFilterCallback && !this.#targetFilterCallback(target)) {
-            this.#finishInitializationIfReady(event.targetInfo.targetId);
-            return;
-        }
-        target._initialize();
-        this.#availableTargetsByTargetId.set(event.targetInfo.targetId, target);
-        this.emit("targetAvailable" /* TargetManagerEvent.TargetAvailable */, target);
-        this.#finishInitializationIfReady(target._targetId);
-    };
-    #onTargetDestroyed = (event) => {
-        this.#discoveredTargetsByTargetId.delete(event.targetId);
-        this.#finishInitializationIfReady(event.targetId);
-        const target = this.#availableTargetsByTargetId.get(event.targetId);
-        if (target) {
-            this.emit("targetGone" /* TargetManagerEvent.TargetGone */, target);
-            this.#availableTargetsByTargetId.delete(event.targetId);
-        }
-    };
-    #onAttachedToTarget = async (parentSession, event) => {
-        const targetInfo = event.targetInfo;
-        const session = this.#connection.session(event.sessionId);
-        if (!session) {
-            throw new Error(`Session ${event.sessionId} was not created.`);
-        }
-        const target = this.#availableTargetsByTargetId.get(targetInfo.targetId);
-        assert(target, `Target ${targetInfo.targetId} is missing`);
-        session._setTarget(target);
-        this.setupAttachmentListeners(session);
-        this.#availableTargetsBySessionId.set(session.id(), this.#availableTargetsByTargetId.get(targetInfo.targetId));
-        parentSession.emit(CDPSessionEvent.Ready, session);
-    };
-    #finishInitializationIfReady(targetId) {
-        this.#targetsIdsForInit.delete(targetId);
-        if (this.#targetsIdsForInit.size === 0) {
-            this.#initializeDeferred.resolve();
-        }
+    get details() {
+        return this.#details;
     }
 }
 
@@ -13449,71 +14557,22 @@ class CdpPreloadScript {
  * SPDX-License-Identifier: Apache-2.0
  */
 /**
- * Device in a request prompt.
- *
- * @public
+ * @internal
  */
-class DeviceRequestPromptDevice {
-    /**
-     * Device id during a prompt.
-     */
-    id;
-    /**
-     * Device name as it appears in a prompt.
-     */
-    name;
-    /**
-     * @internal
-     */
-    constructor(id, name) {
-        this.id = id;
-        this.name = name;
-    }
-}
-/**
- * Device request prompts let you respond to the page requesting for a device
- * through an API like WebBluetooth.
- *
- * @remarks
- * `DeviceRequestPrompt` instances are returned via the
- * {@link Page.waitForDevicePrompt} method.
- *
- * @example
- *
- * ```ts
- * const [devicePrompt] = Promise.all([
- *   page.waitForDevicePrompt(),
- *   page.click('#connect-bluetooth'),
- * ]);
- * await devicePrompt.select(
- *   await devicePrompt.waitForDevice(({name}) => name.includes('My Device'))
- * );
- * ```
- *
- * @public
- */
-class DeviceRequestPrompt {
+class CdpDeviceRequestPrompt extends DeviceRequestPrompt {
     #client;
     #timeoutSettings;
     #id;
     #handled = false;
-    #updateDevicesHandle = this.#updateDevices.bind(this);
     #waitForDevicePromises = new Set();
-    /**
-     * Current list of selectable devices.
-     */
-    devices = [];
-    /**
-     * @internal
-     */
+    #subscriptions = new DisposableStack();
     constructor(client, timeoutSettings, firstEvent) {
+        super();
         this.#client = client;
         this.#timeoutSettings = timeoutSettings;
         this.#id = firstEvent.id;
-        this.#client.on('DeviceAccess.deviceRequestPrompted', this.#updateDevicesHandle);
-        this.#client.on('Target.detachedFromTarget', () => {
-            this.#client = null;
-        });
+        const clientEmitter = this.#subscriptions.use(new EventEmitter(this.#client));
+        clientEmitter.on('DeviceAccess.deviceRequestPrompted', this.#updateDevices.bind(this));
         this.#updateDevices(firstEvent);
     }
     #updateDevices(event) {
@@ -13526,7 +14585,7 @@ class DeviceRequestPrompt {
             })) {
                 continue;
             }
-            const newDevice = new DeviceRequestPromptDevice(rawDevice.id, rawDevice.name);
+            const newDevice = { id: rawDevice.id, name: rawDevice.name };
             this.devices.push(newDevice);
             for (const waitForDevicePromise of this.#waitForDevicePromises) {
                 if (waitForDevicePromise.filter(newDevice)) {
@@ -13535,9 +14594,6 @@ class DeviceRequestPrompt {
             }
         }
     }
-    /**
-     * Resolve to the first device in the prompt matching a filter.
-     */
     async waitForDevice(filter, options = {}) {
         for (const device of this.devices) {
             if (filter(device)) {
@@ -13549,6 +14605,11 @@ class DeviceRequestPrompt {
             message: `Waiting for \`DeviceRequestPromptDevice\` failed: ${timeout}ms exceeded`,
             timeout,
         });
+        if (options.signal) {
+            options.signal.addEventListener('abort', () => {
+                deferred.reject(options.signal?.reason);
+            }, { once: true });
+        }
         const handle = { filter, promise: deferred };
         this.#waitForDevicePromises.add(handle);
         try {
@@ -13558,41 +14619,30 @@ class DeviceRequestPrompt {
             this.#waitForDevicePromises.delete(handle);
         }
     }
-    /**
-     * Select a device in the prompt's list.
-     */
     async select(device) {
-        assert(this.#client !== null, 'Cannot select device through detached session!');
         assert(this.devices.includes(device), 'Cannot select unknown device!');
         assert(!this.#handled, 'Cannot select DeviceRequestPrompt which is already handled!');
-        this.#client.off('DeviceAccess.deviceRequestPrompted', this.#updateDevicesHandle);
+        this.#subscriptions.dispose();
         this.#handled = true;
-        return await this.#client.send('DeviceAccess.selectPrompt', {
+        await this.#client.send('DeviceAccess.selectPrompt', {
             id: this.#id,
             deviceId: device.id,
         });
     }
-    /**
-     * Cancel the prompt.
-     */
     async cancel() {
-        assert(this.#client !== null, 'Cannot cancel prompt through detached session!');
         assert(!this.#handled, 'Cannot cancel DeviceRequestPrompt which is already handled!');
-        this.#client.off('DeviceAccess.deviceRequestPrompted', this.#updateDevicesHandle);
+        this.#subscriptions.dispose();
         this.#handled = true;
-        return await this.#client.send('DeviceAccess.cancelPrompt', { id: this.#id });
+        await this.#client.send('DeviceAccess.cancelPrompt', { id: this.#id });
     }
 }
 /**
  * @internal
  */
-class DeviceRequestPromptManager {
+class CdpDeviceRequestPromptManager {
     #client;
     #timeoutSettings;
-    #deviceRequestPrompDeferreds = new Set();
-    /**
-     * @internal
-     */
+    #deviceRequestPromptDeferreds = new Set();
     constructor(client, timeoutSettings) {
         this.#client = client;
         this.#timeoutSettings = timeoutSettings;
@@ -13603,13 +14653,9 @@ class DeviceRequestPromptManager {
             this.#client = null;
         });
     }
-    /**
-     * Wait for device prompt created by an action like calling WebBluetooth's
-     * requestDevice.
-     */
     async waitForDevicePrompt(options = {}) {
         assert(this.#client !== null, 'Cannot wait for device prompt through detached session!');
-        const needsEnable = this.#deviceRequestPrompDeferreds.size === 0;
+        const needsEnable = this.#deviceRequestPromptDeferreds.size === 0;
         let enablePromise;
         if (needsEnable) {
             enablePromise = this.#client.send('DeviceAccess.enable');
@@ -13619,7 +14665,12 @@ class DeviceRequestPromptManager {
             message: `Waiting for \`DeviceRequestPrompt\` failed: ${timeout}ms exceeded`,
             timeout,
         });
-        this.#deviceRequestPrompDeferreds.add(deferred);
+        if (options.signal) {
+            options.signal.addEventListener('abort', () => {
+                deferred.reject(options.signal?.reason);
+            }, { once: true });
+        }
+        this.#deviceRequestPromptDeferreds.add(deferred);
         try {
             const [result] = await Promise.all([
                 deferred.valueOrThrow(),
@@ -13628,22 +14679,19 @@ class DeviceRequestPromptManager {
             return result;
         }
         finally {
-            this.#deviceRequestPrompDeferreds.delete(deferred);
+            this.#deviceRequestPromptDeferreds.delete(deferred);
         }
     }
-    /**
-     * @internal
-     */
     #onDeviceRequestPrompted(event) {
-        if (!this.#deviceRequestPrompDeferreds.size) {
+        if (!this.#deviceRequestPromptDeferreds.size) {
             return;
         }
         assert(this.#client !== null);
-        const devicePrompt = new DeviceRequestPrompt(this.#client, this.#timeoutSettings, event);
-        for (const promise of this.#deviceRequestPrompDeferreds) {
+        const devicePrompt = new CdpDeviceRequestPrompt(this.#client, this.#timeoutSettings, event);
+        for (const promise of this.#deviceRequestPromptDeferreds) {
             promise.resolve(devicePrompt);
         }
-        this.#deviceRequestPrompDeferreds.clear();
+        this.#deviceRequestPromptDeferreds.clear();
     }
 }
 
@@ -13652,6 +14700,28 @@ class DeviceRequestPromptManager {
  * Copyright 2017 Google Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
+/**
+ * @internal
+ */
+function createConsoleMessage(event, values, targetId) {
+    const textTokens = [];
+    // eslint-disable-next-line max-len -- The comment is long.
+    // eslint-disable-next-line @puppeteer/use-using -- These are not owned by this function.
+    for (const arg of values) {
+        textTokens.push(valueFromJSHandle(arg));
+    }
+    const stackTraceLocations = [];
+    if (event.stackTrace) {
+        for (const callFrame of event.stackTrace.callFrames) {
+            stackTraceLocations.push({
+                url: callFrame.url,
+                lineNumber: callFrame.lineNumber,
+                columnNumber: callFrame.columnNumber,
+            });
+        }
+    }
+    return new ConsoleMessage(convertConsoleMessageLevel(event.type), textTokens.join(' '), values, stackTraceLocations, undefined, event.stackTrace, targetId);
+}
 /**
  * @internal
  */
@@ -13665,7 +14735,7 @@ function createEvaluationError(details) {
     else if ((details.exception.type !== 'object' ||
         details.exception.subtype !== 'error') &&
         !details.exception.objectId) {
-        return valueFromRemoteObject(details.exception);
+        return valueFromPrimitiveRemoteObject(details.exception);
     }
     else {
         const detail = getErrorDetails(details);
@@ -13725,7 +14795,7 @@ function createClientError(details) {
     else if ((details.exception.type !== 'object' ||
         details.exception.subtype !== 'error') &&
         !details.exception.objectId) {
-        return valueFromRemoteObject(details.exception);
+        return valueFromPrimitiveRemoteObject(details.exception);
     }
     else {
         const detail = getErrorDetails(details);
@@ -13752,7 +14822,35 @@ function createClientError(details) {
 /**
  * @internal
  */
-function valueFromRemoteObject(remoteObject) {
+function valueFromJSHandle(handle) {
+    const remoteObject = handle.remoteObject();
+    if (remoteObject.objectId) {
+        return valueFromRemoteObjectReference(handle);
+    }
+    else {
+        return valueFromPrimitiveRemoteObject(remoteObject);
+    }
+}
+/**
+ * @internal
+ */
+function valueFromRemoteObjectReference(handle) {
+    const remoteObject = handle.remoteObject();
+    assert(remoteObject.objectId, 'Cannot extract value when no objectId is given');
+    const description = remoteObject.description ?? '';
+    if (remoteObject.subtype === 'error' && description) {
+        const newlineIdx = description.indexOf('\n');
+        if (newlineIdx === -1) {
+            return description;
+        }
+        return description.slice(0, newlineIdx);
+    }
+    return `[${remoteObject.subtype || remoteObject.type} ${remoteObject.className}]`;
+}
+/**
+ * @internal
+ */
+function valueFromPrimitiveRemoteObject(remoteObject) {
     assert(!remoteObject.objectId, 'Cannot extract value when objectId is given');
     if (remoteObject.unserializableValue) {
         if (remoteObject.type === 'bigint') {
@@ -13832,6 +14930,17 @@ const CDP_BINDING_PREFIX = 'puppeteer_';
 function pageBindingInitString(type, name) {
     return evaluationString(addPageBinding, type, name, CDP_BINDING_PREFIX);
 }
+/**
+ * @internal
+ */
+function convertConsoleMessageLevel(method) {
+    switch (method) {
+        case 'warning':
+            return 'warn';
+        default:
+            return method;
+    }
+}
 
 /**
  * @license
@@ -13845,10 +14954,12 @@ class CdpJSHandle extends JSHandle {
     #disposed = false;
     #remoteObject;
     #world;
-    constructor(world, remoteObject) {
-        super();
+    #logger;
+    constructor(world, remoteObject, logger) {
+        super(logger);
         this.#world = world;
         this.#remoteObject = remoteObject;
+        this.#logger = logger;
     }
     get disposed() {
         return this.#disposed;
@@ -13861,7 +14972,7 @@ class CdpJSHandle extends JSHandle {
     }
     async jsonValue() {
         if (!this.#remoteObject.objectId) {
-            return valueFromRemoteObject(this.#remoteObject);
+            return valueFromPrimitiveRemoteObject(this.#remoteObject);
         }
         const value = await this.evaluate(object => {
             return object;
@@ -13883,11 +14994,11 @@ class CdpJSHandle extends JSHandle {
             return;
         }
         this.#disposed = true;
-        await releaseObject(this.client, this.#remoteObject);
+        await releaseObject(this.client, this.#remoteObject, this.#logger);
     }
     toString() {
         if (!this.#remoteObject.objectId) {
-            return 'JSHandle:' + valueFromRemoteObject(this.#remoteObject);
+            return 'JSHandle:' + valueFromPrimitiveRemoteObject(this.#remoteObject);
         }
         const type = this.#remoteObject.subtype || this.#remoteObject.type;
         return 'JSHandle@' + type;
@@ -13918,7 +15029,7 @@ class CdpJSHandle extends JSHandle {
 /**
  * @internal
  */
-async function releaseObject(client, remoteObject) {
+async function releaseObject(client, remoteObject, logger) {
     if (!remoteObject.objectId) {
         return;
     }
@@ -13927,7 +15038,7 @@ async function releaseObject(client, remoteObject) {
         .catch(error => {
         // Exceptions might happen in case of a page been navigated or closed.
         // Swallow these since they are harmless and we don't leak anything in this case.
-        debugError(error);
+        logger?.(DEBUG_PREFIXES.error)?.(error);
     });
 }
 
@@ -13979,7 +15090,6 @@ const NON_ELEMENT_NODE_ROLES = new Set(['StaticText', 'InlineTextBox']);
  * @internal
  */
 let CdpElementHandle = (() => {
-    var _a, _b;
     let _classSuper = ElementHandle;
     let _instanceExtraInitializers = [];
     let _contentFrame_decorators;
@@ -13990,8 +15100,8 @@ let CdpElementHandle = (() => {
         static {
             const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
             _contentFrame_decorators = [throwIfDisposed()];
-            _scrollIntoView_decorators = [throwIfDisposed(), (_a = ElementHandle).bindIsolatedHandle.bind(_a)];
-            _uploadFile_decorators = [throwIfDisposed(), (_b = ElementHandle).bindIsolatedHandle.bind(_b)];
+            _scrollIntoView_decorators = [throwIfDisposed(), bindIsolatedHandle];
+            _uploadFile_decorators = [throwIfDisposed(), bindIsolatedHandle];
             _autofill_decorators = [throwIfDisposed()];
             __esDecorate$2(this, null, _contentFrame_decorators, { kind: "method", name: "contentFrame", static: false, private: false, access: { has: obj => "contentFrame" in obj, get: obj => obj.contentFrame }, metadata: _metadata }, null, _instanceExtraInitializers);
             __esDecorate$2(this, null, _scrollIntoView_decorators, { kind: "method", name: "scrollIntoView", static: false, private: false, access: { has: obj => "scrollIntoView" in obj, get: obj => obj.scrollIntoView }, metadata: _metadata }, null, _instanceExtraInitializers);
@@ -13999,9 +15109,11 @@ let CdpElementHandle = (() => {
             __esDecorate$2(this, null, _autofill_decorators, { kind: "method", name: "autofill", static: false, private: false, access: { has: obj => "autofill" in obj, get: obj => obj.autofill }, metadata: _metadata }, null, _instanceExtraInitializers);
             if (_metadata) Object.defineProperty(this, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
         }
-        constructor(world, remoteObject) {
-            super(new CdpJSHandle(world, remoteObject));
-            __runInitializers$2(this, _instanceExtraInitializers);
+        #backendNodeId = __runInitializers$2(this, _instanceExtraInitializers);
+        #logger;
+        constructor(world, remoteObject, logger) {
+            super(new CdpJSHandle(world, remoteObject, logger), logger);
+            this.#logger = logger;
         }
         get realm() {
             return this.handle.realm;
@@ -14035,35 +15147,29 @@ let CdpElementHandle = (() => {
                 });
             }
             catch (error) {
-                debugError(error);
+                this.#logger?.(DEBUG_PREFIXES.error)?.(error);
                 // Fallback to Element.scrollIntoView if DOM.scrollIntoViewIfNeeded is not supported
                 await super.scrollIntoView();
             }
         }
-        async uploadFile(...filePaths) {
+        async uploadFile(...files) {
             const isMultiple = await this.evaluate(element => {
                 return element.multiple;
             });
-            assert(filePaths.length <= 1 || isMultiple, 'Multiple file uploads only work with <input type=file multiple>');
+            assert(files.length <= 1 || isMultiple, 'Multiple file uploads only work with <input type=file multiple>');
             // Locate all files and confirm that they exist.
-            let path;
-            try {
-                path = await import('path');
+            const path = environment.value.path;
+            if (path) {
+                files = files.map(filePath => {
+                    if (path.win32.isAbsolute(filePath) ||
+                        path.posix.isAbsolute(filePath)) {
+                        return filePath;
+                    }
+                    else {
+                        return path.resolve(filePath);
+                    }
+                });
             }
-            catch (error) {
-                if (error instanceof TypeError) {
-                    throw new Error(`JSHandle#uploadFile can only be used in Node-like environments.`);
-                }
-                throw error;
-            }
-            const files = filePaths.map(filePath => {
-                if (path.win32.isAbsolute(filePath) || path.posix.isAbsolute(filePath)) {
-                    return filePath;
-                }
-                else {
-                    return path.resolve(filePath);
-                }
-            });
             /**
              * The zero-length array is a special case, it seems that
              * DOM.setFileInputFiles does not actually update the files in that case, so
@@ -14099,6 +15205,7 @@ let CdpElementHandle = (() => {
                 fieldId,
                 frameId,
                 card: data.creditCard,
+                address: data.address,
             });
         }
         async *queryAXTree(name, role) {
@@ -14123,6 +15230,16 @@ let CdpElementHandle = (() => {
                 return this.realm.adoptBackendNode(node.backendDOMNodeId);
             });
         }
+        async backendNodeId() {
+            if (this.#backendNodeId) {
+                return this.#backendNodeId;
+            }
+            const { node } = await this.client.send('DOM.describeNode', {
+                objectId: this.handle.id,
+            });
+            this.#backendNodeId = node.backendNodeId;
+            return this.#backendNodeId;
+        }
     };
 })();
 
@@ -14131,10 +15248,10 @@ let CdpElementHandle = (() => {
  * Copyright 2017 Google Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
-var __addDisposableResource$1 = (undefined && undefined.__addDisposableResource) || function (env, value, async) {
+var __addDisposableResource$3 = (undefined && undefined.__addDisposableResource) || function (env, value, async) {
     if (value !== null && value !== void 0) {
         if (typeof value !== "object" && typeof value !== "function") throw new TypeError("Object expected.");
-        var dispose;
+        var dispose, inner;
         if (async) {
             if (!Symbol.asyncDispose) throw new TypeError("Symbol.asyncDispose is not defined.");
             dispose = value[Symbol.asyncDispose];
@@ -14142,8 +15259,10 @@ var __addDisposableResource$1 = (undefined && undefined.__addDisposableResource)
         if (dispose === void 0) {
             if (!Symbol.dispose) throw new TypeError("Symbol.dispose is not defined.");
             dispose = value[Symbol.dispose];
+            if (async) inner = dispose;
         }
         if (typeof dispose !== "function") throw new TypeError("Object not disposable.");
+        if (inner) dispose = function() { try { inner.call(this); } catch (e) { return Promise.reject(e); } };
         env.stack.push({ value: value, dispose: dispose, async: async });
     }
     else if (async) {
@@ -14151,23 +15270,28 @@ var __addDisposableResource$1 = (undefined && undefined.__addDisposableResource)
     }
     return value;
 };
-var __disposeResources$1 = (undefined && undefined.__disposeResources) || (function (SuppressedError) {
+var __disposeResources$3 = (undefined && undefined.__disposeResources) || (function (SuppressedError) {
     return function (env) {
         function fail(e) {
             env.error = env.hasError ? new SuppressedError(e, env.error, "An error was suppressed during disposal.") : e;
             env.hasError = true;
         }
+        var r, s = 0;
         function next() {
-            while (env.stack.length) {
-                var rec = env.stack.pop();
+            while (r = env.stack.pop()) {
                 try {
-                    var result = rec.dispose && rec.dispose.call(rec.value);
-                    if (rec.async) return Promise.resolve(result).then(next, function(e) { fail(e); return next(); });
+                    if (!r.async && s === 1) return s = 0, env.stack.push(r), Promise.resolve().then(next);
+                    if (r.dispose) {
+                        var result = r.dispose.call(r.value);
+                        if (r.async) return s |= 2, Promise.resolve(result).then(next, function(e) { fail(e); return next(); });
+                    }
+                    else s |= 1;
                 }
                 catch (e) {
                     fail(e);
                 }
             }
+            if (s === 1) return env.hasError ? Promise.reject(env.error) : Promise.resolve();
             if (env.hasError) throw env.error;
         }
         return next();
@@ -14176,28 +15300,36 @@ var __disposeResources$1 = (undefined && undefined.__disposeResources) || (funct
     var e = new Error(message);
     return e.name = "SuppressedError", e.error = error, e.suppressed = suppressed, e;
 });
-const ariaQuerySelectorBinding = new Binding('__ariaQuerySelector', ARIAQueryHandler.queryOne, '' // custom init
-);
-const ariaQuerySelectorAllBinding = new Binding('__ariaQuerySelectorAll', (async (element, selector) => {
-    const results = ARIAQueryHandler.queryAll(element, selector);
-    return await element.realm.evaluateHandle((...elements) => {
-        return elements;
-    }, ...(await AsyncIterableUtil.collect(results)));
-}), '' // custom init
-);
 /**
  * @internal
  */
 class ExecutionContext extends EventEmitter {
+    static #ariaQuerySelectorBinding;
+    static getOrCreateAriaQuerySelectorBinding(logger) {
+        return (this.#ariaQuerySelectorBinding ??= new Binding('__ariaQuerySelector', ARIAQueryHandler.queryOne, '', // custom init
+        logger));
+    }
+    static #ariaQuerySelectorAllBinding;
+    static getOrCreateAriaQuerySelectorAllBinding(logger) {
+        return (this.#ariaQuerySelectorAllBinding ??= new Binding('__ariaQuerySelectorAll', (async (element, selector) => {
+            const results = ARIAQueryHandler.queryAll(element, selector);
+            return await element.realm.evaluateHandle((...elements) => {
+                return elements;
+            }, ...(await AsyncIterableUtil.collect(results)));
+        }), '', // custom init
+        logger));
+    }
     #client;
     #world;
     #id;
     #name;
     #disposables = new DisposableStack();
-    constructor(client, contextPayload, world) {
-        super();
+    #logger;
+    constructor(client, contextPayload, world, logger) {
+        super(undefined, logger);
         this.#client = client;
         this.#world = world;
+        this.#logger = logger;
         this.#id = contextPayload.id;
         if (contextPayload.name) {
             this.#name = contextPayload.name;
@@ -14228,7 +15360,7 @@ class ExecutionContext extends EventEmitter {
             if (this.#bindings.has(binding.name)) {
                 return;
             }
-            const _ = __addDisposableResource$1(env_1, await this.#mutex.acquire(), false);
+            const _ = __addDisposableResource$3(env_1, await this.#mutex.acquire(), false);
             try {
                 await this.#client.send('Runtime.addBinding', this.#name
                     ? {
@@ -14256,7 +15388,7 @@ class ExecutionContext extends EventEmitter {
                         return;
                     }
                 }
-                debugError(error);
+                this.#logger?.(DEBUG_PREFIXES.error)?.(error);
             }
         }
         catch (e_1) {
@@ -14264,7 +15396,7 @@ class ExecutionContext extends EventEmitter {
             env_1.hasError = true;
         }
         finally {
-            __disposeResources$1(env_1);
+            __disposeResources$3(env_1);
         }
     }
     async #onBindingCalled(event) {
@@ -14294,7 +15426,7 @@ class ExecutionContext extends EventEmitter {
             await binding?.run(this, seq, args, isTrivial);
         }
         catch (err) {
-            debugError(err);
+            this.#logger?.(DEBUG_PREFIXES.error)?.(err);
         }
     }
     get id() {
@@ -14308,12 +15440,15 @@ class ExecutionContext extends EventEmitter {
     }
     #bindingsInstalled = false;
     #puppeteerUtil;
+    /**
+     * @internal
+     */
     get puppeteerUtil() {
         let promise = Promise.resolve();
         if (!this.#bindingsInstalled) {
             promise = Promise.all([
-                this.#addBindingWithoutThrowing(ariaQuerySelectorBinding),
-                this.#addBindingWithoutThrowing(ariaQuerySelectorAllBinding),
+                this.#addBindingWithoutThrowing(ExecutionContext.getOrCreateAriaQuerySelectorBinding(this.#logger)),
+                this.#addBindingWithoutThrowing(ExecutionContext.getOrCreateAriaQuerySelectorAllBinding(this.#logger)),
             ]);
             this.#bindingsInstalled = true;
         }
@@ -14334,10 +15469,9 @@ class ExecutionContext extends EventEmitter {
             await this.#addBinding(binding);
         }
         catch (err) {
-            // If the binding cannot be added, then either the browser doesn't support
-            // bindings (e.g. Firefox) or the context is broken. Either breakage is
-            // okay, so we ignore the error.
-            debugError(err);
+            // If the binding cannot be added, the context is broken. We cannot
+            // recover so we ignore the error.
+            this.#logger?.(DEBUG_PREFIXES.error)?.(err);
         }
     }
     /**
@@ -14367,7 +15501,7 @@ class ExecutionContext extends EventEmitter {
      * const result = await executionContext.evaluate(
      *   (a, b) => a + b,
      *   oneHandle,
-     *   twoHandle
+     *   twoHandle,
      * );
      * await oneHandle.dispose();
      * await twoHandle.dispose();
@@ -14397,7 +15531,7 @@ class ExecutionContext extends EventEmitter {
      * ```ts
      * const context = await page.mainFrame().executionContext();
      * const handle: JSHandle<typeof globalThis> = await context.evaluateHandle(
-     *   () => Promise.resolve(self)
+     *   () => Promise.resolve(self),
      * );
      * ```
      *
@@ -14418,7 +15552,7 @@ class ExecutionContext extends EventEmitter {
      *   });
      * const stringHandle: JSHandle<string> = await context.evaluateHandle(
      *   body => body.innerHTML,
-     *   body
+     *   body,
      * );
      * console.log(await stringHandle.jsonValue()); // prints body's innerHTML
      * // Always dispose your garbage! :)
@@ -14456,9 +15590,10 @@ class ExecutionContext extends EventEmitter {
             if (exceptionDetails) {
                 throw createEvaluationError(exceptionDetails);
             }
-            return returnByValue
-                ? valueFromRemoteObject(remoteObject)
-                : this.#world.createCdpHandle(remoteObject);
+            if (returnByValue) {
+                return valueFromPrimitiveRemoteObject(remoteObject);
+            }
+            return this.#world.createCdpHandle(remoteObject);
         }
         const functionDeclaration = stringifyFunction(pageFunction);
         const functionDeclarationWithSourceUrl = SOURCE_URL_REGEX.test(functionDeclaration)
@@ -14496,9 +15631,10 @@ class ExecutionContext extends EventEmitter {
         if (exceptionDetails) {
             throw createEvaluationError(exceptionDetails);
         }
-        return returnByValue
-            ? valueFromRemoteObject(remoteObject)
-            : this.#world.createCdpHandle(remoteObject);
+        if (returnByValue) {
+            return valueFromPrimitiveRemoteObject(remoteObject);
+        }
+        return this.#world.createCdpHandle(remoteObject);
         async function convertArgumentAsync(context, arg) {
             if (arg instanceof LazyArg) {
                 arg = await arg.get(context);
@@ -14507,7 +15643,6 @@ class ExecutionContext extends EventEmitter {
         }
         function convertArgument(context, arg) {
             if (typeof arg === 'bigint') {
-                // eslint-disable-line valid-typeof
                 return { unserializableValue: `${arg.toString()}n` };
             }
             if (Object.is(arg, -0)) {
@@ -14548,6 +15683,7 @@ class ExecutionContext extends EventEmitter {
     [disposeSymbol]() {
         this.#disposables.dispose();
         this.emit('disposed', undefined);
+        super[disposeSymbol]();
     }
 }
 const rewriteError = (error) => {
@@ -14590,6 +15726,134 @@ var FrameManagerEvent;
 
 /**
  * @license
+ * Copyright 2022 Google Inc.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+/**
+ * A unique key for {@link IsolatedWorldChart} to denote the default world.
+ * Execution contexts are automatically created in the default world.
+ *
+ * @internal
+ */
+const MAIN_WORLD = Symbol('mainWorld');
+/**
+ * A unique key for {@link IsolatedWorldChart} to denote the puppeteer world.
+ * This world contains all puppeteer-internal bindings/code.
+ *
+ * @internal
+ */
+const PUPPETEER_WORLD = Symbol('puppeteerWorld');
+
+/**
+ * @internal
+ */
+class CdpWebWorker extends WebWorker {
+    #world;
+    #client;
+    #id;
+    #targetType;
+    #logger;
+    #emitter;
+    #workerLoaded = new Deferred();
+    get internalEmitter() {
+        return this.#emitter;
+    }
+    constructor(client, url, targetId, targetType, exceptionThrown, networkManager, logger) {
+        super(url);
+        this.#id = targetId;
+        this.#client = client;
+        this.#logger = logger;
+        this.#targetType = targetType;
+        this.#world = new IsolatedWorld(this, new TimeoutSettings(), MAIN_WORLD, logger);
+        this.#emitter = new EventEmitter(undefined, logger);
+        this.#client.once('Runtime.executionContextCreated', async (event) => {
+            this.#world.setContext(new ExecutionContext(client, event.context, this.#world, logger));
+        });
+        this.#client.once('Inspector.workerScriptLoaded', () => {
+            this.#workerLoaded.resolve();
+        });
+        this.#world.emitter.on('consoleapicalled', async (event) => {
+            try {
+                const values = event.args.map(arg => {
+                    return this.#world.createCdpHandle(arg);
+                });
+                const noInternalListeners = this.#emitter.listenerCount(WebWorkerEvent.Console) === 0;
+                const noWorkerListeners = this.listenerCount(WebWorkerEvent.Console) === 0;
+                if (noInternalListeners && noWorkerListeners) {
+                    // eslint-disable-next-line max-len -- The comment is long.
+                    // eslint-disable-next-line @puppeteer/use-using -- These are not owned by this function.
+                    for (const value of values) {
+                        void value.dispose().catch((err) => {
+                            return this.#logger?.(DEBUG_PREFIXES.error)?.(err);
+                        });
+                    }
+                    return;
+                }
+                const consoleMessages = createConsoleMessage(event, values, this.#id);
+                this.#emitter.emit(WebWorkerEvent.Console, consoleMessages);
+                if (!noWorkerListeners) {
+                    this.emit(WebWorkerEvent.Console, consoleMessages);
+                }
+            }
+            catch (err) {
+                this.#logger?.(DEBUG_PREFIXES.error)?.(err);
+            }
+        });
+        this.#client.on('Runtime.exceptionThrown', exceptionThrown);
+        this.#client.once(CDPSessionEvent.Disconnected, () => {
+            this.#world.dispose();
+        });
+        // This might fail if the target is closed before we receive all execution contexts.
+        networkManager?.addClient(this.#client).catch((err) => {
+            return this.#logger?.(DEBUG_PREFIXES.error)?.(err);
+        });
+        this.#client.send('Runtime.enable').catch((err) => {
+            return this.#logger?.(DEBUG_PREFIXES.error)?.(err);
+        });
+    }
+    mainRealm() {
+        return this.#world;
+    }
+    get client() {
+        return this.#client;
+    }
+    async close() {
+        switch (this.#targetType) {
+            case TargetType.SERVICE_WORKER: {
+                // For service workers we need to close the target and detach to allow
+                // the worker to stop.
+                await this.client.connection()?.send('Target.closeTarget', {
+                    targetId: this.#id,
+                });
+                await this.client.connection()?.send('Target.detachFromTarget', {
+                    sessionId: this.client.id(),
+                });
+                break;
+            }
+            case TargetType.SHARED_WORKER: {
+                await this.client.connection()?.send('Target.closeTarget', {
+                    targetId: this.#id,
+                });
+                break;
+            }
+            default:
+                await this.evaluate(() => {
+                    self.close();
+                });
+        }
+    }
+    async evaluate(func, ...args) {
+        await this.#workerLoaded.valueOrThrow();
+        return await super.evaluate(func, ...args);
+    }
+    async evaluateHandle(func, ...args) {
+        await this.#workerLoaded.valueOrThrow();
+        return await super.evaluateHandle(func, ...args);
+    }
+}
+
+/**
+ * @license
  * Copyright 2019 Google Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -14599,10 +15863,15 @@ var FrameManagerEvent;
 class IsolatedWorld extends Realm {
     #context;
     #emitter = new EventEmitter();
+    #worldId;
+    #origin;
     #frameOrWorker;
-    constructor(frameOrWorker, timeoutSettings) {
+    #logger;
+    constructor(frameOrWorker, timeoutSettings, worldId, logger) {
         super(timeoutSettings);
         this.#frameOrWorker = frameOrWorker;
+        this.#worldId = worldId;
+        this.#logger = logger;
     }
     get environment() {
         return this.#frameOrWorker;
@@ -14650,15 +15919,16 @@ class IsolatedWorld extends Realm {
      * Waits for the next context to be set on the isolated world.
      */
     async #waitForExecutionContext() {
+        const error = new Error('Execution context was destroyed');
         const result = await firstValueFrom(fromEmitterEvent(this.#emitter, 'context').pipe(raceWith(fromEmitterEvent(this.#emitter, 'disposed').pipe(map(() => {
             // The message has to match the CDP message expected by the WaitTask class.
-            throw new Error('Execution context was destroyed');
+            throw error;
         })), timeout(this.timeoutSettings.timeout()))));
         return result;
     }
     async evaluateHandle(pageFunction, ...args) {
         pageFunction = withSourcePuppeteerURLIfNone(this.evaluateHandle.name, pageFunction);
-        // This code needs to schedule evaluateHandle call synchroniously (at
+        // This code needs to schedule evaluateHandle call synchronously (at
         // least when the context is there) so we cannot unconditionally
         // await.
         let context = this.#executionContext();
@@ -14669,7 +15939,7 @@ class IsolatedWorld extends Realm {
     }
     async evaluate(pageFunction, ...args) {
         pageFunction = withSourcePuppeteerURLIfNone(this.evaluate.name, pageFunction);
-        // This code needs to schedule evaluate call synchroniously (at
+        // This code needs to schedule evaluate call synchronously (at
         // least when the context is there) so we cannot unconditionally
         // await.
         let context = this.#executionContext();
@@ -14679,7 +15949,7 @@ class IsolatedWorld extends Realm {
         return await context.evaluate(pageFunction, ...args);
     }
     async adoptBackendNode(backendNodeId) {
-        // This code needs to schedule resolveNode call synchroniously (at
+        // This code needs to schedule resolveNode call synchronously (at
         // least when the context is there) so we cannot unconditionally
         // await.
         let context = this.#executionContext();
@@ -14725,37 +15995,42 @@ class IsolatedWorld extends Realm {
      */
     createCdpHandle(remoteObject) {
         if (remoteObject.subtype === 'node') {
-            return new CdpElementHandle(this, remoteObject);
+            return new CdpElementHandle(this, remoteObject, this.#logger);
         }
-        return new CdpJSHandle(this, remoteObject);
+        return new CdpJSHandle(this, remoteObject, this.#logger);
     }
     [disposeSymbol]() {
         this.#context?.[disposeSymbol]();
         this.#emitter.emit('disposed', undefined);
-        super[disposeSymbol]();
         this.#emitter.removeAllListeners();
+        super[disposeSymbol]();
+    }
+    get origin() {
+        return this.#origin;
+    }
+    set origin(origin) {
+        this.#origin = origin;
+    }
+    setWorldId(worldId) {
+        this.#worldId = worldId;
+    }
+    async extension() {
+        if (this.#frameOrWorker instanceof CdpWebWorker) {
+            throw new Error('Unable to get extension from Realm');
+        }
+        if (this.#worldId === MAIN_WORLD) {
+            return null;
+        }
+        if (typeof this.#worldId === 'string') {
+            const extensions = await this.#frameOrWorker._frameManager
+                .page()
+                .browser()
+                .extensions();
+            return extensions.get(this.#worldId) ?? null;
+        }
+        return null;
     }
 }
-
-/**
- * @license
- * Copyright 2022 Google Inc.
- * SPDX-License-Identifier: Apache-2.0
- */
-/**
- * A unique key for {@link IsolatedWorldChart} to denote the default world.
- * Execution contexts are automatically created in the default world.
- *
- * @internal
- */
-const MAIN_WORLD = Symbol('mainWorld');
-/**
- * A unique key for {@link IsolatedWorldChart} to denote the puppeteer world.
- * This world contains all puppeteer-internal bindings/code.
- *
- * @internal
- */
-const PUPPETEER_WORLD = Symbol('puppeteerWorld');
 
 /**
  * @license
@@ -14782,6 +16057,7 @@ class LifecycleWatcher {
     #sameDocumentNavigationDeferred = Deferred.create();
     #lifecycleDeferred = Deferred.create();
     #newDocumentNavigationDeferred = Deferred.create();
+    #error = new Error('LifecycleWatcher terminated');
     #hasSameDocumentNavigation;
     #swapped;
     #navigationResponseReceived;
@@ -14799,6 +16075,9 @@ class LifecycleWatcher {
             return protocolEvent;
         });
         signal?.addEventListener('abort', () => {
+            if (signal.reason instanceof Error) {
+                signal.reason.cause = this.#error;
+            }
             this.#terminationDeferred.reject(signal.reason);
         });
         this.#frame = frame;
@@ -14849,7 +16128,8 @@ class LifecycleWatcher {
     }
     #onFrameDetached(frame) {
         if (this.#frame === frame) {
-            this.#terminationDeferred.resolve(new Error('Navigating frame was detached'));
+            this.#error.message = 'Navigating frame was detached';
+            this.#terminationDeferred.resolve(this.#error);
             return;
         }
         this.#checkLifecycleComplete();
@@ -14914,7 +16194,8 @@ class LifecycleWatcher {
     }
     dispose() {
         this.#subscriptions.dispose();
-        this.#terminationDeferred.resolve(new Error('LifecycleWatcher disposed'));
+        this.#error.cause = new Error('LifecycleWatcher disposed');
+        this.#terminationDeferred.resolve(this.#error);
     }
 }
 
@@ -14992,39 +16273,43 @@ let CdpFrame = (() => {
         _parentId;
         accessibility;
         worlds;
-        constructor(frameManager, frameId, parentFrameId, client) {
-            super();
+        extensionWorlds = {};
+        #logger;
+        constructor(frameManager, frameId, parentFrameId, client, logger) {
+            super(logger);
             this._frameManager = frameManager;
             this.#url = '';
             this._id = frameId;
             this._parentId = parentFrameId;
             this.#detached = false;
             this.#client = client;
+            this.#logger = logger;
             this._loaderId = '';
             this.worlds = {
-                [MAIN_WORLD]: new IsolatedWorld(this, this._frameManager.timeoutSettings),
-                [PUPPETEER_WORLD]: new IsolatedWorld(this, this._frameManager.timeoutSettings),
+                [MAIN_WORLD]: new IsolatedWorld(this, this._frameManager.timeoutSettings, MAIN_WORLD, logger),
+                [PUPPETEER_WORLD]: new IsolatedWorld(this, this._frameManager.timeoutSettings, PUPPETEER_WORLD, logger),
             };
-            this.accessibility = new Accessibility(this.worlds[MAIN_WORLD]);
+            this.accessibility = new Accessibility(this.worlds[MAIN_WORLD], frameId, logger);
             this.on(FrameEvent.FrameSwappedByActivation, () => {
                 // Emulate loading process for swapped frames.
                 this._onLoadingStarted();
                 this._onLoadingStopped();
             });
-            this.worlds[MAIN_WORLD].emitter.on('consoleapicalled', this.#onMainWorldConsoleApiCalled.bind(this));
-            this.worlds[MAIN_WORLD].emitter.on('bindingcalled', this.#onMainWorldBindingCalled.bind(this));
+            this.registerWorldListeners(this.worlds[MAIN_WORLD]);
         }
-        #onMainWorldConsoleApiCalled(event) {
-            this._frameManager.emit(FrameManagerEvent.ConsoleApiCalled, [
-                this.worlds[MAIN_WORLD],
-                event,
-            ]);
-        }
-        #onMainWorldBindingCalled(event) {
-            this._frameManager.emit(FrameManagerEvent.BindingCalled, [
-                this.worlds[MAIN_WORLD],
-                event,
-            ]);
+        /**
+         * @internal
+         */
+        registerWorldListeners(world) {
+            world.emitter.on('consoleapicalled', event => {
+                this._frameManager.emit(FrameManagerEvent.ConsoleApiCalled, [
+                    world,
+                    event,
+                ]);
+            });
+            world.emitter.on('bindingcalled', event => {
+                this._frameManager.emit(FrameManagerEvent.BindingCalled, [world, event]);
+            });
         }
         /**
          * This is used internally in DevTools.
@@ -15047,15 +16332,15 @@ let CdpFrame = (() => {
         page() {
             return this._frameManager.page();
         }
-        isOOPFrame() {
-            return this.#client !== this._frameManager.client;
-        }
         async goto(url, options = {}) {
+            if (!this.page()._isUrlAllowed(url)) {
+                throw new Error(`Navigation to ${url} is blocked by blocklist/allowlist rules`);
+            }
             const { referer = this._frameManager.networkManager.extraHTTPHeaders()['referer'], referrerPolicy = this._frameManager.networkManager.extraHTTPHeaders()['referer-policy'], waitUntil = ['load'], timeout = this._frameManager.timeoutSettings.navigationTimeout(), } = options;
             let ensureNewDocumentNavigation = false;
             const watcher = new LifecycleWatcher(this._frameManager.networkManager, this, waitUntil, timeout);
             let error = await Deferred.race([
-                navigate(this.#client, url, referer, referrerPolicy, this._id),
+                navigate(this.#client, url, referer, referrerPolicy ? referrerPolicyToProtocol(referrerPolicy) : undefined, this._id),
                 watcher.terminationPromise(),
             ]);
             if (!error) {
@@ -15157,16 +16442,11 @@ let CdpFrame = (() => {
             return this._frameManager._frameTree.childFrames(this._id);
         }
         #deviceRequestPromptManager() {
-            const rootFrame = this.page().mainFrame();
-            if (this.isOOPFrame() || rootFrame === null) {
-                return this._frameManager._deviceRequestPromptManager(this.#client);
-            }
-            else {
-                return rootFrame._frameManager._deviceRequestPromptManager(this.#client);
-            }
+            return this._frameManager._deviceRequestPromptManager(this.#client);
         }
         async addPreloadScript(preloadScript) {
-            if (!this.isOOPFrame() && this !== this._frameManager.mainFrame()) {
+            const parentFrame = this.parentFrame();
+            if (parentFrame && this.#client === parentFrame.client) {
                 return;
             }
             if (preloadScript.getIdForFrame(this)) {
@@ -15187,7 +16467,9 @@ let CdpFrame = (() => {
                 this.#client.send('Runtime.addBinding', {
                     name: CDP_BINDING_PREFIX + binding.name,
                 }),
-                this.evaluate(binding.initSource).catch(debugError),
+                this.evaluate(binding.initSource).catch(error => {
+                    this.#logger?.(DEBUG_PREFIXES.error)?.(error);
+                }),
             ]);
         }
         async removeExposedFunctionBinding(binding) {
@@ -15204,7 +16486,9 @@ let CdpFrame = (() => {
                     // Removes the dangling Puppeteer binding wrapper.
                     // @ts-expect-error: In a different context.
                     globalThis[name] = undefined;
-                }, binding.name).catch(debugError),
+                }, binding.name).catch(error => {
+                    this.#logger?.(DEBUG_PREFIXES.error)?.(error);
+                }),
             ]);
         }
         async waitForDevicePrompt(options = {}) {
@@ -15241,12 +16525,45 @@ let CdpFrame = (() => {
             this.#detached = true;
             this.worlds[MAIN_WORLD][disposeSymbol]();
             this.worlds[PUPPETEER_WORLD][disposeSymbol]();
+            for (const extensionWorld of Object.values(this.extensionWorlds)) {
+                extensionWorld[disposeSymbol]();
+            }
+            super[disposeSymbol]();
         }
         exposeFunction() {
             throw new UnsupportedOperation();
         }
+        async frameElement() {
+            const parent = this.parentFrame();
+            if (!parent) {
+                return null;
+            }
+            const { backendNodeId } = await parent.client.send('DOM.getFrameOwner', {
+                frameId: this._id,
+            });
+            return (await parent
+                .mainRealm()
+                .adoptBackendNode(backendNodeId));
+        }
+        /**
+         * @public
+         */
+        extensionRealms() {
+            return Object.values(this.extensionWorlds);
+        }
     };
 })();
+/**
+ * @internal
+ */
+function referrerPolicyToProtocol(referrerPolicy) {
+    // See
+    // https://chromedevtools.github.io/devtools-protocol/tot/Page/#type-ReferrerPolicy
+    // We need to convert from Web-facing phase to CDP's camelCase.
+    return referrerPolicy.replaceAll(/-./g, match => {
+        return match[1].toUpperCase();
+    });
+}
 
 /**
  * @license
@@ -15353,26 +16670,46 @@ class CdpHTTPRequest extends HTTPRequest {
     #headers = {};
     #frame;
     #initiator;
+    #logger;
     get client() {
         return this.#client;
     }
-    constructor(client, frame, interceptionId, allowInterception, data, redirectChain) {
+    set client(newClient) {
+        this.#client = newClient;
+    }
+    constructor(client, frame, interceptionId, allowInterception, data, redirectChain, logger) {
         super();
+        this.#logger = logger;
         this.#client = client;
         this.id = data.requestId;
         this.#isNavigationRequest =
             data.requestId === data.loaderId && data.type === 'Document';
         this._interceptionId = interceptionId;
-        this.#url = data.request.url;
+        this.#url = data.request.url + (data.request.urlFragment ?? '');
         this.#resourceType = (data.type || 'other').toLowerCase();
         this.#method = data.request.method;
-        this.#postData = data.request.postData;
+        if (data.request.postDataEntries &&
+            data.request.postDataEntries.length > 0) {
+            this.#postData = new TextDecoder().decode(mergeUint8Arrays(data.request.postDataEntries
+                .map(entry => {
+                return entry.bytes ? stringToTypedArray(entry.bytes, true) : null;
+            })
+                .filter((entry) => {
+                return entry !== null;
+            })));
+        }
+        else {
+            this.#postData = data.request.postData;
+        }
         this.#hasPostData = data.request.hasPostData ?? false;
         this.#frame = frame;
         this._redirectChain = redirectChain;
         this.#initiator = data.initiator;
         this.interception.enabled = allowInterception;
-        for (const [key, value] of Object.entries(data.request.headers)) {
+        this.updateHeaders(data.request.headers);
+    }
+    updateHeaders(headers) {
+        for (const [key, value] of Object.entries(headers)) {
             this.#headers[key.toLowerCase()] = value;
         }
     }
@@ -15399,12 +16736,13 @@ class CdpHTTPRequest extends HTTPRequest {
             return result.postData;
         }
         catch (err) {
-            debugError(err);
+            this.#logger?.(DEBUG_PREFIXES.error)?.(err);
             return;
         }
     }
     headers() {
-        return this.#headers;
+        // Callers should not be allowed to mutate internal structure.
+        return structuredClone(this.#headers);
     }
     response() {
         return this._response;
@@ -15429,13 +16767,18 @@ class CdpHTTPRequest extends HTTPRequest {
             errorText: this._failureText,
         };
     }
+    canBeIntercepted() {
+        return !this.url().startsWith('data:') && !this._fromMemoryCache;
+    }
     /**
      * @internal
      */
     async _continue(overrides = {}) {
         const { url, method, postData, headers } = overrides;
         this.interception.handled = true;
-        const postDataBinaryBase64 = postData ? btoa(postData) : undefined;
+        const postDataBinaryBase64 = postData
+            ? stringToBase64(postData)
+            : undefined;
         if (this._interceptionId === undefined) {
             throw new Error('HTTPRequest is missing _interceptionId needed for Fetch.continueRequest');
         }
@@ -15449,7 +16792,7 @@ class CdpHTTPRequest extends HTTPRequest {
         })
             .catch(error => {
             this.interception.handled = false;
-            return handleError(error);
+            return handleError(error, this.#logger);
         });
     }
     async _respond(response) {
@@ -15489,7 +16832,7 @@ class CdpHTTPRequest extends HTTPRequest {
         })
             .catch(error => {
             this.interception.handled = false;
-            return handleError(error);
+            return handleError(error, this.#logger);
         });
     }
     async _abort(errorReason) {
@@ -15502,7 +16845,9 @@ class CdpHTTPRequest extends HTTPRequest {
             requestId: this._interceptionId,
             errorReason: errorReason || 'Failed',
         })
-            .catch(handleError);
+            .catch(error => {
+            return handleError(error, this.#logger);
+        });
     }
 }
 
@@ -15576,25 +16921,46 @@ class SecurityDetails {
 }
 
 /**
+ * @license
+ * Copyright 2025 Google Inc.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+/**
+ * Normalizes HTTP header values by handling multiline values.
+ * Multiline header values are joined with commas according to HTTP/1.1 spec.
+ *
+ * @internal
+ */
+function normalizeHeaderValue(name, value) {
+    if (!value.includes('\n')) {
+        return value;
+    }
+    return value
+        .split('\n')
+        .map(v => {
+        return v.trim();
+    })
+        .filter(Boolean)
+        .join(name === 'set-cookie' ? '\n ' : ', ');
+}
+
+/**
  * @internal
  */
 class CdpHTTPResponse extends HTTPResponse {
-    #client;
     #request;
     #contentPromise = null;
     #bodyLoadedDeferred = Deferred.create();
     #remoteAddress;
     #status;
     #statusText;
-    #url;
     #fromDiskCache;
     #fromServiceWorker;
     #headers = {};
     #securityDetails;
     #timing;
-    constructor(client, request, responsePayload, extraInfo) {
+    constructor(request, responsePayload, extraInfo) {
         super();
-        this.#client = client;
         this.#request = request;
         this.#remoteAddress = {
             ip: responsePayload.remoteIPAddress,
@@ -15603,13 +16969,15 @@ class CdpHTTPResponse extends HTTPResponse {
         this.#statusText =
             this.#parseStatusTextFromExtraInfo(extraInfo) ||
                 responsePayload.statusText;
-        this.#url = request.url();
         this.#fromDiskCache = !!responsePayload.fromDiskCache;
         this.#fromServiceWorker = !!responsePayload.fromServiceWorker;
         this.#status = extraInfo ? extraInfo.statusCode : responsePayload.status;
         const headers = extraInfo ? extraInfo.headers : responsePayload.headers;
         for (const [key, value] of Object.entries(headers)) {
-            this.#headers[key.toLowerCase()] = value;
+            const headerName = key.toLowerCase();
+            // See https://www.rfc-editor.org/rfc/rfc9110.html#name-field-order for
+            // the set-cookie exception.
+            this.#headers[headerName] = normalizeHeaderValue(headerName, value);
         }
         this.#securityDetails = responsePayload.securityDetails
             ? new SecurityDetails(responsePayload.securityDetails)
@@ -15621,7 +16989,7 @@ class CdpHTTPResponse extends HTTPResponse {
             return;
         }
         const firstLine = extraInfo.headersText.split('\r', 1)[0];
-        if (!firstLine) {
+        if (!firstLine || firstLine.length > 1_000) {
             return;
         }
         const match = firstLine.match(/[^ ]* [^ ]* (.*)/);
@@ -15644,7 +17012,7 @@ class CdpHTTPResponse extends HTTPResponse {
         return this.#remoteAddress;
     }
     url() {
-        return this.#url;
+        return this.#request.url();
     }
     status() {
         return this.#status;
@@ -15661,22 +17029,24 @@ class CdpHTTPResponse extends HTTPResponse {
     timing() {
         return this.#timing;
     }
-    buffer() {
+    content() {
         if (!this.#contentPromise) {
             this.#contentPromise = this.#bodyLoadedDeferred
                 .valueOrThrow()
                 .then(async () => {
                 try {
-                    const response = await this.#client.send('Network.getResponseBody', {
+                    // Use CDPSession from corresponding request to retrieve body, as it's client
+                    // might have been updated (e.g. for an adopted OOPIF).
+                    const response = await this.#request.client.send('Network.getResponseBody', {
                         requestId: this.#request.id,
                     });
-                    return Buffer.from(response.body, response.base64Encoded ? 'base64' : 'utf8');
+                    return stringToTypedArray(response.body, response.base64Encoded);
                 }
                 catch (error) {
                     if (error instanceof ProtocolError &&
                         error.originalMessage ===
                             'No resource with given identifier found') {
-                        throw new ProtocolError('Could not load body for this request. This might happen if the request is a preflight request.');
+                        throw new ProtocolError('Could not load response body for this request. This might happen if the request is a preflight request.');
                     }
                     throw error;
                 }
@@ -15744,6 +17114,7 @@ class NetworkEventManager {
     #requestWillBeSentMap = new Map();
     #requestPausedMap = new Map();
     #httpRequestsMap = new Map();
+    #requestWillBeSentExtraInfoMap = new Map();
     /*
      * The below maps are used to reconcile Network.responseReceivedExtraInfo
      * events with their corresponding request. Each response and redirect
@@ -15759,9 +17130,16 @@ class NetworkEventManager {
     forget(networkRequestId) {
         this.#requestWillBeSentMap.delete(networkRequestId);
         this.#requestPausedMap.delete(networkRequestId);
+        this.#requestWillBeSentExtraInfoMap.delete(networkRequestId);
         this.#queuedEventGroupMap.delete(networkRequestId);
         this.#queuedRedirectInfoMap.delete(networkRequestId);
         this.#responseReceivedExtraInfoMap.delete(networkRequestId);
+    }
+    requestExtraInfo(networkRequestId) {
+        if (!this.#requestWillBeSentExtraInfoMap.has(networkRequestId)) {
+            this.#requestWillBeSentExtraInfoMap.set(networkRequestId, []);
+        }
+        return this.#requestWillBeSentExtraInfoMap.get(networkRequestId);
     }
     responseExtraInfo(networkRequestId) {
         if (!this.#responseReceivedExtraInfoMap.has(networkRequestId)) {
@@ -15826,6 +17204,29 @@ class NetworkEventManager {
     forgetQueuedEventGroup(networkRequestId) {
         this.#queuedEventGroupMap.delete(networkRequestId);
     }
+    printState() {
+        function replacer(_key, value) {
+            if (value instanceof Map) {
+                return {
+                    dataType: 'Map',
+                    value: Array.from(value.entries()), // or with spread: value: [...value]
+                };
+            }
+            else if (value instanceof CdpHTTPRequest) {
+                return {
+                    dataType: 'CdpHTTPRequest',
+                    value: `${value.id}: ${value.url()}`,
+                };
+            }
+            {
+                return value;
+            }
+        }
+        console.log('httpRequestsMap', JSON.stringify(this.#httpRequestsMap, replacer, 2));
+        console.log('requestWillBeSentMap', JSON.stringify(this.#requestWillBeSentMap, replacer, 2));
+        console.log('requestWillBeSentMap', JSON.stringify(this.#responseReceivedExtraInfoMap, replacer, 2));
+        console.log('requestWillBeSentMap', JSON.stringify(this.#requestPausedMap, replacer, 2));
+    }
 }
 
 /**
@@ -15843,15 +17244,19 @@ class NetworkManager extends EventEmitter {
     #credentials = null;
     #attemptedAuthentications = new Set();
     #userRequestInterceptionEnabled = false;
-    #protocolRequestInterceptionEnabled = false;
+    #protocolRequestInterceptionEnabled;
     #userCacheDisabled;
     #emulatedNetworkConditions;
     #userAgent;
     #userAgentMetadata;
+    #platform;
+    #acceptLanguage;
+    #userAgentOverrideApplied = false;
     #handlers = [
         ['Fetch.requestPaused', this.#onRequestPaused],
         ['Fetch.authRequired', this.#onAuthRequired],
         ['Network.requestWillBeSent', this.#onRequestWillBeSent],
+        ['Network.requestWillBeSentExtraInfo', this.#onRequestWillBeSentExtraInfo],
         ['Network.requestServedFromCache', this.#onRequestServedFromCache],
         ['Network.responseReceived', this.#onResponseReceived],
         ['Network.loadingFinished', this.#onLoadingFinished],
@@ -15860,12 +17265,22 @@ class NetworkManager extends EventEmitter {
         [CDPSessionEvent.Disconnected, this.#removeClient],
     ];
     #clients = new Map();
-    constructor(frameManager) {
-        super();
+    #networkEnabled;
+    #logger;
+    constructor(frameManager, networkEnabled = true, logger) {
+        super(undefined, logger);
         this.#frameManager = frameManager;
+        this.#networkEnabled = networkEnabled ?? true;
+        this.#logger = logger;
+    }
+    #canIgnoreError(error) {
+        return (isErrorLike(error) &&
+            (isTargetClosedError(error) ||
+                error.message.includes('Not supported') ||
+                error.message.includes("wasn't found")));
     }
     async addClient(client) {
-        if (this.#clients.has(client)) {
+        if (!this.#networkEnabled || this.#clients.has(client)) {
             return;
         }
         const subscriptions = new DisposableStack();
@@ -15876,14 +17291,22 @@ class NetworkManager extends EventEmitter {
                 return handler.bind(this)(client, arg);
             });
         }
-        await Promise.all([
-            client.send('Network.enable'),
-            this.#applyExtraHTTPHeaders(client),
-            this.#applyNetworkConditions(client),
-            this.#applyProtocolCacheDisabled(client),
-            this.#applyProtocolRequestInterception(client),
-            this.#applyUserAgent(client),
-        ]);
+        try {
+            await Promise.all([
+                client.send('Network.enable'),
+                this.#applyExtraHTTPHeaders(client),
+                this.#applyNetworkConditions(client),
+                this.#applyProtocolCacheDisabled(client),
+                this.#applyProtocolRequestInterception(client),
+                this.#applyUserAgent(client),
+            ]);
+        }
+        catch (error) {
+            if (this.#canIgnoreError(error)) {
+                return;
+            }
+            throw error;
+        }
     }
     async #removeClient(client) {
         this.#clients.get(client)?.dispose();
@@ -15911,9 +17334,17 @@ class NetworkManager extends EventEmitter {
         if (this.#extraHTTPHeaders === undefined) {
             return;
         }
-        await client.send('Network.setExtraHTTPHeaders', {
-            headers: this.#extraHTTPHeaders,
-        });
+        try {
+            await client.send('Network.setExtraHTTPHeaders', {
+                headers: this.#extraHTTPHeaders,
+            });
+        }
+        catch (error) {
+            if (this.#canIgnoreError(error)) {
+                return;
+            }
+            throw error;
+        }
     }
     extraHTTPHeaders() {
         return Object.assign({}, this.#extraHTTPHeaders);
@@ -15936,7 +17367,7 @@ class NetworkManager extends EventEmitter {
     async emulateNetworkConditions(networkConditions) {
         if (!this.#emulatedNetworkConditions) {
             this.#emulatedNetworkConditions = {
-                offline: false,
+                offline: networkConditions?.offline ?? false,
                 upload: -1,
                 download: -1,
                 latency: 0,
@@ -15951,6 +17382,8 @@ class NetworkManager extends EventEmitter {
         this.#emulatedNetworkConditions.latency = networkConditions
             ? networkConditions.latency
             : 0;
+        this.#emulatedNetworkConditions.offline =
+            networkConditions?.offline ?? false;
         await this.#applyToAllClients(this.#applyNetworkConditions.bind(this));
     }
     async #applyToAllClients(fn) {
@@ -15962,26 +17395,60 @@ class NetworkManager extends EventEmitter {
         if (this.#emulatedNetworkConditions === undefined) {
             return;
         }
-        await client.send('Network.emulateNetworkConditions', {
-            offline: this.#emulatedNetworkConditions.offline,
-            latency: this.#emulatedNetworkConditions.latency,
-            uploadThroughput: this.#emulatedNetworkConditions.upload,
-            downloadThroughput: this.#emulatedNetworkConditions.download,
-        });
+        try {
+            await client.send('Network.emulateNetworkConditions', {
+                offline: this.#emulatedNetworkConditions.offline,
+                latency: this.#emulatedNetworkConditions.latency,
+                uploadThroughput: this.#emulatedNetworkConditions.upload,
+                downloadThroughput: this.#emulatedNetworkConditions.download,
+            });
+        }
+        catch (error) {
+            if (this.#canIgnoreError(error)) {
+                return;
+            }
+            throw error;
+        }
     }
-    async setUserAgent(userAgent, userAgentMetadata) {
+    async setUserAgent(userAgent, userAgentMetadata, platform) {
         this.#userAgent = userAgent;
         this.#userAgentMetadata = userAgentMetadata;
+        this.#platform = platform;
+        await this.#applyToAllClients(this.#applyUserAgent.bind(this));
+    }
+    async setAcceptLanguage(acceptLanguage) {
+        this.#acceptLanguage = acceptLanguage;
         await this.#applyToAllClients(this.#applyUserAgent.bind(this));
     }
     async #applyUserAgent(client) {
-        if (this.#userAgent === undefined) {
+        const nothingToEmulate = this.#userAgent === undefined &&
+            this.#userAgentMetadata === undefined &&
+            this.#acceptLanguage === undefined &&
+            this.#platform === undefined;
+        // Still need to send once to reset a previously-applied override.
+        if (nothingToEmulate && !this.#userAgentOverrideApplied) {
             return;
         }
-        await client.send('Network.setUserAgentOverride', {
-            userAgent: this.#userAgent,
-            userAgentMetadata: this.#userAgentMetadata,
-        });
+        const userAgent = this.#userAgent ??
+            (await this.#frameManager.page().browser().userAgent());
+        if (userAgent === undefined) {
+            return;
+        }
+        try {
+            await client.send('Network.setUserAgentOverride', {
+                userAgent,
+                acceptLanguage: this.#acceptLanguage,
+                userAgentMetadata: this.#userAgentMetadata,
+                platform: this.#platform,
+            });
+            this.#userAgentOverrideApplied = !nothingToEmulate;
+        }
+        catch (error) {
+            if (this.#canIgnoreError(error)) {
+                return;
+            }
+            throw error;
+        }
     }
     async setCacheEnabled(enabled) {
         this.#userCacheDisabled = !enabled;
@@ -15997,32 +17464,51 @@ class NetworkManager extends EventEmitter {
         await this.#applyToAllClients(this.#applyProtocolRequestInterception.bind(this));
     }
     async #applyProtocolRequestInterception(client) {
+        if (this.#protocolRequestInterceptionEnabled === undefined) {
+            return;
+        }
         if (this.#userCacheDisabled === undefined) {
             this.#userCacheDisabled = false;
         }
-        if (this.#protocolRequestInterceptionEnabled) {
-            await Promise.all([
-                this.#applyProtocolCacheDisabled(client),
-                client.send('Fetch.enable', {
-                    handleAuthRequests: true,
-                    patterns: [{ urlPattern: '*' }],
-                }),
-            ]);
+        try {
+            if (this.#protocolRequestInterceptionEnabled) {
+                await Promise.all([
+                    this.#applyProtocolCacheDisabled(client),
+                    client.send('Fetch.enable', {
+                        handleAuthRequests: true,
+                        patterns: [{ urlPattern: '*' }],
+                    }),
+                ]);
+            }
+            else {
+                await Promise.all([
+                    this.#applyProtocolCacheDisabled(client),
+                    client.send('Fetch.disable'),
+                ]);
+            }
         }
-        else {
-            await Promise.all([
-                this.#applyProtocolCacheDisabled(client),
-                client.send('Fetch.disable'),
-            ]);
+        catch (error) {
+            if (this.#canIgnoreError(error)) {
+                return;
+            }
+            throw error;
         }
     }
     async #applyProtocolCacheDisabled(client) {
         if (this.#userCacheDisabled === undefined) {
             return;
         }
-        await client.send('Network.setCacheDisabled', {
-            cacheDisabled: this.#userCacheDisabled,
-        });
+        try {
+            await client.send('Network.setCacheDisabled', {
+                cacheDisabled: this.#userCacheDisabled,
+            });
+        }
+        catch (error) {
+            if (this.#canIgnoreError(error)) {
+                return;
+            }
+            throw error;
+        }
     }
     #onRequestWillBeSent(client, event) {
         // Request interception doesn't happen for data URLs with Network Service.
@@ -16057,12 +17543,14 @@ class NetworkManager extends EventEmitter {
             username: undefined,
             password: undefined,
         };
-        client
+        void client
             .send('Fetch.continueWithAuth', {
             requestId: event.requestId,
             authChallengeResponse: { response, username, password },
         })
-            .catch(debugError);
+            .catch(err => {
+            this.#logger?.(DEBUG_PREFIXES.error)?.(err);
+        });
     }
     /**
      * CDP may send a Fetch.requestPaused without or before a
@@ -16074,11 +17562,13 @@ class NetworkManager extends EventEmitter {
     #onRequestPaused(client, event) {
         if (!this.#userRequestInterceptionEnabled &&
             this.#protocolRequestInterceptionEnabled) {
-            client
+            void client
                 .send('Fetch.continueRequest', {
                 requestId: event.requestId,
             })
-                .catch(debugError);
+                .catch(err => {
+                this.#logger?.(DEBUG_PREFIXES.error)?.(err);
+            });
         }
         const { networkId: networkRequestId, requestId: fetchRequestId } = event;
         if (!networkRequestId) {
@@ -16117,11 +17607,11 @@ class NetworkManager extends EventEmitter {
         const frame = event.frameId
             ? this.#frameManager.frame(event.frameId)
             : null;
-        const request = new CdpHTTPRequest(client, frame, event.requestId, this.#userRequestInterceptionEnabled, event, []);
+        const request = new CdpHTTPRequest(client, frame, event.requestId, this.#userRequestInterceptionEnabled, event, [], this.#logger);
         this.emit(NetworkManagerEvent.Request, request);
         void request.finalizeInterceptions();
     }
-    #onRequest(client, event, fetchRequestId) {
+    #onRequest(client, event, fetchRequestId, fromMemoryCache = false) {
         let redirectChain = [];
         if (event.redirectResponse) {
             // We want to emit a response and requestfinished for the
@@ -16150,25 +17640,59 @@ class NetworkManager extends EventEmitter {
             if (request) {
                 this.#handleRequestRedirect(client, request, event.redirectResponse, redirectResponseExtraInfo);
                 redirectChain = request._redirectChain;
+                const extraInfo = this.#networkEventManager
+                    .requestExtraInfo(event.requestId)
+                    .shift();
+                if (extraInfo) {
+                    request.updateHeaders(extraInfo.headers);
+                }
             }
         }
         const frame = event.frameId
             ? this.#frameManager.frame(event.frameId)
             : null;
-        const request = new CdpHTTPRequest(client, frame, fetchRequestId, this.#userRequestInterceptionEnabled, event, redirectChain);
+        const request = new CdpHTTPRequest(client, frame, fetchRequestId, this.#userRequestInterceptionEnabled, event, redirectChain, this.#logger);
+        const extraInfo = this.#networkEventManager
+            .requestExtraInfo(event.requestId)
+            .shift();
+        if (extraInfo) {
+            request.updateHeaders(extraInfo.headers);
+        }
+        request._fromMemoryCache = fromMemoryCache;
         this.#networkEventManager.storeRequest(event.requestId, request);
         this.emit(NetworkManagerEvent.Request, request);
         void request.finalizeInterceptions();
     }
-    #onRequestServedFromCache(_client, event) {
+    #onRequestWillBeSentExtraInfo(_client, event) {
         const request = this.#networkEventManager.getRequest(event.requestId);
+        if (request) {
+            request.updateHeaders(event.headers);
+        }
+        else {
+            this.#networkEventManager.requestExtraInfo(event.requestId).push(event);
+        }
+    }
+    #onRequestServedFromCache(client, event) {
+        const requestWillBeSentEvent = this.#networkEventManager.getRequestWillBeSent(event.requestId);
+        let request = this.#networkEventManager.getRequest(event.requestId);
+        // Requests served from memory cannot be intercepted.
         if (request) {
             request._fromMemoryCache = true;
         }
+        // If request ended up being served from cache, we need to convert
+        // requestWillBeSentEvent to a HTTP request.
+        if (!request && requestWillBeSentEvent) {
+            this.#onRequest(client, requestWillBeSentEvent, undefined, true);
+            request = this.#networkEventManager.getRequest(event.requestId);
+        }
+        if (!request) {
+            this.#logger?.(DEBUG_PREFIXES.error)?.(new Error(`Request ${event.requestId} was served from cache but we could not find the corresponding request object`));
+            return;
+        }
         this.emit(NetworkManagerEvent.RequestServedFromCache, request);
     }
-    #handleRequestRedirect(client, request, responsePayload, extraInfo) {
-        const response = new CdpHTTPResponse(client, request, responsePayload, extraInfo);
+    #handleRequestRedirect(_client, request, responsePayload, extraInfo) {
+        const response = new CdpHTTPResponse(request, responsePayload, extraInfo);
         request._response = response;
         request._redirectChain.push(request);
         response._resolveBody(new Error('Response body is unavailable for redirect responses'));
@@ -16176,7 +17700,7 @@ class NetworkManager extends EventEmitter {
         this.emit(NetworkManagerEvent.Response, response);
         this.emit(NetworkManagerEvent.RequestFinished, request);
     }
-    #emitResponseEvent(client, responseReceived, extraInfo) {
+    #emitResponseEvent(_client, responseReceived, extraInfo) {
         const request = this.#networkEventManager.getRequest(responseReceived.requestId);
         // FileUpload sends a response without a matching request.
         if (!request) {
@@ -16184,7 +17708,7 @@ class NetworkManager extends EventEmitter {
         }
         const extraInfos = this.#networkEventManager.responseExtraInfo(responseReceived.requestId);
         if (extraInfos.length) {
-            debugError(new Error('Unexpected extraInfo events for request ' +
+            this.#logger?.(DEBUG_PREFIXES.error)?.(new Error('Unexpected extraInfo events for request ' +
                 responseReceived.requestId));
         }
         // Chromium sends wrong extraInfo events for responses served from cache.
@@ -16193,7 +17717,7 @@ class NetworkManager extends EventEmitter {
         if (responseReceived.response.fromDiskCache) {
             extraInfo = null;
         }
-        const response = new CdpHTTPResponse(client, request, responseReceived.response, extraInfo);
+        const response = new CdpHTTPResponse(request, responseReceived.response, extraInfo);
         request._response = response;
         this.emit(NetworkManagerEvent.Response, response);
     }
@@ -16231,10 +17755,10 @@ class NetworkManager extends EventEmitter {
             this.#networkEventManager.forgetQueuedEventGroup(event.requestId);
             this.#emitResponseEvent(client, queuedEvents.responseReceivedEvent, event);
             if (queuedEvents.loadingFinishedEvent) {
-                this.#emitLoadingFinished(queuedEvents.loadingFinishedEvent);
+                this.#emitLoadingFinished(client, queuedEvents.loadingFinishedEvent);
             }
             if (queuedEvents.loadingFailedEvent) {
-                this.#emitLoadingFailed(queuedEvents.loadingFailedEvent);
+                this.#emitLoadingFailed(client, queuedEvents.loadingFailedEvent);
             }
             return;
         }
@@ -16245,13 +17769,14 @@ class NetworkManager extends EventEmitter {
         const requestId = request.id;
         const interceptionId = request._interceptionId;
         this.#networkEventManager.forgetRequest(requestId);
-        interceptionId !== undefined &&
+        if (interceptionId !== undefined) {
             this.#attemptedAuthentications.delete(interceptionId);
+        }
         if (events) {
             this.#networkEventManager.forget(requestId);
         }
     }
-    #onLoadingFinished(_client, event) {
+    #onLoadingFinished(client, event) {
         // If the response event for this request is still waiting on a
         // corresponding ExtraInfo event, then wait to emit this event too.
         const queuedEvents = this.#networkEventManager.getQueuedEventGroup(event.requestId);
@@ -16259,16 +17784,17 @@ class NetworkManager extends EventEmitter {
             queuedEvents.loadingFinishedEvent = event;
         }
         else {
-            this.#emitLoadingFinished(event);
+            this.#emitLoadingFinished(client, event);
         }
     }
-    #emitLoadingFinished(event) {
+    #emitLoadingFinished(client, event) {
         const request = this.#networkEventManager.getRequest(event.requestId);
         // For certain requestIds we never receive requestWillBeSent event.
         // @see https://crbug.com/750469
         if (!request) {
             return;
         }
+        this.#adoptCdpSessionIfNeeded(client, request);
         // Under certain conditions we never get the Network.responseReceived
         // event from protocol. @see https://crbug.com/883475
         if (request.response()) {
@@ -16277,7 +17803,7 @@ class NetworkManager extends EventEmitter {
         this.#forgetRequest(request, true);
         this.emit(NetworkManagerEvent.RequestFinished, request);
     }
-    #onLoadingFailed(_client, event) {
+    #onLoadingFailed(client, event) {
         // If the response event for this request is still waiting on a
         // corresponding ExtraInfo event, then wait to emit this event too.
         const queuedEvents = this.#networkEventManager.getQueuedEventGroup(event.requestId);
@@ -16285,16 +17811,17 @@ class NetworkManager extends EventEmitter {
             queuedEvents.loadingFailedEvent = event;
         }
         else {
-            this.#emitLoadingFailed(event);
+            this.#emitLoadingFailed(client, event);
         }
     }
-    #emitLoadingFailed(event) {
+    #emitLoadingFailed(client, event) {
         const request = this.#networkEventManager.getRequest(event.requestId);
         // For certain requestIds we never receive requestWillBeSent event.
         // @see https://crbug.com/750469
         if (!request) {
             return;
         }
+        this.#adoptCdpSessionIfNeeded(client, request);
         request._failureText = event.errorText;
         const response = request.response();
         if (response) {
@@ -16303,6 +17830,17 @@ class NetworkManager extends EventEmitter {
         this.#forgetRequest(request, true);
         this.emit(NetworkManagerEvent.RequestFailed, request);
     }
+    #adoptCdpSessionIfNeeded(client, request) {
+        // Document requests for OOPIFs start in the parent frame but are
+        // adopted by their child frame, meaning their loadingFinished and
+        // loadingFailed events are fired on the child session. In this case
+        // we reassign the request CDPSession to ensure all subsequent
+        // actions use the correct session (e.g. retrieving response body in
+        // HTTPResponse). The same applies to main worker script requests.
+        if (client !== request.client) {
+            request.client = client;
+        }
+    }
 }
 
 /**
@@ -16310,7 +17848,59 @@ class NetworkManager extends EventEmitter {
  * Copyright 2017 Google Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
-const TIME_FOR_WAITING_FOR_SWAP = 100; // ms.
+var __addDisposableResource$2 = (undefined && undefined.__addDisposableResource) || function (env, value, async) {
+    if (value !== null && value !== void 0) {
+        if (typeof value !== "object" && typeof value !== "function") throw new TypeError("Object expected.");
+        var dispose, inner;
+        if (async) {
+            if (!Symbol.asyncDispose) throw new TypeError("Symbol.asyncDispose is not defined.");
+            dispose = value[Symbol.asyncDispose];
+        }
+        if (dispose === void 0) {
+            if (!Symbol.dispose) throw new TypeError("Symbol.dispose is not defined.");
+            dispose = value[Symbol.dispose];
+            if (async) inner = dispose;
+        }
+        if (typeof dispose !== "function") throw new TypeError("Object not disposable.");
+        if (inner) dispose = function() { try { inner.call(this); } catch (e) { return Promise.reject(e); } };
+        env.stack.push({ value: value, dispose: dispose, async: async });
+    }
+    else if (async) {
+        env.stack.push({ async: true });
+    }
+    return value;
+};
+var __disposeResources$2 = (undefined && undefined.__disposeResources) || (function (SuppressedError) {
+    return function (env) {
+        function fail(e) {
+            env.error = env.hasError ? new SuppressedError(e, env.error, "An error was suppressed during disposal.") : e;
+            env.hasError = true;
+        }
+        var r, s = 0;
+        function next() {
+            while (r = env.stack.pop()) {
+                try {
+                    if (!r.async && s === 1) return s = 0, env.stack.push(r), Promise.resolve().then(next);
+                    if (r.dispose) {
+                        var result = r.dispose.call(r.value);
+                        if (r.async) return s |= 2, Promise.resolve(result).then(next, function(e) { fail(e); return next(); });
+                    }
+                    else s |= 1;
+                }
+                catch (e) {
+                    fail(e);
+                }
+            }
+            if (s === 1) return env.hasError ? Promise.reject(env.error) : Promise.resolve();
+            if (env.hasError) throw env.error;
+        }
+        return next();
+    };
+})(typeof SuppressedError === "function" ? SuppressedError : function (error, suppressed, message) {
+    var e = new Error(message);
+    return e.name = "SuppressedError", e.error = error, e.suppressed = suppressed, e;
+});
+const CHROME_EXTENSION_PREFIX = 'chrome-extension://';
 /**
  * A frame manager manages the frames for a given {@link Page | page}.
  *
@@ -16333,6 +17923,7 @@ class FrameManager extends EventEmitter {
     #frameNavigatedReceived = new Set();
     #deviceRequestPromptManagerMap = new WeakMap();
     #frameTreeHandled;
+    #logger;
     get timeoutSettings() {
         return this.#timeoutSettings;
     }
@@ -16342,15 +17933,18 @@ class FrameManager extends EventEmitter {
     get client() {
         return this.#client;
     }
-    constructor(client, page, timeoutSettings) {
-        super();
+    constructor(client, page, timeoutSettings, logger) {
+        super(undefined, logger);
         this.#client = client;
         this.#page = page;
-        this.#networkManager = new NetworkManager(this);
+        this.#networkManager = new NetworkManager(this, page.browser().isNetworkEnabled(), logger);
         this.#timeoutSettings = timeoutSettings;
+        this.#logger = logger;
         this.setupEventListeners(this.#client);
         client.once(CDPSessionEvent.Disconnected, () => {
-            this.#onClientDisconnect().catch(debugError);
+            void this.#onClientDisconnect(client).catch(error => {
+                this.#logger?.(DEBUG_PREFIXES.error)?.(error);
+            });
         });
     }
     /**
@@ -16358,26 +17952,50 @@ class FrameManager extends EventEmitter {
      * disconnect means that the frame is removed or if it will be replaced by a
      * new frame. Therefore, we wait for a swap event.
      */
-    async #onClientDisconnect() {
-        const mainFrame = this._frameTree.getMainFrame();
-        if (!mainFrame) {
-            return;
-        }
-        for (const child of mainFrame.childFrames()) {
-            this.#removeFramesRecursively(child);
-        }
-        const swapped = Deferred.create({
-            timeout: TIME_FOR_WAITING_FOR_SWAP,
-            message: 'Frame was not swapped',
-        });
-        mainFrame.once(FrameEvent.FrameSwappedByActivation, () => {
-            swapped.resolve();
-        });
+    async #onClientDisconnect(client) {
+        const env_1 = { stack: [], error: void 0, hasError: false };
         try {
-            await swapped.valueOrThrow();
+            const mainFrame = this._frameTree.getMainFrame();
+            if (!mainFrame) {
+                return;
+            }
+            // If the disconnected client is not the current one, it means a swap
+            // has already happened.
+            if (this.#client !== client) {
+                return;
+            }
+            if (!this.#page.browser().connected || this.#page.isClosed()) {
+                // If the browser is not connected or the page is closed, we know
+                // that activation will not happen.
+                this.#removeFramesRecursively(mainFrame);
+                return;
+            }
+            for (const child of mainFrame.childFrames()) {
+                this.#removeFramesRecursively(child);
+            }
+            const swapped = Deferred.create();
+            const subscriptions = __addDisposableResource$2(env_1, new DisposableStack(), false);
+            const frameEmitter = subscriptions.use(new EventEmitter(mainFrame));
+            const pageEmitter = subscriptions.use(new EventEmitter(this.#page));
+            frameEmitter.once(FrameEvent.FrameSwappedByActivation, () => {
+                swapped.resolve();
+            });
+            pageEmitter.once("close" /* PageEvent.Close */, () => {
+                swapped.reject(new Error('Page closed'));
+            });
+            try {
+                await swapped.valueOrThrow();
+            }
+            catch {
+                this.#removeFramesRecursively(mainFrame);
+            }
         }
-        catch (err) {
-            this.#removeFramesRecursively(mainFrame);
+        catch (e_1) {
+            env_1.error = e_1;
+            env_1.hasError = true;
+        }
+        finally {
+            __disposeResources$2(env_1);
         }
     }
     /**
@@ -16387,18 +18005,19 @@ class FrameManager extends EventEmitter {
      */
     async swapFrameTree(client) {
         this.#client = client;
-        assert(this.#client instanceof CdpCDPSession, 'CDPSession is not an instance of CDPSessionImpl.');
         const frame = this._frameTree.getMainFrame();
         if (frame) {
-            this.#frameNavigatedReceived.add(this.#client._target()._targetId);
+            this.#frameNavigatedReceived.add(this.#client.target()._targetId);
             this._frameTree.removeFrame(frame);
-            frame.updateId(this.#client._target()._targetId);
+            frame.updateId(this.#client.target()._targetId);
             this._frameTree.addFrame(frame);
             frame.updateClient(client);
         }
         this.setupEventListeners(client);
         client.once(CDPSessionEvent.Disconnected, () => {
-            this.#onClientDisconnect().catch(debugError);
+            void this.#onClientDisconnect(client).catch(error => {
+                this.#logger?.(DEBUG_PREFIXES.error)?.(error);
+            });
         });
         await this.initialize(client, frame);
         await this.#networkManager.addClient(client);
@@ -16443,13 +18062,16 @@ class FrameManager extends EventEmitter {
             await this.#frameTreeHandled?.valueOrThrow();
             this.#onLifecycleEvent(event);
         });
+        session.on('Audits.issueAdded', event => {
+            this.#page.emit("issue" /* PageEvent.Issue */, new CdpIssue(event.issue));
+        });
     }
     async initialize(client, frame) {
         try {
             this.#frameTreeHandled?.resolve();
             this.#frameTreeHandled = Deferred.create();
             // We need to schedule all these commands while the target is paused,
-            // therefore, it needs to happen synchroniously. At the same time we
+            // therefore, it needs to happen synchronously. At the same time we
             // should not start processing execution context and frame events before
             // we received the initial information about the frame tree.
             await Promise.all([
@@ -16471,6 +18093,7 @@ class FrameManager extends EventEmitter {
                 ...(frame ? Array.from(this.#bindings.values()) : []).map(binding => {
                     return frame?.addExposedFunctionBinding(binding);
                 }),
+                this.#page.browser().isIssuesEnabled() && client.send('Audits.enable'),
             ]);
         }
         catch (error) {
@@ -16496,17 +18119,32 @@ class FrameManager extends EventEmitter {
     frame(frameId) {
         return this._frameTree.getById(frameId) || null;
     }
+    async #forEachFrame(action) {
+        await Promise.all(this.frames().map(async (frame) => {
+            try {
+                await action(frame);
+            }
+            catch (error) {
+                // Only an out-of-process frame has a session of its own to lose.
+                if (frame._client() === this.#client ||
+                    !isErrorLike(error) ||
+                    !isTargetClosedError(error)) {
+                    throw error;
+                }
+            }
+        }));
+    }
     async addExposedFunctionBinding(binding) {
         this.#bindings.add(binding);
-        await Promise.all(this.frames().map(async (frame) => {
-            return await frame.addExposedFunctionBinding(binding);
-        }));
+        await this.#forEachFrame(frame => {
+            return frame.addExposedFunctionBinding(binding);
+        });
     }
     async removeExposedFunctionBinding(binding) {
         this.#bindings.delete(binding);
-        await Promise.all(this.frames().map(async (frame) => {
-            return await frame.removeExposedFunctionBinding(binding);
-        }));
+        await this.#forEachFrame(frame => {
+            return frame.removeExposedFunctionBinding(binding);
+        });
     }
     async evaluateOnNewDocument(source) {
         const { identifier } = await this.mainFrame()
@@ -16516,9 +18154,9 @@ class FrameManager extends EventEmitter {
         });
         const preloadScript = new CdpPreloadScript(this.mainFrame(), identifier, source);
         this.#scriptsToEvaluateOnNewDocument.set(identifier, preloadScript);
-        await Promise.all(this.frames().map(async (frame) => {
-            return await frame.addPreloadScript(preloadScript);
-        }));
+        await this.#forEachFrame(frame => {
+            return frame.addPreloadScript(preloadScript);
+        });
         return { identifier };
     }
     async removeScriptToEvaluateOnNewDocument(identifier) {
@@ -16537,7 +18175,9 @@ class FrameManager extends EventEmitter {
                 .send('Page.removeScriptToEvaluateOnNewDocument', {
                 identifier,
             })
-                .catch(debugError);
+                .catch(error => {
+                this.#logger?.(DEBUG_PREFIXES.error)?.(error);
+            });
         }));
     }
     onAttachedToTarget(target) {
@@ -16549,12 +18189,14 @@ class FrameManager extends EventEmitter {
             frame.updateClient(target._session());
         }
         this.setupEventListeners(target._session());
-        void this.initialize(target._session(), frame);
+        void this.initialize(target._session(), frame).catch(error => {
+            this.#logger?.(DEBUG_PREFIXES.error)?.(error);
+        });
     }
     _deviceRequestPromptManager(client) {
         let manager = this.#deviceRequestPromptManagerMap.get(client);
         if (manager === undefined) {
-            manager = new DeviceRequestPromptManager(client, this.#timeoutSettings);
+            manager = new CdpDeviceRequestPromptManager(client, this.#timeoutSettings);
             this.#deviceRequestPromptManagerMap.set(client, manager);
         }
         return manager;
@@ -16604,15 +18246,16 @@ class FrameManager extends EventEmitter {
     #onFrameAttached(session, frameId, parentFrameId) {
         let frame = this.frame(frameId);
         if (frame) {
-            if (session && frame.isOOPFrame()) {
-                // If an OOP iframes becomes a normal iframe again
-                // it is first attached to the parent page before
-                // the target is removed.
+            const parentFrame = this.frame(parentFrameId);
+            if (session && parentFrame && frame.client !== parentFrame?.client) {
+                // If an OOP iframes becomes a normal iframe
+                // again it is first attached to the parent frame before the
+                // target is removed.
                 frame.updateClient(session);
             }
             return;
         }
-        frame = new CdpFrame(this, frameId, parentFrameId, session);
+        frame = new CdpFrame(this, frameId, parentFrameId, session, this.#logger);
         this._frameTree.addFrame(frame);
         this.emit(FrameManagerEvent.FrameAttached, frame);
     }
@@ -16635,7 +18278,7 @@ class FrameManager extends EventEmitter {
             }
             else {
                 // Initial main frame navigation.
-                frame = new CdpFrame(this, frameId, undefined, this.#client);
+                frame = new CdpFrame(this, frameId, undefined, this.#client, this.#logger);
             }
             this._frameTree.addFrame(frame);
         }
@@ -16666,7 +18309,9 @@ class FrameManager extends EventEmitter {
                 worldName: name,
                 grantUniveralAccess: true,
             })
-                .catch(debugError);
+                .catch(error => {
+                this.#logger?.(DEBUG_PREFIXES.error)?.(error);
+            });
         }));
         this.#isolatedWorlds.add(key);
     }
@@ -16699,8 +18344,22 @@ class FrameManager extends EventEmitter {
                 break;
         }
     }
+    #isExtensionOrigin(origin) {
+        return origin.startsWith(CHROME_EXTENSION_PREFIX);
+    }
+    #extractExtensionId(origin) {
+        if (!origin || !this.#isExtensionOrigin(origin)) {
+            return null;
+        }
+        const pathPart = origin.substring(CHROME_EXTENSION_PREFIX.length);
+        const slashIndex = pathPart.indexOf('/');
+        // if there's no / it means that pathPart is now the extensionId, otherwise
+        // we take everything until the first /
+        return slashIndex === -1 ? pathPart : pathPart.substring(0, slashIndex);
+    }
     #onExecutionContextCreated(contextPayload, session) {
         const auxData = contextPayload.auxData;
+        const origin = contextPayload.origin;
         const frameId = auxData && auxData.frameId;
         const frame = typeof frameId === 'string' ? this.frame(frameId) : undefined;
         let world;
@@ -16718,22 +18377,41 @@ class FrameManager extends EventEmitter {
                 // We can use either.
                 world = frame.worlds[PUPPETEER_WORLD];
             }
+            else if (this.#isExtensionOrigin(origin)) {
+                const extId = this.#extractExtensionId(origin);
+                if (!extId) {
+                    this.#logger?.(DEBUG_PREFIXES.error)?.('Error while parsing extension id');
+                    return;
+                }
+                if (frame.extensionWorlds[extId]) {
+                    world = frame.extensionWorlds[extId];
+                }
+                else {
+                    world = new IsolatedWorld(frame, this.timeoutSettings, extId, this.#logger);
+                    frame.extensionWorlds[extId] = world;
+                    frame.registerWorldListeners(world);
+                    world.origin = origin;
+                    world.setWorldId(extId);
+                }
+            }
         }
         // If there is no world, the context is not meant to be handled by us.
         if (!world) {
             return;
         }
-        const context = new ExecutionContext(frame?.client || this.#client, contextPayload, world);
+        const context = new ExecutionContext(frame?.client || this.#client, contextPayload, world, this.#logger);
         world.setContext(context);
     }
     #removeFramesRecursively(frame) {
         for (const child of frame.childFrames()) {
             this.#removeFramesRecursively(child);
         }
-        frame[disposeSymbol]();
         this._frameTree.removeFrame(frame);
         this.emit(FrameManagerEvent.FrameDetached, frame);
         frame.emit(FrameEvent.FrameDetached, frame);
+        // Needs to be last to ensure events
+        // sent before handlers are cleared.
+        frame[disposeSymbol]();
     }
 }
 
@@ -17335,7 +19013,7 @@ class CdpMouse extends Mouse {
     get #state() {
         return Object.assign({ ...this.#_state }, ...this.#transactions);
     }
-    // Transactions can run in parallel, so we store each of thme in this array.
+    // Transactions can run in parallel, so we store each of them in this array.
     #transactions = [];
     #createTransaction() {
         const transaction = {};
@@ -17459,17 +19137,15 @@ class CdpMouse extends Mouse {
         });
     }
     async click(x, y, options = {}) {
-        const { delay, count = 1, clickCount = count } = options;
+        const { delay, count = 1 } = options;
         if (count < 1) {
             throw new Error('Click must occur a positive number of times.');
         }
         const actions = [this.move(x, y)];
-        if (clickCount === count) {
-            for (let i = 1; i < count; ++i) {
-                actions.push(this.down({ ...options, clickCount: i }), this.up({ ...options, clickCount: i }));
-            }
+        for (let i = 1; i < count; ++i) {
+            actions.push(this.down({ ...options, clickCount: i }), this.up({ ...options, clickCount: i }));
         }
-        actions.push(this.down({ ...options, clickCount }));
+        actions.push(this.down({ ...options, clickCount: count }));
         if (typeof delay === 'number') {
             await Promise.all(actions);
             actions.length = 0;
@@ -17477,7 +19153,7 @@ class CdpMouse extends Mouse {
                 setTimeout(resolve, delay);
             });
         }
-        actions.push(this.up({ ...options, clickCount }));
+        actions.push(this.up({ ...options, clickCount: count }));
         await Promise.all(actions);
     }
     async wheel(options = {}) {
@@ -17548,6 +19224,53 @@ class CdpMouse extends Mouse {
 /**
  * @internal
  */
+class CdpTouchHandle {
+    #started = false;
+    #touchScreen;
+    #touchPoint;
+    #client;
+    #keyboard;
+    constructor(client, touchScreen, keyboard, touchPoint) {
+        this.#client = client;
+        this.#touchScreen = touchScreen;
+        this.#keyboard = keyboard;
+        this.#touchPoint = touchPoint;
+    }
+    updateClient(client) {
+        this.#client = client;
+    }
+    async start() {
+        if (this.#started) {
+            throw new TouchError('Touch has already started');
+        }
+        await this.#client.send('Input.dispatchTouchEvent', {
+            type: 'touchStart',
+            touchPoints: [this.#touchPoint],
+            modifiers: this.#keyboard._modifiers,
+        });
+        this.#started = true;
+    }
+    move(x, y) {
+        this.#touchPoint.x = Math.round(x);
+        this.#touchPoint.y = Math.round(y);
+        return this.#client.send('Input.dispatchTouchEvent', {
+            type: 'touchMove',
+            touchPoints: [this.#touchPoint],
+            modifiers: this.#keyboard._modifiers,
+        });
+    }
+    async end() {
+        await this.#client.send('Input.dispatchTouchEvent', {
+            type: 'touchEnd',
+            touchPoints: [this.#touchPoint],
+            modifiers: this.#keyboard._modifiers,
+        });
+        this.#touchScreen.removeHandle(this);
+    }
+}
+/**
+ * @internal
+ */
 class CdpTouchscreen extends Touchscreen {
     #client;
     #keyboard;
@@ -17558,43 +19281,24 @@ class CdpTouchscreen extends Touchscreen {
     }
     updateClient(client) {
         this.#client = client;
+        this.touches.forEach(t => {
+            t.updateClient(client);
+        });
     }
     async touchStart(x, y) {
-        await this.#client.send('Input.dispatchTouchEvent', {
-            type: 'touchStart',
-            touchPoints: [
-                {
-                    x: Math.round(x),
-                    y: Math.round(y),
-                    radiusX: 0.5,
-                    radiusY: 0.5,
-                    force: 0.5,
-                },
-            ],
-            modifiers: this.#keyboard._modifiers,
-        });
-    }
-    async touchMove(x, y) {
-        await this.#client.send('Input.dispatchTouchEvent', {
-            type: 'touchMove',
-            touchPoints: [
-                {
-                    x: Math.round(x),
-                    y: Math.round(y),
-                    radiusX: 0.5,
-                    radiusY: 0.5,
-                    force: 0.5,
-                },
-            ],
-            modifiers: this.#keyboard._modifiers,
-        });
-    }
-    async touchEnd() {
-        await this.#client.send('Input.dispatchTouchEvent', {
-            type: 'touchEnd',
-            touchPoints: [],
-            modifiers: this.#keyboard._modifiers,
-        });
+        const id = this.idGenerator();
+        const touchPoint = {
+            x: Math.round(x),
+            y: Math.round(y),
+            radiusX: 0.5,
+            radiusY: 0.5,
+            force: 0.5,
+            id,
+        };
+        const touch = new CdpTouchHandle(this.#client, this, this.#keyboard, touchPoint);
+        await touch.start();
+        this.touches.push(touch);
+        return touch;
     }
 }
 
@@ -17618,11 +19322,13 @@ class Tracing {
     #client;
     #recording = false;
     #path;
+    #logger;
     /**
      * @internal
      */
-    constructor(client) {
+    constructor(client, logger) {
         this.#client = client;
+        this.#logger = logger;
     }
     /**
      * @internal
@@ -17652,7 +19358,7 @@ class Tracing {
             'disabled-by-default-devtools.timeline.stack',
             'disabled-by-default-v8.cpu_profiler',
         ];
-        const { path, screenshots = false, categories = defaultCategories } = options;
+        const { path, screenshots = false, categories = defaultCategories, bufferSize, } = options;
         if (screenshots) {
             categories.push('disabled-by-default-devtools.screenshot');
         }
@@ -17673,6 +19379,7 @@ class Tracing {
             traceConfig: {
                 excludedCategories,
                 includedCategories,
+                traceBufferSizeInKb: bufferSize,
             },
         });
     }
@@ -17686,8 +19393,8 @@ class Tracing {
             try {
                 assert(event.stream, 'Missing "stream"');
                 const readable = await getReadableFromProtocolStream(this.#client, event.stream);
-                const buffer = await getReadableAsBuffer(readable, this.#path);
-                contentDeferred.resolve(buffer ?? undefined);
+                const typedArray = await getReadableAsTypedArray(readable, this.#path, this.#logger);
+                contentDeferred.resolve(typedArray ?? undefined);
             }
             catch (error) {
                 if (isErrorLike(error)) {
@@ -17705,64 +19412,281 @@ class Tracing {
 }
 
 /**
- * @internal
+ * @license
+ * Copyright 2026 Google Inc.
+ * SPDX-License-Identifier: Apache-2.0
  */
-class CdpWebWorker extends WebWorker {
-    #world;
-    #client;
-    #id;
-    #targetType;
-    constructor(client, url, targetId, targetType, consoleAPICalled, exceptionThrown) {
-        super(url);
-        this.#id = targetId;
-        this.#client = client;
-        this.#targetType = targetType;
-        this.#world = new IsolatedWorld(this, new TimeoutSettings());
-        this.#client.once('Runtime.executionContextCreated', async (event) => {
-            this.#world.setContext(new ExecutionContext(client, event.context, this.#world));
-        });
-        this.#world.emitter.on('consoleapicalled', async (event) => {
-            try {
-                return consoleAPICalled(event.type, event.args.map((object) => {
-                    return new CdpJSHandle(this.#world, object);
-                }), event.stackTrace);
-            }
-            catch (err) {
-                debugError(err);
-            }
-        });
-        this.#client.on('Runtime.exceptionThrown', exceptionThrown);
-        this.#client.once(CDPSessionEvent.Disconnected, () => {
-            this.#world.dispose();
-        });
-        // This might fail if the target is closed before we receive all execution contexts.
-        this.#client.send('Runtime.enable').catch(debugError);
-    }
-    mainRealm() {
-        return this.#world;
-    }
-    get client() {
-        return this.#client;
-    }
-    async close() {
-        switch (this.#targetType) {
-            case TargetType.SERVICE_WORKER:
-            case TargetType.SHARED_WORKER: {
-                // For service and shared workers we need to close the target and detach to allow
-                // the worker to stop.
-                await this.client.connection()?.send('Target.closeTarget', {
-                    targetId: this.#id,
-                });
-                await this.client.connection()?.send('Target.detachFromTarget', {
-                    sessionId: this.client.id(),
-                });
-                break;
-            }
-            default:
-                await this.evaluate(() => {
-                    self.close();
-                });
+/**
+ * Represents a registered WebMCP tool available on the page.
+ *
+ * @public
+ */
+class WebMCPTool extends EventEmitter {
+    #webmcp;
+    #backendNodeId;
+    #formElement;
+    /**
+     * Tool name.
+     */
+    name;
+    /**
+     * Tool description.
+     */
+    description;
+    /**
+     * Schema for the tool's input parameters.
+     */
+    inputSchema;
+    /**
+     * Optional annotations for the tool.
+     */
+    annotations;
+    /**
+     * Frame the tool was defined for.
+     */
+    frame;
+    /**
+     * Source location that defined the tool (if available).
+     */
+    location;
+    /**
+     * @internal
+     */
+    rawStackTrace;
+    /**
+     * @internal
+     */
+    constructor(webmcp, tool, frame) {
+        super();
+        this.#webmcp = webmcp;
+        this.name = tool.name;
+        this.description = tool.description;
+        this.inputSchema = tool.inputSchema;
+        this.annotations = tool.annotations;
+        this.frame = frame;
+        this.#backendNodeId = tool.backendNodeId;
+        if (tool.stackTrace?.callFrames.length) {
+            this.location = {
+                url: tool.stackTrace.callFrames[0].url,
+                lineNumber: tool.stackTrace.callFrames[0].lineNumber,
+                columnNumber: tool.stackTrace.callFrames[0].columnNumber,
+            };
         }
+        this.rawStackTrace = tool.stackTrace;
+    }
+    /**
+     * The corresponding ElementHandle when tool was registered via a form.
+     */
+    get formElement() {
+        return (async () => {
+            if (this.#formElement && !this.#formElement.disposed) {
+                return this.#formElement;
+            }
+            if (!this.#backendNodeId) {
+                return undefined;
+            }
+            this.#formElement = (await this.frame.worlds[MAIN_WORLD].adoptBackendNode(this.#backendNodeId));
+            return this.#formElement;
+        })();
+    }
+    /**
+     * Executes tool with input parameters, matching tool's `inputSchema`.
+     */
+    async execute(input = {}) {
+        const { invocationId } = await this.#webmcp.invokeTool(this, input);
+        return await new Promise(resolve => {
+            const handler = (event) => {
+                if (event.id === invocationId) {
+                    this.#webmcp.off('toolresponded', handler);
+                    resolve(event);
+                }
+            };
+            this.#webmcp.on('toolresponded', handler);
+        });
+    }
+}
+/**
+ * @public
+ */
+class WebMCPToolCall {
+    /**
+     * Tool invocation identifier.
+     */
+    id;
+    /**
+     * Tool that was called.
+     */
+    tool;
+    /**
+     * The input parameters used for the call.
+     */
+    input;
+    #logger;
+    /**
+     * @internal
+     */
+    constructor(invocationId, tool, input, logger) {
+        this.id = invocationId;
+        this.tool = tool;
+        this.#logger = logger;
+        try {
+            this.input = JSON.parse(input);
+        }
+        catch (error) {
+            this.input = {};
+            this.#logger?.(DEBUG_PREFIXES.error)?.(error);
+        }
+    }
+}
+/**
+ * The experimental WebMCP class provides an API for the WebMCP API.
+ *
+ * See the
+ * {@link https://pptr.dev/guides/webmcp|WebMCP guide}
+ * for more details.
+ *
+ * @example
+ *
+ * ```ts
+ * await page.goto('https://www.example.com');
+ * const tools = page.webmcp.tools();
+ * for (const tool of tools) {
+ *   console.log(`Tool found: ${tool.name} - ${tool.description}`);
+ * }
+ * ```
+ *
+ * @experimental
+ * @public
+ */
+class WebMCP extends EventEmitter {
+    #client;
+    #frameManager;
+    #tools = new Map();
+    #pendingCalls = new Map();
+    #logger;
+    #subscriptions = new DisposableStack();
+    #onToolsAdded = (event) => {
+        const tools = [];
+        for (const tool of event.tools) {
+            const frame = this.#frameManager.frame(tool.frameId);
+            if (!frame) {
+                continue;
+            }
+            const frameTools = this.#tools.get(tool.frameId) ?? new Map();
+            if (!this.#tools.has(tool.frameId)) {
+                this.#tools.set(tool.frameId, frameTools);
+                this.#listenToContextDestroyed(frame);
+            }
+            const addedTool = new WebMCPTool(this, tool, frame);
+            frameTools.set(tool.name, addedTool);
+            tools.push(addedTool);
+        }
+        this.emit('toolsadded', { tools });
+    };
+    #onToolsRemoved = (event) => {
+        const tools = [];
+        event.tools.forEach(tool => {
+            const removedTool = this.#tools.get(tool.frameId)?.get(tool.name);
+            if (removedTool) {
+                tools.push(removedTool);
+            }
+            this.#tools.get(tool.frameId)?.delete(tool.name);
+        });
+        this.emit('toolsremoved', { tools });
+    };
+    #onToolInvoked = (event) => {
+        const tool = this.#tools.get(event.frameId)?.get(event.toolName);
+        if (!tool) {
+            return;
+        }
+        const call = new WebMCPToolCall(event.invocationId, tool, event.input, this.#logger);
+        this.#pendingCalls.set(call.id, call);
+        tool.emit('toolinvoked', call);
+        this.emit('toolinvoked', call);
+    };
+    #onToolResponded = (event) => {
+        const call = this.#pendingCalls.get(event.invocationId);
+        if (call) {
+            this.#pendingCalls.delete(event.invocationId);
+        }
+        const response = {
+            id: event.invocationId,
+            call: call,
+            status: event.status,
+            output: event.output,
+            errorText: event.errorText,
+            exception: event.exception,
+        };
+        this.emit('toolresponded', response);
+    };
+    #onContextDisposed = (frame) => {
+        this.#pendingCalls.clear();
+        const frameTools = this.#tools.get(frame._id);
+        if (!frameTools) {
+            return;
+        }
+        const tools = Array.from(frameTools.values());
+        this.#tools.delete(frame._id);
+        if (tools.length) {
+            this.emit('toolsremoved', { tools });
+        }
+    };
+    #listenToContextDestroyed(frame) {
+        frame.mainRealm().context?.once('disposed', () => {
+            this.#onContextDisposed(frame);
+        });
+    }
+    /**
+     * @internal
+     */
+    constructor(client, frameManager, logger) {
+        super(undefined, logger);
+        this.#client = client;
+        this.#frameManager = frameManager;
+        this.#logger = logger;
+        this.#bindListeners();
+    }
+    /**
+     * @internal
+     */
+    async initialize() {
+        return await this.#client.send('WebMCP.enable').catch(err => {
+            this.#logger?.(DEBUG_PREFIXES.error)?.(err);
+        });
+    }
+    /**
+     * @internal
+     */
+    async invokeTool(tool, input) {
+        return await this.#client.send('WebMCP.invokeTool', {
+            frameId: tool.frame._id,
+            toolName: tool.name,
+            input,
+        });
+    }
+    /**
+     * Gets all WebMCP tools defined by the page.
+     */
+    tools() {
+        return Array.from(this.#tools.values()).flatMap(toolMap => {
+            return Array.from(toolMap.values());
+        });
+    }
+    #bindListeners() {
+        const clientEmitter = this.#subscriptions.use(new EventEmitter(this.#client));
+        clientEmitter.on('WebMCP.toolsAdded', this.#onToolsAdded);
+        clientEmitter.on('WebMCP.toolsRemoved', this.#onToolsRemoved);
+        clientEmitter.on('WebMCP.toolInvoked', this.#onToolInvoked);
+        clientEmitter.on('WebMCP.toolResponded', this.#onToolResponded);
+    }
+    /**
+     * @internal
+     */
+    updateClient(client) {
+        this.#subscriptions.dispose();
+        this.#subscriptions = new DisposableStack();
+        this.#client = client;
+        this.#bindListeners();
     }
 }
 
@@ -17771,10 +19695,10 @@ class CdpWebWorker extends WebWorker {
  * Copyright 2017 Google Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
-var __addDisposableResource = (undefined && undefined.__addDisposableResource) || function (env, value, async) {
+var __addDisposableResource$1 = (undefined && undefined.__addDisposableResource) || function (env, value, async) {
     if (value !== null && value !== void 0) {
         if (typeof value !== "object" && typeof value !== "function") throw new TypeError("Object expected.");
-        var dispose;
+        var dispose, inner;
         if (async) {
             if (!Symbol.asyncDispose) throw new TypeError("Symbol.asyncDispose is not defined.");
             dispose = value[Symbol.asyncDispose];
@@ -17782,8 +19706,10 @@ var __addDisposableResource = (undefined && undefined.__addDisposableResource) |
         if (dispose === void 0) {
             if (!Symbol.dispose) throw new TypeError("Symbol.dispose is not defined.");
             dispose = value[Symbol.dispose];
+            if (async) inner = dispose;
         }
         if (typeof dispose !== "function") throw new TypeError("Object not disposable.");
+        if (inner) dispose = function() { try { inner.call(this); } catch (e) { return Promise.reject(e); } };
         env.stack.push({ value: value, dispose: dispose, async: async });
     }
     else if (async) {
@@ -17791,23 +19717,28 @@ var __addDisposableResource = (undefined && undefined.__addDisposableResource) |
     }
     return value;
 };
-var __disposeResources = (undefined && undefined.__disposeResources) || (function (SuppressedError) {
+var __disposeResources$1 = (undefined && undefined.__disposeResources) || (function (SuppressedError) {
     return function (env) {
         function fail(e) {
             env.error = env.hasError ? new SuppressedError(e, env.error, "An error was suppressed during disposal.") : e;
             env.hasError = true;
         }
+        var r, s = 0;
         function next() {
-            while (env.stack.length) {
-                var rec = env.stack.pop();
+            while (r = env.stack.pop()) {
                 try {
-                    var result = rec.dispose && rec.dispose.call(rec.value);
-                    if (rec.async) return Promise.resolve(result).then(next, function(e) { fail(e); return next(); });
+                    if (!r.async && s === 1) return s = 0, env.stack.push(r), Promise.resolve().then(next);
+                    if (r.dispose) {
+                        var result = r.dispose.call(r.value);
+                        if (r.async) return s |= 2, Promise.resolve(result).then(next, function(e) { fail(e); return next(); });
+                    }
+                    else s |= 1;
                 }
                 catch (e) {
                     fail(e);
                 }
             }
+            if (s === 1) return env.hasError ? Promise.reject(env.error) : Promise.resolve();
             if (env.hasError) throw env.error;
         }
         return next();
@@ -17816,20 +19747,25 @@ var __disposeResources = (undefined && undefined.__disposeResources) || (functio
     var e = new Error(message);
     return e.name = "SuppressedError", e.error = error, e.suppressed = suppressed, e;
 });
-function convertConsoleMessageLevel(method) {
-    switch (method) {
-        case 'warning':
-            return 'warn';
+/**
+ * @internal
+ */
+function convertSameSiteFromPuppeteerToCdp(sameSite) {
+    switch (sameSite) {
+        case 'Strict':
+        case 'Lax':
+        case 'None':
+            return sameSite;
         default:
-            return method;
+            return undefined;
     }
 }
 /**
  * @internal
  */
 class CdpPage extends Page {
-    static async _create(client, target, defaultViewport) {
-        const page = new CdpPage(client, target);
+    static async _create(client, target, defaultViewport, logger) {
+        const page = new CdpPage(client, target, logger);
         await page.#initialize();
         if (defaultViewport) {
             try {
@@ -17837,7 +19773,7 @@ class CdpPage extends Page {
             }
             catch (err) {
                 if (isErrorLike(err) && isTargetClosedError(err)) {
-                    debugError(err);
+                    page.logger?.(DEBUG_PREFIXES.error)?.(err);
                 }
                 else {
                     throw err;
@@ -17848,6 +19784,7 @@ class CdpPage extends Page {
     }
     #closed = false;
     #targetManager;
+    #cdpBluetoothEmulation;
     #primaryTargetClient;
     #primaryTarget;
     #tabTargetClient;
@@ -17858,6 +19795,7 @@ class CdpPage extends Page {
     #frameManager;
     #emulationManager;
     #tracing;
+    #webmcp;
     #bindings = new Map();
     #exposedFunctions = new Map();
     #coverage;
@@ -17867,23 +19805,28 @@ class CdpPage extends Page {
     #sessionCloseDeferred = Deferred.create();
     #serviceWorkerBypassed = false;
     #userDragInterceptionEnabled = false;
-    constructor(client, target) {
-        super();
+    constructor(client, target, logger) {
+        super(logger);
         this.#primaryTargetClient = client;
         this.#tabTargetClient = client.parentSession();
         assert(this.#tabTargetClient, 'Tab target session is not defined.');
-        this.#tabTarget = this.#tabTargetClient._target();
+        this.#tabTarget = this.#tabTargetClient.target();
         assert(this.#tabTarget, 'Tab target is not defined.');
+        this._tabId = this.#tabTarget._getTargetInfo().targetId;
         this.#primaryTarget = target;
         this.#targetManager = target._targetManager();
         this.#keyboard = new CdpKeyboard(client);
         this.#mouse = new CdpMouse(client, this.#keyboard);
         this.#touchscreen = new CdpTouchscreen(client, this.#keyboard);
-        this.#frameManager = new FrameManager(client, this, this._timeoutSettings);
-        this.#emulationManager = new EmulationManager(client);
-        this.#tracing = new Tracing(client);
+        this.#frameManager = new FrameManager(client, this, this._timeoutSettings, logger);
+        this.#emulationManager = new EmulationManager(client, this.logger);
+        this.#tracing = new Tracing(client, this.logger);
+        this.#webmcp = new WebMCP(client, this.#frameManager, logger);
         this.#coverage = new Coverage(client);
         this.#viewport = null;
+        // Use browser context's connection, as current Bluetooth emulation in Chromium is
+        // implemented on the browser context level, and not tight to the specific tab.
+        this.#cdpBluetoothEmulation = new CdpBluetoothEmulation(this.#primaryTargetClient.connection());
         const frameManagerEmitter = new EventEmitter(this.#frameManager);
         frameManagerEmitter.on(FrameManagerEvent.FrameAttached, frame => {
             this.emit("frameattached" /* PageEvent.FrameAttached */, frame);
@@ -17919,14 +19862,16 @@ class CdpPage extends Page {
         this.#tabTargetClient.on(CDPSessionEvent.Swapped, this.#onActivation.bind(this));
         this.#tabTargetClient.on(CDPSessionEvent.Ready, this.#onSecondaryTarget.bind(this));
         this.#targetManager.on("targetGone" /* TargetManagerEvent.TargetGone */, this.#onDetachedFromTarget);
-        this.#tabTarget._isClosedDeferred
+        void this.#tabTarget._isClosedDeferred
             .valueOrThrow()
             .then(() => {
             this.#targetManager.off("targetGone" /* TargetManagerEvent.TargetGone */, this.#onDetachedFromTarget);
             this.emit("close" /* PageEvent.Close */, undefined);
             this.#closed = true;
         })
-            .catch(debugError);
+            .catch(error => {
+            this.logger?.(DEBUG_PREFIXES.error)?.(error);
+        });
         this.#setupPrimaryTargetListeners();
         this.#attachExistingTargets();
     }
@@ -17949,28 +19894,34 @@ class CdpPage extends Page {
         }
     }
     async #onActivation(newSession) {
+        // TODO: Remove assert once we have separate Event type for CdpCDPSession.
+        assert(newSession instanceof CdpCDPSession, 'CDPSession is not instance of CdpCDPSession');
         this.#primaryTargetClient = newSession;
-        assert(this.#primaryTargetClient instanceof CdpCDPSession, 'CDPSession is not instance of CDPSessionImpl');
-        this.#primaryTarget = this.#primaryTargetClient._target();
+        this.#primaryTarget = newSession.target();
         assert(this.#primaryTarget, 'Missing target on swap');
         this.#keyboard.updateClient(newSession);
         this.#mouse.updateClient(newSession);
         this.#touchscreen.updateClient(newSession);
         this.#emulationManager.updateClient(newSession);
         this.#tracing.updateClient(newSession);
+        this.#webmcp.updateClient(newSession);
         this.#coverage.updateClient(newSession);
         await this.#frameManager.swapFrameTree(newSession);
         this.#setupPrimaryTargetListeners();
     }
     async #onSecondaryTarget(session) {
         assert(session instanceof CdpCDPSession);
-        if (session._target()._subtype() !== 'prerender') {
+        if (session.target()._subtype() !== 'prerender') {
             return;
         }
-        this.#frameManager.registerSpeculativeSession(session).catch(debugError);
-        this.#emulationManager
+        void this.#frameManager.registerSpeculativeSession(session).catch(error => {
+            this.logger?.(DEBUG_PREFIXES.error)?.(error);
+        });
+        void this.#emulationManager
             .registerSpeculativeSession(session)
-            .catch(debugError);
+            .catch(error => {
+            this.logger?.(DEBUG_PREFIXES.error)?.(error);
+        });
     }
     /**
      * Sets up listeners for the primary target. The primary target can change
@@ -18006,10 +19957,27 @@ class CdpPage extends Page {
     };
     #onAttachedToTarget = (session) => {
         assert(session instanceof CdpCDPSession);
-        this.#frameManager.onAttachedToTarget(session._target());
-        if (session._target()._getTargetInfo().type === 'worker') {
-            const worker = new CdpWebWorker(session, session._target().url(), session._target()._targetId, session._target().type(), this.#addConsoleMessage.bind(this), this.#handleException.bind(this));
+        this.#frameManager.onAttachedToTarget(session.target());
+        if (session.target()._getTargetInfo().type === 'worker') {
+            const worker = new CdpWebWorker(session, session.target().url(), session.target()._targetId, session.target().type(), this.#handleException.bind(this), this.#frameManager.networkManager, this.logger);
             this.#workers.set(session.id(), worker);
+            worker.internalEmitter.on(WebWorkerEvent.Console, message => {
+                const noListenersForConsoleOnPage = this.listenerCount("console" /* PageEvent.Console */) === 0;
+                const noListenersForConsoleOnWorker = worker.listenerCount(WebWorkerEvent.Console) === 0;
+                if (noListenersForConsoleOnPage && noListenersForConsoleOnWorker) {
+                    // eslint-disable-next-line max-len -- The comment is long.
+                    // eslint-disable-next-line @puppeteer/use-using -- These are not owned by this function.
+                    for (const arg of message.args()) {
+                        void arg.dispose().catch(error => {
+                            this.logger?.(DEBUG_PREFIXES.error)?.(error);
+                        });
+                    }
+                    return;
+                }
+                if (!noListenersForConsoleOnPage) {
+                    this.emit("console" /* PageEvent.Console */, message);
+                }
+            });
             this.emit("workercreated" /* PageEvent.WorkerCreated */, worker);
         }
         session.on(CDPSessionEvent.Ready, this.#onAttachedToTarget);
@@ -18020,16 +19988,29 @@ class CdpPage extends Page {
                 this.#frameManager.initialize(this.#primaryTargetClient),
                 this.#primaryTargetClient.send('Performance.enable'),
                 this.#primaryTargetClient.send('Log.enable'),
+                this.#webmcp.initialize(),
             ]);
         }
         catch (err) {
             if (isErrorLike(err) && isTargetClosedError(err)) {
-                debugError(err);
+                this.logger?.(DEBUG_PREFIXES.error)?.(err);
             }
             else {
                 throw err;
             }
         }
+    }
+    async resize(params) {
+        const windowId = await this.windowId();
+        await this.#primaryTargetClient.send('Browser.setContentsSize', {
+            windowId: Number(windowId),
+            width: params.contentWidth,
+            height: params.contentHeight,
+        });
+    }
+    async windowId() {
+        const { windowId } = await this.#primaryTargetClient.send('Browser.getWindowForTarget');
+        return windowId.toString();
     }
     async #onFileChooser(event) {
         const env_1 = { stack: [], error: void 0, hasError: false };
@@ -18040,8 +20021,8 @@ class CdpPage extends Page {
             const frame = this.#frameManager.frame(event.frameId);
             assert(frame, 'This should never happen.');
             // This is guaranteed to be an HTMLInputElement handle by the event.
-            const handle = __addDisposableResource(env_1, (await frame.worlds[MAIN_WORLD].adoptBackendNode(event.backendNodeId)), false);
-            const fileChooser = new FileChooser(handle.move(), event);
+            const handle = __addDisposableResource$1(env_1, (await frame.worlds[MAIN_WORLD].adoptBackendNode(event.backendNodeId)), false);
+            const fileChooser = new FileChooser(handle.move(), event.mode !== 'selectSingle');
             for (const promise of this.#fileChooserDeferreds) {
                 promise.resolve(fileChooser);
             }
@@ -18052,11 +20033,14 @@ class CdpPage extends Page {
             env_1.hasError = true;
         }
         finally {
-            __disposeResources(env_1);
+            __disposeResources$1(env_1);
         }
     }
     _client() {
         return this.#primaryTargetClient;
+    }
+    _isUrlAllowed(url) {
+        return this.#targetManager.isUrlAllowed(url);
     }
     isServiceWorkerBypassed() {
         return this.#serviceWorkerBypassed;
@@ -18067,6 +20051,21 @@ class CdpPage extends Page {
     isJavaScriptEnabled() {
         return this.#emulationManager.javascriptEnabled;
     }
+    async openDevTools() {
+        const pageTargetId = this.target()._targetId;
+        const browser = this.browser();
+        const devtoolsTargetId = await browser._hasDevToolsTarget(this.target()._targetId);
+        if (devtoolsTargetId) {
+            return await browser._getDevToolsTargetPage(devtoolsTargetId);
+        }
+        const devtoolsPage = await browser._createDevToolsPage(pageTargetId);
+        return devtoolsPage;
+    }
+    async hasDevTools() {
+        const browser = this.browser();
+        const targetId = await browser._hasDevToolsTarget(this.target()._targetId);
+        return Boolean(targetId);
+    }
     async waitForFileChooser(options = {}) {
         const needsEnable = this.#fileChooserDeferreds.size === 0;
         const { timeout = this._timeoutSettings.timeout() } = options;
@@ -18074,6 +20073,11 @@ class CdpPage extends Page {
             message: `Waiting for \`FileChooser\` failed: ${timeout}ms exceeded`,
             timeout,
         });
+        if (options.signal) {
+            options.signal.addEventListener('abort', () => {
+                deferred.reject(options.signal?.reason);
+            }, { once: true });
+        }
         this.#fileChooserDeferreds.add(deferred);
         let enablePromise;
         if (needsEnable) {
@@ -18109,14 +20113,14 @@ class CdpPage extends Page {
         this.emit("error" /* PageEvent.Error */, new Error('Page crashed!'));
     }
     #onLogEntryAdded(event) {
-        const { level, text, args, source, url, lineNumber } = event.entry;
+        const { level, text, args, source, url, lineNumber, stackTrace } = event.entry;
         if (args) {
             args.map(arg => {
-                void releaseObject(this.#primaryTargetClient, arg);
+                void releaseObject(this.#primaryTargetClient, arg, this.logger);
             });
         }
         if (source !== 'worker') {
-            this.emit("console" /* PageEvent.Console */, new ConsoleMessage(convertConsoleMessageLevel(level), text, [], [{ url, lineNumber }]));
+            this.emit("console" /* PageEvent.Console */, new ConsoleMessage(convertConsoleMessageLevel(level), text, [], [{ url, lineNumber }], undefined, stackTrace, this.#primaryTarget._targetId));
         }
     }
     mainFrame() {
@@ -18133,6 +20137,9 @@ class CdpPage extends Page {
     }
     get tracing() {
         return this.#tracing;
+    }
+    get webmcp() {
+        return this.#webmcp;
     }
     frames() {
         return this.#frameManager.frames();
@@ -18159,6 +20166,9 @@ class CdpPage extends Page {
     async emulateNetworkConditions(networkConditions) {
         return await this.#frameManager.networkManager.emulateNetworkConditions(networkConditions);
     }
+    async emulateFocusedPage(enabled) {
+        return await this.#emulationManager.emulateFocus(enabled);
+    }
     setDefaultNavigationTimeout(timeout) {
         this._timeoutSettings.setDefaultNavigationTimeout(timeout);
     }
@@ -18167,6 +20177,9 @@ class CdpPage extends Page {
     }
     getDefaultTimeout() {
         return this._timeoutSettings.timeout();
+    }
+    getDefaultNavigationTimeout() {
+        return this._timeoutSettings.navigationTimeout();
     }
     async queryObjects(prototypeHandle) {
         assert(!prototypeHandle.disposed, 'Prototype JSHandle is disposed!');
@@ -18203,11 +20216,25 @@ class CdpPage extends Page {
     async deleteCookie(...cookies) {
         const pageURL = this.url();
         for (const cookie of cookies) {
-            const item = Object.assign({}, cookie);
+            const item = {
+                ...cookie,
+                partitionKey: convertCookiesPartitionKeyFromPuppeteerToCdp(cookie.partitionKey),
+            };
             if (!cookie.url && pageURL.startsWith('http')) {
                 item.url = pageURL;
             }
             await this.#primaryTargetClient.send('Network.deleteCookies', item);
+            if (pageURL.startsWith('http') && !item.partitionKey) {
+                const url = new URL(pageURL);
+                // Delete also cookies from the page's partition.
+                await this.#primaryTargetClient.send('Network.deleteCookies', {
+                    ...item,
+                    partitionKey: {
+                        topLevelSite: url.origin.replace(`:${url.port}`, ''),
+                        hasCrossSiteAncestor: false,
+                    },
+                });
+            }
         }
     }
     async setCookie(...cookies) {
@@ -18228,20 +20255,16 @@ class CdpPage extends Page {
                 cookies: items.map(cookieParam => {
                     return {
                         ...cookieParam,
-                        partitionKey: cookieParam.partitionKey
-                            ? {
-                                // TODO: a breaking change neeeded to change the partition key
-                                // type in Puppeteer.
-                                topLevelSite: cookieParam.partitionKey,
-                                hasCrossSiteAncestor: false,
-                            }
-                            : undefined,
+                        partitionKey: convertCookiesPartitionKeyFromPuppeteerToCdp(cookieParam.partitionKey),
+                        sameSite: convertSameSiteFromPuppeteerToCdp(cookieParam.sameSite),
                     };
                 }),
             });
         }
     }
-    async exposeFunction(name, pptrFunction) {
+    async exposeFunction(name, 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+    pptrFunction) {
         if (this.#bindings.has(name)) {
             throw new Error(`Failed to add page binding with name ${name}: window['${name}'] already exists!`);
         }
@@ -18249,10 +20272,10 @@ class CdpPage extends Page {
         let binding;
         switch (typeof pptrFunction) {
             case 'function':
-                binding = new Binding(name, pptrFunction, source);
+                binding = new Binding(name, pptrFunction, source, this.logger);
                 break;
             default:
-                binding = new Binding(name, pptrFunction.default, source);
+                binding = new Binding(name, pptrFunction.default, source, this.logger);
                 break;
         }
         this.#bindings.set(name, binding);
@@ -18282,12 +20305,53 @@ class CdpPage extends Page {
     async setExtraHTTPHeaders(headers) {
         return await this.#frameManager.networkManager.setExtraHTTPHeaders(headers);
     }
-    async setUserAgent(userAgent, userAgentMetadata) {
-        return await this.#frameManager.networkManager.setUserAgent(userAgent, userAgentMetadata);
+    async setUserAgent(userAgentOrOptions, userAgentMetadata) {
+        if (typeof userAgentOrOptions === 'string') {
+            return await this.#frameManager.networkManager.setUserAgent(userAgentOrOptions, userAgentMetadata);
+        }
+        else {
+            const userAgent = userAgentOrOptions.userAgent ?? (await this.browser().userAgent());
+            return await this.#frameManager.networkManager.setUserAgent(userAgent, userAgentOrOptions.userAgentMetadata, userAgentOrOptions.platform);
+        }
     }
     async metrics() {
         const response = await this.#primaryTargetClient.send('Performance.getMetrics');
         return this.#buildMetricsObject(response.metrics);
+    }
+    async captureHeapSnapshot(options) {
+        const env_2 = { stack: [], error: void 0, hasError: false };
+        try {
+            const { createWriteStream } = environment.value.fs;
+            const stream = createWriteStream(options.path);
+            const streamPromise = new Promise((resolve, reject) => {
+                stream.on('error', reject);
+                stream.on('finish', resolve);
+            });
+            const client = this.#primaryTargetClient;
+            await client.send('HeapProfiler.enable');
+            await client.send('HeapProfiler.collectGarbage');
+            const clientEmitter = __addDisposableResource$1(env_2, new EventEmitter(client), false);
+            clientEmitter.on('HeapProfiler.addHeapSnapshotChunk', event => {
+                stream.write(event.chunk);
+            });
+            try {
+                await client.send('HeapProfiler.takeHeapSnapshot', {
+                    reportProgress: false,
+                });
+            }
+            finally {
+                await client.send('HeapProfiler.disable');
+            }
+            stream.end();
+            await streamPromise;
+        }
+        catch (e_2) {
+            env_2.error = e_2;
+            env_2.hasError = true;
+        }
+        finally {
+            __disposeResources$1(env_2);
+        }
     }
     #emitMetrics(event) {
         this.emit("metrics" /* PageEvent.Metrics */, {
@@ -18307,11 +20371,32 @@ class CdpPage extends Page {
     #handleException(exception) {
         this.emit("pageerror" /* PageEvent.PageError */, createClientError(exception.exceptionDetails));
     }
-    #onConsoleAPI(world, event) {
-        const values = event.args.map(arg => {
-            return world.createCdpHandle(arg);
-        });
-        this.#addConsoleMessage(convertConsoleMessageLevel(event.type), values, event.stackTrace);
+    #onConsoleAPI(world, event, values) {
+        if (!values) {
+            values = event.args.map(arg => {
+                return world.createCdpHandle(arg);
+            });
+        }
+        const hasPageConsoleListeners = this.listenerCount("console" /* PageEvent.Console */) > 0;
+        const hasWorkerConsoleListeners = world.environment instanceof WebWorker &&
+            world.environment.listenerCount(WebWorkerEvent.Console) > 0;
+        if (!hasPageConsoleListeners) {
+            if (!hasWorkerConsoleListeners) {
+                // eslint-disable-next-line max-len -- The comment is long.
+                // eslint-disable-next-line @puppeteer/use-using -- These are not owned by this function.
+                for (const value of values) {
+                    void value.dispose().catch(error => {
+                        this.logger?.(DEBUG_PREFIXES.error)?.(error);
+                    });
+                }
+            }
+            return;
+        }
+        let targetId;
+        if (world.environment.client instanceof CdpCDPSession) {
+            targetId = world.environment.client.target()._targetId;
+        }
+        this.emit("console" /* PageEvent.Console */, createConsoleMessage(event, values, targetId));
     }
     async #onBindingCalled(world, event) {
         let payload;
@@ -18334,38 +20419,6 @@ class CdpPage extends Page {
         const binding = this.#bindings.get(name);
         await binding?.run(context, seq, args, isTrivial);
     }
-    #addConsoleMessage(eventType, args, stackTrace) {
-        if (!this.listenerCount("console" /* PageEvent.Console */)) {
-            args.forEach(arg => {
-                return arg.dispose();
-            });
-            return;
-        }
-        const textTokens = [];
-        // eslint-disable-next-line max-len -- The comment is long.
-        // eslint-disable-next-line rulesdir/use-using -- These are not owned by this function.
-        for (const arg of args) {
-            const remoteObject = arg.remoteObject();
-            if (remoteObject.objectId) {
-                textTokens.push(arg.toString());
-            }
-            else {
-                textTokens.push(valueFromRemoteObject(remoteObject));
-            }
-        }
-        const stackTraceLocations = [];
-        if (stackTrace) {
-            for (const callFrame of stackTrace.callFrames) {
-                stackTraceLocations.push({
-                    url: callFrame.url,
-                    lineNumber: callFrame.lineNumber,
-                    columnNumber: callFrame.columnNumber,
-                });
-            }
-        }
-        const message = new ConsoleMessage(convertConsoleMessageLevel(eventType), textTokens.join(' '), args, stackTraceLocations);
-        this.emit("console" /* PageEvent.Console */, message);
-    }
     #onDialog(event) {
         const type = validateDialogType(event.type);
         const dialog = new CdpDialog(this.#primaryTargetClient, type, event.message, event.defaultPrompt);
@@ -18377,7 +20430,9 @@ class CdpPage extends Page {
                 ...options,
                 ignoreSameDocumentNavigation: true,
             }),
-            this.#primaryTargetClient.send('Page.reload'),
+            this.#primaryTargetClient.send('Page.reload', {
+                ignoreCache: options?.ignoreCache ?? false,
+            }),
         ]);
         return result;
     }
@@ -18394,7 +20449,7 @@ class CdpPage extends Page {
         const history = await this.#primaryTargetClient.send('Page.getNavigationHistory');
         const entry = history.entries[history.currentIndex + delta];
         if (!entry) {
-            return null;
+            throw new Error('History entry to navigate to not found.');
         }
         const result = await Promise.all([
             this.waitForNavigation(options),
@@ -18413,6 +20468,9 @@ class CdpPage extends Page {
     async setBypassCSP(enabled) {
         await this.#primaryTargetClient.send('Page.setBypassCSP', { enabled });
     }
+    async triggerExtensionAction(extension) {
+        return await extension.triggerAction(this);
+    }
     async emulateMediaType(type) {
         return await this.#emulationManager.emulateMediaType(type);
     }
@@ -18424,6 +20482,10 @@ class CdpPage extends Page {
     }
     async emulateTimezone(timezoneId) {
         return await this.#emulationManager.emulateTimezone(timezoneId);
+    }
+    async emulateLocale(locale) {
+        await this.#emulationManager.emulateLocale(locale);
+        await this.#frameManager.networkManager.setAcceptLanguage(locale);
     }
     async emulateIdleState(overrides) {
         return await this.#emulationManager.emulateIdleState(overrides);
@@ -18452,18 +20514,18 @@ class CdpPage extends Page {
         await this.#frameManager.networkManager.setCacheEnabled(enabled);
     }
     async _screenshot(options) {
-        const env_2 = { stack: [], error: void 0, hasError: false };
+        const env_3 = { stack: [], error: void 0, hasError: false };
         try {
             const { fromSurface, omitBackground, optimizeForSpeed, quality, clip: userClip, type, captureBeyondViewport, } = options;
-            const isFirefox = this.target()._targetManager() instanceof FirefoxTargetManager;
-            const stack = __addDisposableResource(env_2, new AsyncDisposableStack(), true);
-            // Firefox omits background by default; it's not configurable.
-            if (!isFirefox && omitBackground && (type === 'png' || type === 'webp')) {
+            const stack = __addDisposableResource$1(env_3, new AsyncDisposableStack(), true);
+            if (omitBackground && (type === 'png' || type === 'webp')) {
                 await this.#emulationManager.setTransparentBackgroundColor();
                 stack.defer(async () => {
                     await this.#emulationManager
                         .resetDefaultBackgroundColor()
-                        .catch(debugError);
+                        .catch(error => {
+                        this.logger?.(DEBUG_PREFIXES.error)?.(error);
+                    });
                 });
             }
             let clip = userClip;
@@ -18476,23 +20538,22 @@ class CdpPage extends Page {
                 });
                 clip = getIntersectionRect(clip, viewport);
             }
-            // We need to do these spreads because Firefox doesn't allow unknown options.
             const { data } = await this.#primaryTargetClient.send('Page.captureScreenshot', {
                 format: type,
-                ...(optimizeForSpeed ? { optimizeForSpeed } : {}),
+                optimizeForSpeed,
+                fromSurface,
                 ...(quality !== undefined ? { quality: Math.round(quality) } : {}),
                 ...(clip ? { clip: { ...clip, scale: clip.scale ?? 1 } } : {}),
-                ...(!fromSurface ? { fromSurface } : {}),
                 captureBeyondViewport,
             });
             return data;
         }
-        catch (e_2) {
-            env_2.error = e_2;
-            env_2.hasError = true;
+        catch (e_3) {
+            env_3.error = e_3;
+            env_3.hasError = true;
         }
         finally {
-            const result_1 = __disposeResources(env_2);
+            const result_1 = __disposeResources$1(env_3);
             if (result_1)
                 await result_1;
         }
@@ -18539,16 +20600,16 @@ class CdpPage extends Page {
     async pdf(options = {}) {
         const { path = undefined } = options;
         const readable = await this.createPDFStream(options);
-        const buffer = await getReadableAsBuffer(readable, path);
-        assert(buffer, 'Could not create buffer');
-        return buffer;
+        const typedArray = await getReadableAsTypedArray(readable, path, this.logger);
+        assert(typedArray, 'Could not create typed array');
+        return typedArray;
     }
     async close(options = { runBeforeUnload: undefined }) {
-        const env_3 = { stack: [], error: void 0, hasError: false };
+        const env_4 = { stack: [], error: void 0, hasError: false };
         try {
-            const _guard = __addDisposableResource(env_3, await this.browserContext().waitForScreenshotOperations(), false);
+            const _guard = __addDisposableResource$1(env_4, await this.browserContext().waitForScreenshotOperations(), false);
             const connection = this.#primaryTargetClient.connection();
-            assert(connection, 'Protocol error: Connection closed. Most likely the page has been closed.');
+            assert(connection, 'Connection closed. Most likely the page has been closed.');
             const runBeforeUnload = !!options.runBeforeUnload;
             if (runBeforeUnload) {
                 await this.#primaryTargetClient.send('Page.close');
@@ -18560,12 +20621,12 @@ class CdpPage extends Page {
                 await this.#tabTarget._isClosedDeferred.valueOrThrow();
             }
         }
-        catch (e_3) {
-            env_3.error = e_3;
-            env_3.hasError = true;
+        catch (e_4) {
+            env_4.error = e_4;
+            env_4.hasError = true;
         }
         finally {
-            __disposeResources(env_3);
+            __disposeResources$1(env_4);
         }
     }
     isClosed() {
@@ -18593,12 +20654,18 @@ class CdpPage extends Page {
      *   page.click('#connect-bluetooth'),
      * ]);
      * await devicePrompt.select(
-     *   await devicePrompt.waitForDevice(({name}) => name.includes('My Device'))
+     *   await devicePrompt.waitForDevice(({name}) => name.includes('My Device')),
      * );
      * ```
      */
     async waitForDevicePrompt(options = {}) {
         return await this.mainFrame().waitForDevicePrompt(options);
+    }
+    get bluetooth() {
+        return this.#cdpBluetoothEmulation;
+    }
+    extensionRealms() {
+        return this.mainFrame().extensionRealms();
     }
 }
 const supportedMetrics = new Set([
@@ -18628,6 +20695,281 @@ function getIntersectionRect(clip, viewport) {
         height: Math.max(Math.min(clip.y + clip.height, viewport.y + viewport.height) - y, 0),
     };
 }
+/**
+ * @internal
+ */
+function convertCookiesPartitionKeyFromPuppeteerToCdp(partitionKey) {
+    if (partitionKey === undefined) {
+        return undefined;
+    }
+    if (typeof partitionKey === 'string') {
+        return {
+            topLevelSite: partitionKey,
+            hasCrossSiteAncestor: false,
+        };
+    }
+    return {
+        topLevelSite: partitionKey.sourceOrigin,
+        hasCrossSiteAncestor: partitionKey.hasCrossSiteAncestor ?? false,
+    };
+}
+
+/**
+ * @license
+ * Copyright 2024 Google Inc.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+var __addDisposableResource = (undefined && undefined.__addDisposableResource) || function (env, value, async) {
+    if (value !== null && value !== void 0) {
+        if (typeof value !== "object" && typeof value !== "function") throw new TypeError("Object expected.");
+        var dispose, inner;
+        if (async) {
+            if (!Symbol.asyncDispose) throw new TypeError("Symbol.asyncDispose is not defined.");
+            dispose = value[Symbol.asyncDispose];
+        }
+        if (dispose === void 0) {
+            if (!Symbol.dispose) throw new TypeError("Symbol.dispose is not defined.");
+            dispose = value[Symbol.dispose];
+            if (async) inner = dispose;
+        }
+        if (typeof dispose !== "function") throw new TypeError("Object not disposable.");
+        if (inner) dispose = function() { try { inner.call(this); } catch (e) { return Promise.reject(e); } };
+        env.stack.push({ value: value, dispose: dispose, async: async });
+    }
+    else if (async) {
+        env.stack.push({ async: true });
+    }
+    return value;
+};
+var __disposeResources = (undefined && undefined.__disposeResources) || (function (SuppressedError) {
+    return function (env) {
+        function fail(e) {
+            env.error = env.hasError ? new SuppressedError(e, env.error, "An error was suppressed during disposal.") : e;
+            env.hasError = true;
+        }
+        var r, s = 0;
+        function next() {
+            while (r = env.stack.pop()) {
+                try {
+                    if (!r.async && s === 1) return s = 0, env.stack.push(r), Promise.resolve().then(next);
+                    if (r.dispose) {
+                        var result = r.dispose.call(r.value);
+                        if (r.async) return s |= 2, Promise.resolve(result).then(next, function(e) { fail(e); return next(); });
+                    }
+                    else s |= 1;
+                }
+                catch (e) {
+                    fail(e);
+                }
+            }
+            if (s === 1) return env.hasError ? Promise.reject(env.error) : Promise.resolve();
+            if (env.hasError) throw env.error;
+        }
+        return next();
+    };
+})(typeof SuppressedError === "function" ? SuppressedError : function (error, suppressed, message) {
+    var e = new Error(message);
+    return e.name = "SuppressedError", e.error = error, e.suppressed = suppressed, e;
+});
+/**
+ * @internal
+ */
+class CdpBrowserContext extends BrowserContext {
+    #connection;
+    #browser;
+    #id;
+    constructor(connection, browser, contextId = undefined, logger) {
+        super(logger);
+        this.#connection = connection;
+        this.#browser = browser;
+        this.#id = contextId;
+    }
+    get id() {
+        return this.#id;
+    }
+    targets() {
+        return this.#browser.targets().filter(target => {
+            return target.browserContext() === this;
+        });
+    }
+    async pages(includeAll = false) {
+        const pages = await Promise.all(this.targets()
+            .filter(target => {
+            return (target.type() === 'page' ||
+                ((target.type() === 'other' || includeAll) &&
+                    this.#browser._getIsPageTargetCallback()?.(target)));
+        })
+            .map(target => {
+            return target.page();
+        }));
+        return pages.filter(page => {
+            return !!page;
+        });
+    }
+    async overridePermissions(origin, permissions) {
+        const protocolPermissions = permissions.map(permission => {
+            const protocolPermission = WEB_PERMISSION_TO_PROTOCOL_PERMISSION.get(permission);
+            if (!protocolPermission) {
+                throw new Error('Unknown permission: ' + permission);
+            }
+            return protocolPermission;
+        });
+        await this.#connection.send('Browser.grantPermissions', {
+            origin,
+            browserContextId: this.#id || undefined,
+            permissions: protocolPermissions,
+        });
+    }
+    async setPermission(origin, ...permissions) {
+        await Promise.all(permissions.map(async (permission) => {
+            const protocolPermission = {
+                name: permission.permission.name,
+                userVisibleOnly: permission.permission.userVisibleOnly,
+                sysex: permission.permission.sysex,
+                allowWithoutSanitization: permission.permission.allowWithoutSanitization,
+                panTiltZoom: permission.permission.panTiltZoom,
+            };
+            await this.#connection.send('Browser.setPermission', {
+                origin: origin === '*' ? undefined : origin,
+                browserContextId: this.#id || undefined,
+                permission: protocolPermission,
+                setting: permission.state,
+            });
+        }));
+    }
+    async clearPermissionOverrides() {
+        await this.#connection.send('Browser.resetPermissions', {
+            browserContextId: this.#id || undefined,
+        });
+    }
+    async newPage(options) {
+        const env_1 = { stack: [], error: void 0, hasError: false };
+        try {
+            const _guard = __addDisposableResource(env_1, await this.waitForScreenshotOperations(), false);
+            return await this.#browser._createPageInContext(this.#id, options);
+        }
+        catch (e_1) {
+            env_1.error = e_1;
+            env_1.hasError = true;
+        }
+        finally {
+            __disposeResources(env_1);
+        }
+    }
+    browser() {
+        return this.#browser;
+    }
+    async close() {
+        assert(this.#id, 'Default BrowserContext cannot be closed!');
+        await this.#browser._disposeContext(this.#id);
+    }
+    async cookies() {
+        const { cookies } = await this.#connection.send('Storage.getCookies', {
+            browserContextId: this.#id,
+        });
+        return cookies.map(cookie => {
+            return {
+                ...cookie,
+                partitionKey: cookie.partitionKey
+                    ? {
+                        sourceOrigin: cookie.partitionKey.topLevelSite,
+                        hasCrossSiteAncestor: cookie.partitionKey.hasCrossSiteAncestor,
+                    }
+                    : undefined,
+            };
+        });
+    }
+    async setCookie(...cookies) {
+        return await this.#connection.send('Storage.setCookies', {
+            browserContextId: this.#id,
+            cookies: cookies.map(cookie => {
+                return {
+                    ...cookie,
+                    partitionKey: convertCookiesPartitionKeyFromPuppeteerToCdp(cookie.partitionKey),
+                    sameSite: convertSameSiteFromPuppeteerToCdp(cookie.sameSite),
+                };
+            }),
+        });
+    }
+    async setDownloadBehavior(downloadBehavior) {
+        await this.#connection.send('Browser.setDownloadBehavior', {
+            behavior: downloadBehavior.policy,
+            downloadPath: downloadBehavior.downloadPath,
+            browserContextId: this.#id,
+        });
+    }
+}
+
+class CdpExtension extends Extension {
+    // needed to access the CDPSession to trigger an extension action.
+    #browser;
+    #logger;
+    /*
+     * @internal
+     */
+    constructor(id, version, name, path, enabled, browser, logger) {
+        super(id, version, name, path, enabled);
+        this.#browser = browser;
+        this.#logger = logger;
+    }
+    async workers() {
+        const targets = this.#browser.targets();
+        const extensionWorkers = targets.filter((target) => {
+            const targetUrl = target.url();
+            return (target.type() === 'service_worker' &&
+                targetUrl.startsWith('chrome-extension://' + this.id));
+        });
+        const workers = await Promise.all(extensionWorkers.map(async (target) => {
+            try {
+                return await target.worker();
+            }
+            catch (err) {
+                if (this.#canIgnoreError(err)) {
+                    this.#logger?.(DEBUG_PREFIXES.error)?.(err);
+                    return null;
+                }
+                throw err;
+            }
+        }));
+        return workers.filter((worker) => {
+            return worker !== null;
+        });
+    }
+    async pages() {
+        const targets = this.#browser.targets();
+        const extensionPages = targets.filter((target) => {
+            const targetUrl = target.url();
+            return ((target.type() === 'page' || target.type() === 'background_page') &&
+                targetUrl.startsWith('chrome-extension://' + this.id));
+        });
+        const pages = await Promise.all(extensionPages.map(async (target) => {
+            try {
+                return await target.asPage();
+            }
+            catch (err) {
+                if (this.#canIgnoreError(err)) {
+                    this.#logger?.(DEBUG_PREFIXES.error)?.(err);
+                    return null;
+                }
+                throw err;
+            }
+        }));
+        return pages.filter((page) => {
+            return page !== null;
+        });
+    }
+    async triggerAction(page) {
+        await this.#browser._connection.send('Extensions.triggerAction', {
+            id: this.id,
+            targetId: page._tabId,
+        });
+    }
+    #canIgnoreError(error) {
+        return (isErrorLike(error) &&
+            (isTargetClosedError(error) ||
+                error.message.includes('No target with given id found')));
+    }
+}
 
 /**
  * @license
@@ -18651,35 +20993,48 @@ class CdpTarget extends Target {
     #targetInfo;
     #targetManager;
     #sessionFactory;
+    #logger;
     #childTargets = new Set();
     _initializedDeferred = Deferred.create();
     _isClosedDeferred = Deferred.create();
     _targetId;
+    _asPagePromise;
+    /** @internal */
+    pagePromise;
     /**
      * To initialize the target for use, call initialize.
      *
      * @internal
      */
-    constructor(targetInfo, session, browserContext, targetManager, sessionFactory) {
-        super();
+    constructor(targetInfo, session, browserContext, targetManager, sessionFactory, logger) {
+        super(logger);
         this.#session = session;
         this.#targetManager = targetManager;
         this.#targetInfo = targetInfo;
         this.#browserContext = browserContext;
         this._targetId = targetInfo.targetId;
         this.#sessionFactory = sessionFactory;
-        if (this.#session && this.#session instanceof CdpCDPSession) {
-            this.#session._setTarget(this);
+        this.#logger = logger;
+        if (this.#session) {
+            this.#session.setTarget(this);
         }
     }
     async asPage() {
-        const session = this._session();
-        if (!session) {
-            return await this.createCDPSession().then(client => {
-                return CdpPage._create(client, this, null);
+        if (this.pagePromise) {
+            const page = await this.pagePromise;
+            if (page) {
+                return page;
+            }
+        }
+        if (!this._asPagePromise) {
+            const session = this._session();
+            this._asPagePromise = (session
+                ? Promise.resolve(session)
+                : this._sessionFactory()(/* isAutoAttachEmulated=*/ false)).then(client => {
+                return CdpPage._create(client, this, null, this.#logger);
             });
         }
-        return await CdpPage._create(session, this, null);
+        return (await this._asPagePromise) ?? null;
     }
     _subtype() {
         return this.#targetInfo.subtype;
@@ -18707,7 +21062,7 @@ class CdpTarget extends Target {
             throw new Error('sessionFactory is not initialized');
         }
         return this.#sessionFactory(false).then(session => {
-            session._setTarget(this);
+            session.setTarget(this);
             return session;
         });
     }
@@ -18788,13 +21143,12 @@ class CdpTarget extends Target {
  */
 class PageTarget extends CdpTarget {
     #defaultViewport;
-    pagePromise;
-    constructor(targetInfo, session, browserContext, targetManager, sessionFactory, defaultViewport) {
-        super(targetInfo, session, browserContext, targetManager, sessionFactory);
+    constructor(targetInfo, session, browserContext, targetManager, sessionFactory, defaultViewport, logger) {
+        super(targetInfo, session, browserContext, targetManager, sessionFactory, logger);
         this.#defaultViewport = defaultViewport ?? undefined;
     }
     _initialize() {
-        this._initializedDeferred
+        void this._initializedDeferred
             .valueOrThrow()
             .then(async (result) => {
             if (result === InitializationStatus.ABORTED) {
@@ -18815,7 +21169,9 @@ class PageTarget extends CdpTarget {
             openerPage.emit("popup" /* PageEvent.Popup */, popupPage);
             return true;
         })
-            .catch(debugError);
+            .catch(error => {
+            this.logger?.(DEBUG_PREFIXES.error)?.(error);
+        });
         this._checkIfInitialized();
     }
     async page() {
@@ -18824,7 +21180,7 @@ class PageTarget extends CdpTarget {
             this.pagePromise = (session
                 ? Promise.resolve(session)
                 : this._sessionFactory()(/* isAutoAttachEmulated=*/ false)).then(client => {
-                return CdpPage._create(client, this, this.#defaultViewport ?? null);
+                return CdpPage._create(client, this, this.#defaultViewport ?? null, this.logger);
             });
         }
         return (await this.pagePromise) ?? null;
@@ -18851,11 +21207,10 @@ class WorkerTarget extends CdpTarget {
     async worker() {
         if (!this.#workerPromise) {
             const session = this._session();
-            // TODO(einbinder): Make workers send their console logs.
             this.#workerPromise = (session
                 ? Promise.resolve(session)
                 : this._sessionFactory()(/* isAutoAttachEmulated=*/ false)).then(client => {
-                return new CdpWebWorker(client, this._getTargetInfo().url, this._targetId, this.type(), () => { } /* consoleAPICalled */, () => { } /* exceptionThrown */);
+                return new CdpWebWorker(client, this._getTargetInfo().url, this._targetId, this.type(), () => { } /* exceptionThrown */, undefined /* networkManager */, this.logger);
             });
         }
         return await this.#workerPromise;
@@ -18868,6 +21223,803 @@ class OtherTarget extends CdpTarget {
 }
 
 /**
+Copyright 2020 Intel Corporation
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+*/
+// node_modules/urlpattern-polyfill/dist/urlpattern.js
+var Pe = Object.defineProperty;
+var a = (e, t) => Pe(e, "name", { value: t, configurable: true });
+var P = class {
+  type = 3;
+  name = "";
+  prefix = "";
+  value = "";
+  suffix = "";
+  modifier = 3;
+  constructor(t, r, n, c, l, f) {
+    this.type = t, this.name = r, this.prefix = n, this.value = c, this.suffix = l, this.modifier = f;
+  }
+  hasCustomName() {
+    return this.name !== "" && typeof this.name != "number";
+  }
+};
+a(P, "Part");
+var Re = /[$_\p{ID_Start}]/u;
+var Ee = /[$_\u200C\u200D\p{ID_Continue}]/u;
+var v = ".*";
+function Oe(e, t) {
+  return (t ? /^[\x00-\xFF]*$/ : /^[\x00-\x7F]*$/).test(e);
+}
+a(Oe, "isASCII");
+function D(e, t = false) {
+  let r = [], n = 0;
+  for (; n < e.length; ) {
+    let c = e[n], l = a(function(f) {
+      if (!t) throw new TypeError(f);
+      r.push({ type: "INVALID_CHAR", index: n, value: e[n++] });
+    }, "ErrorOrInvalid");
+    if (c === "*") {
+      r.push({ type: "ASTERISK", index: n, value: e[n++] });
+      continue;
+    }
+    if (c === "+" || c === "?") {
+      r.push({ type: "OTHER_MODIFIER", index: n, value: e[n++] });
+      continue;
+    }
+    if (c === "\\") {
+      r.push({ type: "ESCAPED_CHAR", index: n++, value: e[n++] });
+      continue;
+    }
+    if (c === "{") {
+      r.push({ type: "OPEN", index: n, value: e[n++] });
+      continue;
+    }
+    if (c === "}") {
+      r.push({ type: "CLOSE", index: n, value: e[n++] });
+      continue;
+    }
+    if (c === ":") {
+      let f = "", s = n + 1;
+      for (; s < e.length; ) {
+        let i = e.substr(s, 1);
+        if (s === n + 1 && Re.test(i) || s !== n + 1 && Ee.test(i)) {
+          f += e[s++];
+          continue;
+        }
+        break;
+      }
+      if (!f) {
+        l(`Missing parameter name at ${n}`);
+        continue;
+      }
+      r.push({ type: "NAME", index: n, value: f }), n = s;
+      continue;
+    }
+    if (c === "(") {
+      let f = 1, s = "", i = n + 1, o = false;
+      if (e[i] === "?") {
+        l(`Pattern cannot start with "?" at ${i}`);
+        continue;
+      }
+      for (; i < e.length; ) {
+        if (!Oe(e[i], false)) {
+          l(`Invalid character '${e[i]}' at ${i}.`), o = true;
+          break;
+        }
+        if (e[i] === "\\") {
+          s += e[i++] + e[i++];
+          continue;
+        }
+        if (e[i] === ")") {
+          if (f--, f === 0) {
+            i++;
+            break;
+          }
+        } else if (e[i] === "(" && (f++, e[i + 1] !== "?")) {
+          l(`Capturing groups are not allowed at ${i}`), o = true;
+          break;
+        }
+        s += e[i++];
+      }
+      if (o) continue;
+      if (f) {
+        l(`Unbalanced pattern at ${n}`);
+        continue;
+      }
+      if (!s) {
+        l(`Missing pattern at ${n}`);
+        continue;
+      }
+      r.push({ type: "REGEX", index: n, value: s }), n = i;
+      continue;
+    }
+    r.push({ type: "CHAR", index: n, value: e[n++] });
+  }
+  return r.push({ type: "END", index: n, value: "" }), r;
+}
+a(D, "lexer");
+function F(e, t = {}) {
+  let r = D(e);
+  t.delimiter ??= "/#?", t.prefixes ??= "./";
+  let n = `[^${x(t.delimiter)}]+?`, c = [], l = 0, f = 0, i = /* @__PURE__ */ new Set(), o = a((u) => {
+    if (f < r.length && r[f].type === u) return r[f++].value;
+  }, "tryConsume"), h = a(() => o("OTHER_MODIFIER") ?? o("ASTERISK"), "tryConsumeModifier"), p = a((u) => {
+    let d = o(u);
+    if (d !== void 0) return d;
+    let { type: g, index: y } = r[f];
+    throw new TypeError(`Unexpected ${g} at ${y}, expected ${u}`);
+  }, "mustConsume"), A = a(() => {
+    let u = "", d;
+    for (; d = o("CHAR") ?? o("ESCAPED_CHAR"); ) u += d;
+    return u;
+  }, "consumeText"), xe = a((u) => u, "DefaultEncodePart"), N = t.encodePart || xe, H = "", $ = a((u) => {
+    H += u;
+  }, "appendToPendingFixedValue"), M = a(() => {
+    H.length && (c.push(new P(3, "", "", N(H), "", 3)), H = "");
+  }, "maybeAddPartFromPendingFixedValue"), X = a((u, d, g, y, Z) => {
+    let m = 3;
+    switch (Z) {
+      case "?":
+        m = 1;
+        break;
+      case "*":
+        m = 0;
+        break;
+      case "+":
+        m = 2;
+        break;
+    }
+    if (!d && !g && m === 3) {
+      $(u);
+      return;
+    }
+    if (M(), !d && !g) {
+      if (!u) return;
+      c.push(new P(3, "", "", N(u), "", m));
+      return;
+    }
+    let S;
+    g ? g === "*" ? S = v : S = g : S = n;
+    let k = 2;
+    S === n ? (k = 1, S = "") : S === v && (k = 0, S = "");
+    let E;
+    if (d ? E = d : g && (E = l++), i.has(E)) throw new TypeError(`Duplicate name '${E}'.`);
+    i.add(E), c.push(new P(k, E, N(u), S, N(y), m));
+  }, "addPart");
+  for (; f < r.length; ) {
+    let u = o("CHAR"), d = o("NAME"), g = o("REGEX");
+    if (!d && !g && (g = o("ASTERISK")), d || g) {
+      let m = u ?? "";
+      t.prefixes.indexOf(m) === -1 && ($(m), m = ""), M();
+      let S = h();
+      X(m, d, g, "", S);
+      continue;
+    }
+    let y = u ?? o("ESCAPED_CHAR");
+    if (y) {
+      $(y);
+      continue;
+    }
+    if (o("OPEN")) {
+      let m = A(), S = o("NAME"), k = o("REGEX");
+      !S && !k && (k = o("ASTERISK"));
+      let E = A();
+      p("CLOSE");
+      let be = h();
+      X(m, S, k, E, be);
+      continue;
+    }
+    M(), p("END");
+  }
+  return c;
+}
+a(F, "parse");
+function x(e) {
+  return e.replace(/([.+*?^${}()[\]|/\\])/g, "\\$1");
+}
+a(x, "escapeString");
+function B(e) {
+  return e && e.ignoreCase ? "ui" : "u";
+}
+a(B, "flags");
+function q(e, t, r) {
+  return W(F(e, r), t, r);
+}
+a(q, "stringToRegexp");
+function T(e) {
+  switch (e) {
+    case 0:
+      return "*";
+    case 1:
+      return "?";
+    case 2:
+      return "+";
+    case 3:
+      return "";
+  }
+}
+a(T, "modifierToString");
+function W(e, t, r = {}) {
+  r.delimiter ??= "/#?", r.prefixes ??= "./", r.sensitive ??= false, r.strict ??= false, r.end ??= true, r.start ??= true, r.endsWith = "";
+  let n = r.start ? "^" : "";
+  for (let s of e) {
+    if (s.type === 3) {
+      s.modifier === 3 ? n += x(s.value) : n += `(?:${x(s.value)})${T(s.modifier)}`;
+      continue;
+    }
+    t && t.push(s.name);
+    let i = `[^${x(r.delimiter)}]+?`, o = s.value;
+    if (s.type === 1 ? o = i : s.type === 0 && (o = v), !s.prefix.length && !s.suffix.length) {
+      s.modifier === 3 || s.modifier === 1 ? n += `(${o})${T(s.modifier)}` : n += `((?:${o})${T(s.modifier)})`;
+      continue;
+    }
+    if (s.modifier === 3 || s.modifier === 1) {
+      n += `(?:${x(s.prefix)}(${o})${x(s.suffix)})`, n += T(s.modifier);
+      continue;
+    }
+    n += `(?:${x(s.prefix)}`, n += `((?:${o})(?:`, n += x(s.suffix), n += x(s.prefix), n += `(?:${o}))*)${x(s.suffix)})`, s.modifier === 0 && (n += "?");
+  }
+  let c = `[${x(r.endsWith)}]|$`, l = `[${x(r.delimiter)}]`;
+  if (r.end) return r.strict || (n += `${l}?`), r.endsWith.length ? n += `(?=${c})` : n += "$", new RegExp(n, B(r));
+  r.strict || (n += `(?:${l}(?=${c}))?`);
+  let f = false;
+  if (e.length) {
+    let s = e[e.length - 1];
+    s.type === 3 && s.modifier === 3 && (f = r.delimiter.indexOf(s) > -1);
+  }
+  return f || (n += `(?=${l}|${c})`), new RegExp(n, B(r));
+}
+a(W, "partsToRegexp");
+var b = { delimiter: "", prefixes: "", sensitive: true, strict: true };
+var J = { delimiter: ".", prefixes: "", sensitive: true, strict: true };
+var Q = { delimiter: "/", prefixes: "/", sensitive: true, strict: true };
+function ee(e, t) {
+  return e.length ? e[0] === "/" ? true : !t || e.length < 2 ? false : (e[0] == "\\" || e[0] == "{") && e[1] == "/" : false;
+}
+a(ee, "isAbsolutePathname");
+function te(e, t) {
+  return e.startsWith(t) ? e.substring(t.length, e.length) : e;
+}
+a(te, "maybeStripPrefix");
+function ke(e, t) {
+  return e.endsWith(t) ? e.substr(0, e.length - t.length) : e;
+}
+a(ke, "maybeStripSuffix");
+function _(e) {
+  return !e || e.length < 2 ? false : e[0] === "[" || (e[0] === "\\" || e[0] === "{") && e[1] === "[";
+}
+a(_, "treatAsIPv6Hostname");
+var re = ["ftp", "file", "http", "https", "ws", "wss"];
+function U(e) {
+  if (!e) return true;
+  for (let t of re) if (e.test(t)) return true;
+  return false;
+}
+a(U, "isSpecialScheme");
+function ne(e, t) {
+  if (e = te(e, "#"), t || e === "") return e;
+  let r = new URL("https://example.com");
+  return r.hash = e, r.hash ? r.hash.substring(1, r.hash.length) : "";
+}
+a(ne, "canonicalizeHash");
+function se(e, t) {
+  if (e = te(e, "?"), t || e === "") return e;
+  let r = new URL("https://example.com");
+  return r.search = e, r.search ? r.search.substring(1, r.search.length) : "";
+}
+a(se, "canonicalizeSearch");
+function ie(e, t) {
+  return t || e === "" ? e : _(e) ? K(e) : j(e);
+}
+a(ie, "canonicalizeHostname");
+function ae(e, t) {
+  if (t || e === "") return e;
+  let r = new URL("https://example.com");
+  return r.password = e, r.password;
+}
+a(ae, "canonicalizePassword");
+function oe(e, t) {
+  if (t || e === "") return e;
+  let r = new URL("https://example.com");
+  return r.username = e, r.username;
+}
+a(oe, "canonicalizeUsername");
+function ce(e, t, r) {
+  if (r || e === "") return e;
+  if (t && !re.includes(t)) return new URL(`${t}:${e}`).pathname;
+  let n = e[0] == "/";
+  return e = new URL(n ? e : "/-" + e, "https://example.com").pathname, n || (e = e.substring(2, e.length)), e;
+}
+a(ce, "canonicalizePathname");
+function le(e, t, r) {
+  return z(t) === e && (e = ""), r || e === "" ? e : G(e);
+}
+a(le, "canonicalizePort");
+function fe(e, t) {
+  return e = ke(e, ":"), t || e === "" ? e : w(e);
+}
+a(fe, "canonicalizeProtocol");
+function z(e) {
+  switch (e) {
+    case "ws":
+    case "http":
+      return "80";
+    case "wws":
+    case "https":
+      return "443";
+    case "ftp":
+      return "21";
+    default:
+      return "";
+  }
+}
+a(z, "defaultPortForProtocol");
+function w(e) {
+  if (e === "") return e;
+  if (/^[-+.A-Za-z0-9]*$/.test(e)) return e.toLowerCase();
+  throw new TypeError(`Invalid protocol '${e}'.`);
+}
+a(w, "protocolEncodeCallback");
+function he(e) {
+  if (e === "") return e;
+  let t = new URL("https://example.com");
+  return t.username = e, t.username;
+}
+a(he, "usernameEncodeCallback");
+function ue(e) {
+  if (e === "") return e;
+  let t = new URL("https://example.com");
+  return t.password = e, t.password;
+}
+a(ue, "passwordEncodeCallback");
+function j(e) {
+  if (e === "") return e;
+  if (/[\t\n\r #%/:<>?@[\]^\\|]/g.test(e)) throw new TypeError(`Invalid hostname '${e}'`);
+  let t = new URL("https://example.com");
+  return t.hostname = e, t.hostname;
+}
+a(j, "hostnameEncodeCallback");
+function K(e) {
+  if (e === "") return e;
+  if (/[^0-9a-fA-F[\]:]/g.test(e)) throw new TypeError(`Invalid IPv6 hostname '${e}'`);
+  return e.toLowerCase();
+}
+a(K, "ipv6HostnameEncodeCallback");
+function G(e) {
+  if (e === "" || /^[0-9]*$/.test(e) && parseInt(e) <= 65535) return e;
+  throw new TypeError(`Invalid port '${e}'.`);
+}
+a(G, "portEncodeCallback");
+function de(e) {
+  if (e === "") return e;
+  let t = new URL("https://example.com");
+  return t.pathname = e[0] !== "/" ? "/-" + e : e, e[0] !== "/" ? t.pathname.substring(2, t.pathname.length) : t.pathname;
+}
+a(de, "standardURLPathnameEncodeCallback");
+function pe(e) {
+  return e === "" ? e : new URL(`data:${e}`).pathname;
+}
+a(pe, "pathURLPathnameEncodeCallback");
+function ge(e) {
+  if (e === "") return e;
+  let t = new URL("https://example.com");
+  return t.search = e, t.search.substring(1, t.search.length);
+}
+a(ge, "searchEncodeCallback");
+function me(e) {
+  if (e === "") return e;
+  let t = new URL("https://example.com");
+  return t.hash = e, t.hash.substring(1, t.hash.length);
+}
+a(me, "hashEncodeCallback");
+var C = class {
+  #i;
+  #n = [];
+  #t = {};
+  #e = 0;
+  #s = 1;
+  #l = 0;
+  #o = 0;
+  #d = 0;
+  #p = 0;
+  #g = false;
+  constructor(t) {
+    this.#i = t;
+  }
+  get result() {
+    return this.#t;
+  }
+  parse() {
+    for (this.#n = D(this.#i, true); this.#e < this.#n.length; this.#e += this.#s) {
+      if (this.#s = 1, this.#n[this.#e].type === "END") {
+        if (this.#o === 0) {
+          this.#b(), this.#f() ? this.#r(9, 1) : this.#h() ? this.#r(8, 1) : this.#r(7, 0);
+          continue;
+        } else if (this.#o === 2) {
+          this.#u(5);
+          continue;
+        }
+        this.#r(10, 0);
+        break;
+      }
+      if (this.#d > 0) if (this.#A()) this.#d -= 1;
+      else continue;
+      if (this.#T()) {
+        this.#d += 1;
+        continue;
+      }
+      switch (this.#o) {
+        case 0:
+          this.#P() && this.#u(1);
+          break;
+        case 1:
+          if (this.#P()) {
+            this.#C();
+            let t = 7, r = 1;
+            this.#E() ? (t = 2, r = 3) : this.#g && (t = 2), this.#r(t, r);
+          }
+          break;
+        case 2:
+          this.#S() ? this.#u(3) : (this.#x() || this.#h() || this.#f()) && this.#u(5);
+          break;
+        case 3:
+          this.#O() ? this.#r(4, 1) : this.#S() && this.#r(5, 1);
+          break;
+        case 4:
+          this.#S() && this.#r(5, 1);
+          break;
+        case 5:
+          this.#y() ? this.#p += 1 : this.#w() && (this.#p -= 1), this.#k() && !this.#p ? this.#r(6, 1) : this.#x() ? this.#r(7, 0) : this.#h() ? this.#r(8, 1) : this.#f() && this.#r(9, 1);
+          break;
+        case 6:
+          this.#x() ? this.#r(7, 0) : this.#h() ? this.#r(8, 1) : this.#f() && this.#r(9, 1);
+          break;
+        case 7:
+          this.#h() ? this.#r(8, 1) : this.#f() && this.#r(9, 1);
+          break;
+        case 8:
+          this.#f() && this.#r(9, 1);
+          break;
+      }
+    }
+    this.#t.hostname !== void 0 && this.#t.port === void 0 && (this.#t.port = "");
+  }
+  #r(t, r) {
+    switch (this.#o) {
+      case 0:
+        break;
+      case 1:
+        this.#t.protocol = this.#c();
+        break;
+      case 2:
+        break;
+      case 3:
+        this.#t.username = this.#c();
+        break;
+      case 4:
+        this.#t.password = this.#c();
+        break;
+      case 5:
+        this.#t.hostname = this.#c();
+        break;
+      case 6:
+        this.#t.port = this.#c();
+        break;
+      case 7:
+        this.#t.pathname = this.#c();
+        break;
+      case 8:
+        this.#t.search = this.#c();
+        break;
+      case 9:
+        this.#t.hash = this.#c();
+        break;
+    }
+    this.#o !== 0 && t !== 10 && ([1, 2, 3, 4].includes(this.#o) && [6, 7, 8, 9].includes(t) && (this.#t.hostname ??= ""), [1, 2, 3, 4, 5, 6].includes(this.#o) && [8, 9].includes(t) && (this.#t.pathname ??= this.#g ? "/" : ""), [1, 2, 3, 4, 5, 6, 7].includes(this.#o) && t === 9 && (this.#t.search ??= "")), this.#R(t, r);
+  }
+  #R(t, r) {
+    this.#o = t, this.#l = this.#e + r, this.#e += r, this.#s = 0;
+  }
+  #b() {
+    this.#e = this.#l, this.#s = 0;
+  }
+  #u(t) {
+    this.#b(), this.#o = t;
+  }
+  #m(t) {
+    return t < 0 && (t = this.#n.length - t), t < this.#n.length ? this.#n[t] : this.#n[this.#n.length - 1];
+  }
+  #a(t, r) {
+    let n = this.#m(t);
+    return n.value === r && (n.type === "CHAR" || n.type === "ESCAPED_CHAR" || n.type === "INVALID_CHAR");
+  }
+  #P() {
+    return this.#a(this.#e, ":");
+  }
+  #E() {
+    return this.#a(this.#e + 1, "/") && this.#a(this.#e + 2, "/");
+  }
+  #S() {
+    return this.#a(this.#e, "@");
+  }
+  #O() {
+    return this.#a(this.#e, ":");
+  }
+  #k() {
+    return this.#a(this.#e, ":");
+  }
+  #x() {
+    return this.#a(this.#e, "/");
+  }
+  #h() {
+    if (this.#a(this.#e, "?")) return true;
+    if (this.#n[this.#e].value !== "?") return false;
+    let t = this.#m(this.#e - 1);
+    return t.type !== "NAME" && t.type !== "REGEX" && t.type !== "CLOSE" && t.type !== "ASTERISK";
+  }
+  #f() {
+    return this.#a(this.#e, "#");
+  }
+  #T() {
+    return this.#n[this.#e].type == "OPEN";
+  }
+  #A() {
+    return this.#n[this.#e].type == "CLOSE";
+  }
+  #y() {
+    return this.#a(this.#e, "[");
+  }
+  #w() {
+    return this.#a(this.#e, "]");
+  }
+  #c() {
+    let t = this.#n[this.#e], r = this.#m(this.#l).index;
+    return this.#i.substring(r, t.index);
+  }
+  #C() {
+    let t = {};
+    Object.assign(t, b), t.encodePart = w;
+    let r = q(this.#c(), void 0, t);
+    this.#g = U(r);
+  }
+};
+a(C, "Parser");
+var V = ["protocol", "username", "password", "hostname", "port", "pathname", "search", "hash"];
+var O = "*";
+function Se(e, t) {
+  if (typeof e != "string") throw new TypeError("parameter 1 is not of type 'string'.");
+  let r = new URL(e, t);
+  return { protocol: r.protocol.substring(0, r.protocol.length - 1), username: r.username, password: r.password, hostname: r.hostname, port: r.port, pathname: r.pathname, search: r.search !== "" ? r.search.substring(1, r.search.length) : void 0, hash: r.hash !== "" ? r.hash.substring(1, r.hash.length) : void 0 };
+}
+a(Se, "extractValues");
+function R(e, t) {
+  return t ? I(e) : e;
+}
+a(R, "processBaseURLString");
+function L(e, t, r) {
+  let n;
+  if (typeof t.baseURL == "string") try {
+    n = new URL(t.baseURL), t.protocol === void 0 && (e.protocol = R(n.protocol.substring(0, n.protocol.length - 1), r)), !r && t.protocol === void 0 && t.hostname === void 0 && t.port === void 0 && t.username === void 0 && (e.username = R(n.username, r)), !r && t.protocol === void 0 && t.hostname === void 0 && t.port === void 0 && t.username === void 0 && t.password === void 0 && (e.password = R(n.password, r)), t.protocol === void 0 && t.hostname === void 0 && (e.hostname = R(n.hostname, r)), t.protocol === void 0 && t.hostname === void 0 && t.port === void 0 && (e.port = R(n.port, r)), t.protocol === void 0 && t.hostname === void 0 && t.port === void 0 && t.pathname === void 0 && (e.pathname = R(n.pathname, r)), t.protocol === void 0 && t.hostname === void 0 && t.port === void 0 && t.pathname === void 0 && t.search === void 0 && (e.search = R(n.search.substring(1, n.search.length), r)), t.protocol === void 0 && t.hostname === void 0 && t.port === void 0 && t.pathname === void 0 && t.search === void 0 && t.hash === void 0 && (e.hash = R(n.hash.substring(1, n.hash.length), r));
+  } catch {
+    throw new TypeError(`invalid baseURL '${t.baseURL}'.`);
+  }
+  if (typeof t.protocol == "string" && (e.protocol = fe(t.protocol, r)), typeof t.username == "string" && (e.username = oe(t.username, r)), typeof t.password == "string" && (e.password = ae(t.password, r)), typeof t.hostname == "string" && (e.hostname = ie(t.hostname, r)), typeof t.port == "string" && (e.port = le(t.port, e.protocol, r)), typeof t.pathname == "string") {
+    if (e.pathname = t.pathname, n && !ee(e.pathname, r)) {
+      let c = n.pathname.lastIndexOf("/");
+      c >= 0 && (e.pathname = R(n.pathname.substring(0, c + 1), r) + e.pathname);
+    }
+    e.pathname = ce(e.pathname, e.protocol, r);
+  }
+  return typeof t.search == "string" && (e.search = se(t.search, r)), typeof t.hash == "string" && (e.hash = ne(t.hash, r)), e;
+}
+a(L, "applyInit");
+function I(e) {
+  return e.replace(/([+*?:{}()\\])/g, "\\$1");
+}
+a(I, "escapePatternString");
+function Te(e) {
+  return e.replace(/([.+*?^${}()[\]|/\\])/g, "\\$1");
+}
+a(Te, "escapeRegexpString");
+function Ae(e, t) {
+  t.delimiter ??= "/#?", t.prefixes ??= "./", t.sensitive ??= false, t.strict ??= false, t.end ??= true, t.start ??= true, t.endsWith = "";
+  let r = ".*", n = `[^${Te(t.delimiter)}]+?`, c = /[$_\u200C\u200D\p{ID_Continue}]/u, l = "";
+  for (let f = 0; f < e.length; ++f) {
+    let s = e[f];
+    if (s.type === 3) {
+      if (s.modifier === 3) {
+        l += I(s.value);
+        continue;
+      }
+      l += `{${I(s.value)}}${T(s.modifier)}`;
+      continue;
+    }
+    let i = s.hasCustomName(), o = !!s.suffix.length || !!s.prefix.length && (s.prefix.length !== 1 || !t.prefixes.includes(s.prefix)), h = f > 0 ? e[f - 1] : null, p = f < e.length - 1 ? e[f + 1] : null;
+    if (!o && i && s.type === 1 && s.modifier === 3 && p && !p.prefix.length && !p.suffix.length) if (p.type === 3) {
+      let A = p.value.length > 0 ? p.value[0] : "";
+      o = c.test(A);
+    } else o = !p.hasCustomName();
+    if (!o && !s.prefix.length && h && h.type === 3) {
+      let A = h.value[h.value.length - 1];
+      o = t.prefixes.includes(A);
+    }
+    o && (l += "{"), l += I(s.prefix), i && (l += `:${s.name}`), s.type === 2 ? l += `(${s.value})` : s.type === 1 ? i || (l += `(${n})`) : s.type === 0 && (!i && (!h || h.type === 3 || h.modifier !== 3 || o || s.prefix !== "") ? l += "*" : l += `(${r})`), s.type === 1 && i && s.suffix.length && c.test(s.suffix[0]) && (l += "\\"), l += I(s.suffix), o && (l += "}"), s.modifier !== 3 && (l += T(s.modifier));
+  }
+  return l;
+}
+a(Ae, "partsToPattern");
+var Y = class {
+  #i;
+  #n = {};
+  #t = {};
+  #e = {};
+  #s = {};
+  #l = false;
+  constructor(t = {}, r, n) {
+    try {
+      let c;
+      if (typeof r == "string" ? c = r : n = r, typeof t == "string") {
+        let i = new C(t);
+        if (i.parse(), t = i.result, c === void 0 && typeof t.protocol != "string") throw new TypeError("A base URL must be provided for a relative constructor string.");
+        t.baseURL = c;
+      } else {
+        if (!t || typeof t != "object") throw new TypeError("parameter 1 is not of type 'string' and cannot convert to dictionary.");
+        if (c) throw new TypeError("parameter 1 is not of type 'string'.");
+      }
+      typeof n > "u" && (n = { ignoreCase: false });
+      let l = { ignoreCase: n.ignoreCase === true }, f = { pathname: O, protocol: O, username: O, password: O, hostname: O, port: O, search: O, hash: O };
+      this.#i = L(f, t, true), z(this.#i.protocol) === this.#i.port && (this.#i.port = "");
+      let s;
+      for (s of V) {
+        if (!(s in this.#i)) continue;
+        let i = {}, o = this.#i[s];
+        switch (this.#t[s] = [], s) {
+          case "protocol":
+            Object.assign(i, b), i.encodePart = w;
+            break;
+          case "username":
+            Object.assign(i, b), i.encodePart = he;
+            break;
+          case "password":
+            Object.assign(i, b), i.encodePart = ue;
+            break;
+          case "hostname":
+            Object.assign(i, J), _(o) ? i.encodePart = K : i.encodePart = j;
+            break;
+          case "port":
+            Object.assign(i, b), i.encodePart = G;
+            break;
+          case "pathname":
+            U(this.#n.protocol) ? (Object.assign(i, Q, l), i.encodePart = de) : (Object.assign(i, b, l), i.encodePart = pe);
+            break;
+          case "search":
+            Object.assign(i, b, l), i.encodePart = ge;
+            break;
+          case "hash":
+            Object.assign(i, b, l), i.encodePart = me;
+            break;
+        }
+        try {
+          this.#s[s] = F(o, i), this.#n[s] = W(this.#s[s], this.#t[s], i), this.#e[s] = Ae(this.#s[s], i), this.#l = this.#l || this.#s[s].some((h) => h.type === 2);
+        } catch {
+          throw new TypeError(`invalid ${s} pattern '${this.#i[s]}'.`);
+        }
+      }
+    } catch (c) {
+      throw new TypeError(`Failed to construct 'URLPattern': ${c.message}`);
+    }
+  }
+  get [Symbol.toStringTag]() {
+    return "URLPattern";
+  }
+  test(t = {}, r) {
+    let n = { pathname: "", protocol: "", username: "", password: "", hostname: "", port: "", search: "", hash: "" };
+    if (typeof t != "string" && r) throw new TypeError("parameter 1 is not of type 'string'.");
+    if (typeof t > "u") return false;
+    try {
+      typeof t == "object" ? n = L(n, t, false) : n = L(n, Se(t, r), false);
+    } catch {
+      return false;
+    }
+    let c;
+    for (c of V) if (!this.#n[c].exec(n[c])) return false;
+    return true;
+  }
+  exec(t = {}, r) {
+    let n = { pathname: "", protocol: "", username: "", password: "", hostname: "", port: "", search: "", hash: "" };
+    if (typeof t != "string" && r) throw new TypeError("parameter 1 is not of type 'string'.");
+    if (typeof t > "u") return;
+    try {
+      typeof t == "object" ? n = L(n, t, false) : n = L(n, Se(t, r), false);
+    } catch {
+      return null;
+    }
+    let c = {};
+    r ? c.inputs = [t, r] : c.inputs = [t];
+    let l;
+    for (l of V) {
+      let f = this.#n[l].exec(n[l]);
+      if (!f) return null;
+      let s = {};
+      for (let [i, o] of this.#t[l].entries()) if (typeof o == "string" || typeof o == "number") {
+        let h = f[i + 1];
+        s[o] = h;
+      }
+      c[l] = { input: n[l] ?? "", groups: s };
+    }
+    return c;
+  }
+  static compareComponent(t, r, n) {
+    let c = a((i, o) => {
+      for (let h of ["type", "modifier", "prefix", "value", "suffix"]) {
+        if (i[h] < o[h]) return -1;
+        if (i[h] === o[h]) continue;
+        return 1;
+      }
+      return 0;
+    }, "comparePart"), l = new P(3, "", "", "", "", 3), f = new P(0, "", "", "", "", 3), s = a((i, o) => {
+      let h = 0;
+      for (; h < Math.min(i.length, o.length); ++h) {
+        let p = c(i[h], o[h]);
+        if (p) return p;
+      }
+      return i.length === o.length ? 0 : c(i[h] ?? l, o[h] ?? l);
+    }, "comparePartList");
+    return !r.#e[t] && !n.#e[t] ? 0 : r.#e[t] && !n.#e[t] ? s(r.#s[t], [f]) : !r.#e[t] && n.#e[t] ? s([f], n.#s[t]) : s(r.#s[t], n.#s[t]);
+  }
+  get protocol() {
+    return this.#e.protocol;
+  }
+  get username() {
+    return this.#e.username;
+  }
+  get password() {
+    return this.#e.password;
+  }
+  get hostname() {
+    return this.#e.hostname;
+  }
+  get port() {
+    return this.#e.port;
+  }
+  get pathname() {
+    return this.#e.pathname;
+  }
+  get search() {
+    return this.#e.search;
+  }
+  get hash() {
+    return this.#e.hash;
+  }
+  get hasRegExpGroups() {
+    return this.#l;
+  }
+};
+a(Y, "URLPattern");
+
+// node_modules/urlpattern-polyfill/index.js
+if (!globalThis.URLPattern) {
+  globalThis.URLPattern = Y;
+}
+
+/**
  * @license
  * Copyright 2022 Google Inc.
  * SPDX-License-Identifier: Apache-2.0
@@ -18876,13 +22028,18 @@ function isPageTargetBecomingPrimary(target, newTargetInfo) {
     return Boolean(target._subtype()) && !newTargetInfo.subtype;
 }
 /**
- * ChromeTargetManager uses the CDP's auto-attach mechanism to intercept
+ * TargetManager encapsulates all interactions with CDP targets and is
+ * responsible for coordinating the configuration of targets with the rest of
+ * Puppeteer. Code outside of this class should not subscribe `Target.*` events
+ * and only use the TargetManager events.
+ *
+ * TargetManager uses the CDP's auto-attach mechanism to intercept
  * new targets and allow the rest of Puppeteer to configure listeners while
  * the target is paused.
  *
  * @internal
  */
-class ChromeTargetManager extends EventEmitter {
+class TargetManager extends EventEmitter {
     #connection;
     /**
      * Keeps track of the following events: 'Target.targetCreated',
@@ -18896,7 +22053,7 @@ class ChromeTargetManager extends EventEmitter {
      */
     #discoveredTargetsByTargetId = new Map();
     /**
-     * A target is added to this map once ChromeTargetManager has created
+     * A target is added to this map once TargetManager has created
      * a Target and attached at least once to it.
      */
     #attachedTargetsByTargetId = new Map();
@@ -18911,48 +22068,49 @@ class ChromeTargetManager extends EventEmitter {
     #ignoredTargets = new Set();
     #targetFilterCallback;
     #targetFactory;
-    #attachedToTargetListenersBySession = new WeakMap();
-    #detachedFromTargetListenersBySession = new WeakMap();
+    #subscriptions = new DisposableStack();
+    #attachmentSubscriptions = new WeakMap();
     #initializeDeferred = Deferred.create();
-    #targetsIdsForInit = new Set();
     #waitForInitiallyDiscoveredTargets = true;
     #discoveryFilter = [{}];
-    constructor(connection, targetFactory, targetFilterCallback, waitForInitiallyDiscoveredTargets = true) {
-        super();
+    // IDs of tab targets detected while running the initial Target.setAutoAttach
+    // request. These are the targets whose initialization we want to await for
+    // before resolving puppeteer.connect() or launch() to avoid flakiness.
+    // Whenever a sub-target whose parent is a tab target is attached, we remove
+    // the tab target from this list. Once the list is empty, we resolve the
+    // initializeDeferred.
+    #targetsIdsForInit = new Set();
+    // This is false until the connection-level Target.setAutoAttach request is
+    // done. It indicates whethere we are running the initial auto-attach step or
+    // if we are handling targets after that.
+    #initialAttachDone = false;
+    #blocklist = [];
+    #allowlist = [];
+    #logger;
+    constructor(connection, targetFactory, targetFilterCallback, waitForInitiallyDiscoveredTargets = true, blocklist, allowlist, logger) {
+        super(undefined, logger);
+        if (blocklist && allowlist) {
+            throw new Error('Cannot specify both blockList and allowList');
+        }
         this.#connection = connection;
         this.#targetFilterCallback = targetFilterCallback;
         this.#targetFactory = targetFactory;
         this.#waitForInitiallyDiscoveredTargets = waitForInitiallyDiscoveredTargets;
-        this.#connection.on('Target.targetCreated', this.#onTargetCreated);
-        this.#connection.on('Target.targetDestroyed', this.#onTargetDestroyed);
-        this.#connection.on('Target.targetInfoChanged', this.#onTargetInfoChanged);
-        this.#connection.on(CDPSessionEvent.SessionDetached, this.#onSessionDetached);
+        this.#logger = logger;
+        this.#blocklist = this.#mapPatterns(blocklist);
+        this.#allowlist = this.#mapPatterns(allowlist);
+        const connectionEmitter = this.#subscriptions.use(new EventEmitter(this.#connection));
+        connectionEmitter.on('Target.targetCreated', this.#onTargetCreated);
+        connectionEmitter.on('Target.targetDestroyed', this.#onTargetDestroyed);
+        connectionEmitter.on('Target.targetInfoChanged', this.#onTargetInfoChanged);
+        connectionEmitter.on(CDPSessionEvent.SessionDetached, this.#onSessionDetached);
         this.#setupAttachmentListeners(this.#connection);
     }
-    #storeExistingTargetsForInit = () => {
-        if (!this.#waitForInitiallyDiscoveredTargets) {
-            return;
-        }
-        for (const [targetId, targetInfo,] of this.#discoveredTargetsByTargetId.entries()) {
-            const targetForFilter = new CdpTarget(targetInfo, undefined, undefined, this, undefined);
-            // Targets from extensions and the browser that will not be
-            // auto-attached. Therefore, we should not add them to
-            // #targetsIdsForInit.
-            const skipTarget = targetInfo.type === 'browser' ||
-                targetInfo.url.startsWith('chrome-extension://');
-            if ((!this.#targetFilterCallback ||
-                this.#targetFilterCallback(targetForFilter)) &&
-                !skipTarget) {
-                this.#targetsIdsForInit.add(targetId);
-            }
-        }
-    };
     async initialize() {
         await this.#connection.send('Target.setDiscoverTargets', {
             discover: true,
             filter: this.#discoveryFilter,
         });
-        this.#storeExistingTargetsForInit();
         await this.#connection.send('Target.setAutoAttach', {
             waitForDebuggerOnStart: true,
             flatten: true,
@@ -18965,47 +22123,64 @@ class ChromeTargetManager extends EventEmitter {
                 ...this.#discoveryFilter,
             ],
         });
+        this.#initialAttachDone = true;
         this.#finishInitializationIfReady();
         await this.#initializeDeferred.valueOrThrow();
+    }
+    addToIgnoreTarget(targetId) {
+        this.#ignoredTargets.add(targetId);
     }
     getChildTargets(target) {
         return target._childTargets();
     }
     dispose() {
-        this.#connection.off('Target.targetCreated', this.#onTargetCreated);
-        this.#connection.off('Target.targetDestroyed', this.#onTargetDestroyed);
-        this.#connection.off('Target.targetInfoChanged', this.#onTargetInfoChanged);
-        this.#connection.off(CDPSessionEvent.SessionDetached, this.#onSessionDetached);
+        this.#subscriptions.dispose();
         this.#removeAttachmentListeners(this.#connection);
     }
     getAvailableTargets() {
         return this.#attachedTargetsByTargetId;
     }
+    getDiscoveredTargetInfos() {
+        return this.#discoveredTargetsByTargetId;
+    }
     #setupAttachmentListeners(session) {
-        const listener = (event) => {
+        assert(!this.#attachmentSubscriptions.has(session));
+        const subscriptions = new DisposableStack();
+        const sessionEmitter = subscriptions.use(new EventEmitter(session));
+        sessionEmitter.on('Target.attachedToTarget', event => {
             void this.#onAttachedToTarget(session, event);
-        };
-        assert(!this.#attachedToTargetListenersBySession.has(session));
-        this.#attachedToTargetListenersBySession.set(session, listener);
-        session.on('Target.attachedToTarget', listener);
-        const detachedListener = (event) => {
+        });
+        sessionEmitter.on('Target.detachedFromTarget', event => {
             return this.#onDetachedFromTarget(session, event);
-        };
-        assert(!this.#detachedFromTargetListenersBySession.has(session));
-        this.#detachedFromTargetListenersBySession.set(session, detachedListener);
-        session.on('Target.detachedFromTarget', detachedListener);
+        });
+        this.#attachmentSubscriptions.set(session, subscriptions);
     }
     #removeAttachmentListeners(session) {
-        const listener = this.#attachedToTargetListenersBySession.get(session);
-        if (listener) {
-            session.off('Target.attachedToTarget', listener);
-            this.#attachedToTargetListenersBySession.delete(session);
-        }
-        if (this.#detachedFromTargetListenersBySession.has(session)) {
-            session.off('Target.detachedFromTarget', this.#detachedFromTargetListenersBySession.get(session));
-            this.#detachedFromTargetListenersBySession.delete(session);
+        const subscriptions = this.#attachmentSubscriptions.get(session);
+        if (subscriptions) {
+            subscriptions.dispose();
+            this.#attachmentSubscriptions.delete(session);
         }
     }
+    #silentDetach = async (session, parentSession) => {
+        await session.send('Runtime.runIfWaitingForDebugger').catch(error => {
+            this.#logger?.(DEBUG_PREFIXES.error)?.(error);
+        });
+        // We don't use `session.detach()` because that dispatches all commands on
+        // the connection instead of the parent session.
+        await parentSession
+            .send('Target.detachFromTarget', {
+            sessionId: session.id(),
+        })
+            .catch(error => {
+            this.#logger?.(DEBUG_PREFIXES.error)?.(error);
+        });
+    };
+    #getParentTarget = (parentSession) => {
+        return parentSession instanceof CdpCDPSession
+            ? parentSession.target()
+            : null;
+    };
     #onSessionDetached = (session) => {
         this.#removeAttachmentListeners(session);
     };
@@ -19028,8 +22203,7 @@ class ChromeTargetManager extends EventEmitter {
         const targetInfo = this.#discoveredTargetsByTargetId.get(event.targetId);
         this.#discoveredTargetsByTargetId.delete(event.targetId);
         this.#finishInitializationIfReady(event.targetId);
-        if (targetInfo?.type === 'service_worker' &&
-            this.#attachedTargetsByTargetId.has(event.targetId)) {
+        if (targetInfo?.type === 'service_worker') {
             // Special case for service workers: report TargetGone event when
             // the worker is destroyed.
             const target = this.#attachedTargetsByTargetId.get(event.targetId);
@@ -19042,7 +22216,6 @@ class ChromeTargetManager extends EventEmitter {
     #onTargetInfoChanged = (event) => {
         this.#discoveredTargetsByTargetId.set(event.targetInfo.targetId, event.targetInfo);
         if (this.#ignoredTargets.has(event.targetInfo.targetId) ||
-            !this.#attachedTargetsByTargetId.has(event.targetInfo.targetId) ||
             !event.targetInfo.attached) {
             return;
         }
@@ -19053,7 +22226,7 @@ class ChromeTargetManager extends EventEmitter {
         const previousURL = target.url();
         const wasInitialized = target._initializedDeferred.value() === InitializationStatus.SUCCESS;
         if (isPageTargetBecomingPrimary(target, event.targetInfo)) {
-            const session = target?._session();
+            const session = target._session();
             assert(session, 'Target that is being activated is missing a CDPSession.');
             session.parentSession()?.emit(CDPSessionEvent.Swapped, session);
         }
@@ -19068,21 +22241,18 @@ class ChromeTargetManager extends EventEmitter {
     };
     #onAttachedToTarget = async (parentSession, event) => {
         const targetInfo = event.targetInfo;
-        const session = this.#connection.session(event.sessionId);
+        const session = this.#connection._session(event.sessionId);
         if (!session) {
             throw new Error(`Session ${event.sessionId} was not created.`);
         }
-        const silentDetach = async () => {
-            await session.send('Runtime.runIfWaitingForDebugger').catch(debugError);
-            // We don't use `session.detach()` because that dispatches all commands on
-            // the connection instead of the parent session.
-            await parentSession
-                .send('Target.detachFromTarget', {
-                sessionId: session.id(),
-            })
-                .catch(debugError);
-        };
         if (!this.#connection.isAutoAttached(targetInfo.targetId)) {
+            await this.#maybeSetupNetworkConditions(session, targetInfo);
+            return;
+        }
+        // If we connect to a browser that is already open,
+        // immediately detach from any tab that is on the blocklist.
+        if (!this.#initialAttachDone && !this.isUrlAllowed(targetInfo.url)) {
+            await this.#silentDetach(session, parentSession);
             return;
         }
         // Special case for service workers: being attached to service workers will
@@ -19093,9 +22263,19 @@ class ChromeTargetManager extends EventEmitter {
         // should determine if a target is auto-attached or not with the help of
         // CDP.
         if (targetInfo.type === 'service_worker') {
-            this.#finishInitializationIfReady(targetInfo.targetId);
-            await silentDetach();
-            if (this.#attachedTargetsByTargetId.has(targetInfo.targetId)) {
+            if (!this.isUrlAllowed(targetInfo.url)) {
+                await Promise.all([
+                    this.#maybeSetupNetworkConditions(session, targetInfo),
+                    session.send('Runtime.runIfWaitingForDebugger'),
+                ]).catch(error => {
+                    this.#logger?.(DEBUG_PREFIXES.error)?.(error);
+                });
+                return;
+            }
+            await this.#silentDetach(session, parentSession);
+            if (this.#attachedTargetsByTargetId.has(targetInfo.targetId) ||
+                this.#ignoredTargets.has(targetInfo.targetId) ||
+                !this.#discoveredTargetsByTargetId.has(targetInfo.targetId)) {
                 return;
             }
             const target = this.#targetFactory(targetInfo);
@@ -19104,38 +22284,45 @@ class ChromeTargetManager extends EventEmitter {
             this.emit("targetAvailable" /* TargetManagerEvent.TargetAvailable */, target);
             return;
         }
-        const isExistingTarget = this.#attachedTargetsByTargetId.has(targetInfo.targetId);
-        const target = isExistingTarget
-            ? this.#attachedTargetsByTargetId.get(targetInfo.targetId)
-            : this.#targetFactory(targetInfo, session, parentSession instanceof CDPSession ? parentSession : undefined);
+        let target = this.#attachedTargetsByTargetId.get(targetInfo.targetId);
+        const isExistingTarget = target !== undefined;
+        if (!target) {
+            target = this.#targetFactory(targetInfo, session, parentSession instanceof CdpCDPSession ? parentSession : undefined);
+        }
+        const parentTarget = this.#getParentTarget(parentSession);
         if (this.#targetFilterCallback && !this.#targetFilterCallback(target)) {
             this.#ignoredTargets.add(targetInfo.targetId);
-            this.#finishInitializationIfReady(targetInfo.targetId);
-            await silentDetach();
+            if (parentTarget?.type() === 'tab') {
+                this.#finishInitializationIfReady(parentTarget._targetId);
+            }
+            await this.#silentDetach(session, parentSession);
             return;
+        }
+        if (this.#waitForInitiallyDiscoveredTargets &&
+            event.targetInfo.type === 'tab' &&
+            !this.#initialAttachDone) {
+            this.#targetsIdsForInit.add(event.targetInfo.targetId);
         }
         this.#setupAttachmentListeners(session);
         if (isExistingTarget) {
-            session._setTarget(target);
-            this.#attachedTargetsBySessionId.set(session.id(), this.#attachedTargetsByTargetId.get(targetInfo.targetId));
+            session.setTarget(target);
+            this.#attachedTargetsBySessionId.set(session.id(), target);
         }
         else {
             target._initialize();
             this.#attachedTargetsByTargetId.set(targetInfo.targetId, target);
             this.#attachedTargetsBySessionId.set(session.id(), target);
         }
-        const parentTarget = parentSession instanceof CDPSession
-            ? parentSession._target()
-            : null;
         parentTarget?._addChildTarget(target);
         parentSession.emit(CDPSessionEvent.Ready, session);
-        this.#targetsIdsForInit.delete(target._targetId);
         if (!isExistingTarget) {
             this.emit("targetAvailable" /* TargetManagerEvent.TargetAvailable */, target);
         }
-        this.#finishInitializationIfReady();
-        // TODO: the browser might be shutting down here. What do we do with the
-        // error?
+        if (parentTarget?.type() === 'tab') {
+            this.#finishInitializationIfReady(parentTarget._targetId);
+        }
+        // The browser might be shutting down here, so we
+        // ignore potential errors.
         await Promise.all([
             session.send('Target.setAutoAttach', {
                 waitForDebuggerOnStart: true,
@@ -19143,11 +22330,21 @@ class ChromeTargetManager extends EventEmitter {
                 autoAttach: true,
                 filter: this.#discoveryFilter,
             }),
+            this.#maybeSetupNetworkConditions(session, targetInfo),
             session.send('Runtime.runIfWaitingForDebugger'),
-        ]).catch(debugError);
+        ]).catch(error => {
+            this.#logger?.(DEBUG_PREFIXES.error)?.(error);
+        });
     };
     #finishInitializationIfReady(targetId) {
-        targetId !== undefined && this.#targetsIdsForInit.delete(targetId);
+        if (targetId !== undefined) {
+            this.#targetsIdsForInit.delete(targetId);
+        }
+        // If we are still initializing it might be that we have not learned about
+        // some targets yet.
+        if (!this.#initialAttachDone) {
+            return;
+        }
         if (this.#targetsIdsForInit.size === 0) {
             this.#initializeDeferred.resolve();
         }
@@ -19158,11 +22355,91 @@ class ChromeTargetManager extends EventEmitter {
         if (!target) {
             return;
         }
-        if (parentSession instanceof CDPSession) {
-            parentSession._target()._removeChildTarget(target);
+        if (parentSession instanceof CdpCDPSession) {
+            parentSession.target()._removeChildTarget(target);
         }
         this.#attachedTargetsByTargetId.delete(target._targetId);
         this.emit("targetGone" /* TargetManagerEvent.TargetGone */, target);
+    };
+    /**
+     * Helper to validate URL against blocklist patterns
+     */
+    isUrlAllowed = (url) => {
+        if (this.#blocklist.length === 0 && this.#allowlist.length === 0) {
+            return true;
+        }
+        // Always allow internal or setup pages
+        if (!url || url === 'about:blank') {
+            return true;
+        }
+        for (const item of this.#blocklist) {
+            if (item.pattern.test(url)) {
+                return false;
+            }
+        }
+        if (this.#allowlist.length > 0) {
+            for (const item of this.#allowlist) {
+                if (item.pattern.test(url)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        return true;
+    };
+    #mapPatterns(rules) {
+        const result = [];
+        for (const rule of rules ?? []) {
+            result.push({ pattern: new Y(rule), rule });
+        }
+        return result;
+    }
+    #maybeSetupNetworkConditions = async (session, targetInfo) => {
+        if (this.#blocklist.length === 0 && this.#allowlist.length === 0) {
+            return;
+        }
+        const matchedNetworkConditions = [];
+        for (const item of this.#blocklist) {
+            matchedNetworkConditions.push({
+                urlPattern: item.rule,
+                offline: true,
+                latency: 0,
+                downloadThroughput: -1,
+                uploadThroughput: -1,
+            });
+        }
+        if (this.#allowlist.length > 0) {
+            for (const item of this.#allowlist) {
+                matchedNetworkConditions.push({
+                    urlPattern: item.rule,
+                    offline: false,
+                    latency: 0,
+                    downloadThroughput: -1,
+                    uploadThroughput: -1,
+                });
+            }
+            matchedNetworkConditions.push({
+                urlPattern: '',
+                offline: true,
+                latency: 0,
+                downloadThroughput: -1,
+                uploadThroughput: -1,
+            });
+        }
+        const needsNetwork = targetInfo.type === 'worker' ||
+            targetInfo.type === 'service_worker' ||
+            targetInfo.type === 'shared_worker';
+        const promises = [];
+        if (needsNetwork) {
+            promises.push(session.send('Network.enable'));
+        }
+        promises.push(session.send('Network.emulateNetworkConditionsByRule', {
+            offline: this.#blocklist.length > 0 ? true : undefined,
+            matchedNetworkConditions,
+        }));
+        await Promise.all(promises).catch(error => {
+            this.#logger?.(DEBUG_PREFIXES.error)?.(error);
+        });
     };
 }
 
@@ -19174,16 +22451,29 @@ class ChromeTargetManager extends EventEmitter {
 /**
  * @internal
  */
+function isDevToolsPageTarget(url) {
+    return url.startsWith('devtools://devtools/bundled/devtools_app.html');
+}
+/**
+ * @internal
+ */
 class CdpBrowser extends Browser {
     protocol = 'cdp';
-    static async _create(product, connection, contextIds, ignoreHTTPSErrors, defaultViewport, process, closeCallback, targetFilterCallback, isPageTargetCallback, waitForInitiallyDiscoveredTargets = true) {
-        const browser = new CdpBrowser(product, connection, contextIds, defaultViewport, process, closeCallback, targetFilterCallback, isPageTargetCallback, waitForInitiallyDiscoveredTargets);
-        if (ignoreHTTPSErrors) {
+    static async _create(connection, contextIds, acceptInsecureCerts, defaultViewport = undefined, downloadBehavior = undefined, process = undefined, closeCallback = undefined, targetFilterCallback = undefined, isPageTargetCallback = undefined, waitForInitiallyDiscoveredTargets = true, networkEnabled = true, issuesEnabled = true, handleDevToolsAsPage = false, blocklist = undefined, allowlist = undefined, logger) {
+        const browser = new CdpBrowser(connection, contextIds, defaultViewport, process, closeCallback, targetFilterCallback, isPageTargetCallback, waitForInitiallyDiscoveredTargets, networkEnabled, issuesEnabled, handleDevToolsAsPage, blocklist, allowlist, logger);
+        if (allowlist) {
+            const version = await browser.#getVersion();
+            const majorVersion = parseInt(version.product.match(/\d+/)?.[0] ?? '0', 10);
+            if (majorVersion < 149) {
+                throw new Error('The allowlist option require Chrome 149 or greater.');
+            }
+        }
+        if (acceptInsecureCerts) {
             await connection.send('Security.setIgnoreCertificateErrors', {
                 ignore: true,
             });
         }
-        await browser._attach();
+        await browser._attach(downloadBehavior);
         return browser;
     }
     #defaultViewport;
@@ -19194,10 +22484,18 @@ class CdpBrowser extends Browser {
     #isPageTargetCallback;
     #defaultContext;
     #contexts = new Map();
+    #networkEnabled = true;
+    #issuesEnabled = true;
     #targetManager;
-    constructor(product, connection, contextIds, defaultViewport, process, closeCallback, targetFilterCallback, isPageTargetCallback, waitForInitiallyDiscoveredTargets = true) {
-        super();
-        product = product || 'chrome';
+    #handleDevToolsAsPage = false;
+    #extensions = new Map();
+    #version;
+    #hasNetworkRestrictions = false;
+    #subscriptions = new DisposableStack();
+    constructor(connection, contextIds, defaultViewport = undefined, process = undefined, closeCallback = undefined, targetFilterCallback = undefined, isPageTargetCallback = undefined, waitForInitiallyDiscoveredTargets = true, networkEnabled = true, issuesEnabled = true, handleDevToolsAsPage = false, blocklist = undefined, allowlist = undefined, logger) {
+        super(logger);
+        this.#networkEnabled = networkEnabled;
+        this.#issuesEnabled = issuesEnabled;
         this.#defaultViewport = defaultViewport;
         this.#process = process;
         this.#connection = connection;
@@ -19207,35 +22505,36 @@ class CdpBrowser extends Browser {
                 (() => {
                     return true;
                 });
+        this.#handleDevToolsAsPage = handleDevToolsAsPage;
         this.#setIsPageTargetCallback(isPageTargetCallback);
-        if (product === 'firefox') {
-            this.#targetManager = new FirefoxTargetManager(connection, this.#createTarget, this.#targetFilterCallback);
-        }
-        else {
-            this.#targetManager = new ChromeTargetManager(connection, this.#createTarget, this.#targetFilterCallback, waitForInitiallyDiscoveredTargets);
-        }
-        this.#defaultContext = new CdpBrowserContext(this.#connection, this);
+        this.#hasNetworkRestrictions = Boolean((blocklist && blocklist.length > 0) ||
+            (allowlist && allowlist.length > 0));
+        connection.rejectEmulateNetworkConditionsCalls =
+            this.#hasNetworkRestrictions;
+        this.#targetManager = new TargetManager(connection, this.#createTarget, this.#targetFilterCallback, waitForInitiallyDiscoveredTargets, blocklist, allowlist, logger);
+        this.#defaultContext = new CdpBrowserContext(this.#connection, this, undefined, logger);
         for (const contextId of contextIds) {
-            this.#contexts.set(contextId, new CdpBrowserContext(this.#connection, this, contextId));
+            this.#contexts.set(contextId, new CdpBrowserContext(this.#connection, this, contextId, logger));
         }
     }
     #emitDisconnected = () => {
         this.emit("disconnected" /* BrowserEvent.Disconnected */, undefined);
     };
-    async _attach() {
-        this.#connection.on(CDPSessionEvent.Disconnected, this.#emitDisconnected);
-        this.#targetManager.on("targetAvailable" /* TargetManagerEvent.TargetAvailable */, this.#onAttachedToTarget);
-        this.#targetManager.on("targetGone" /* TargetManagerEvent.TargetGone */, this.#onDetachedFromTarget);
-        this.#targetManager.on("targetChanged" /* TargetManagerEvent.TargetChanged */, this.#onTargetChanged);
-        this.#targetManager.on("targetDiscovered" /* TargetManagerEvent.TargetDiscovered */, this.#onTargetDiscovered);
+    async _attach(downloadBehavior) {
+        const connectionEmitter = this.#subscriptions.use(new EventEmitter(this.#connection));
+        connectionEmitter.on(CDPSessionEvent.Disconnected, this.#emitDisconnected);
+        if (downloadBehavior) {
+            await this.#defaultContext.setDownloadBehavior(downloadBehavior);
+        }
+        const targetManagerEmitter = this.#subscriptions.use(new EventEmitter(this.#targetManager));
+        targetManagerEmitter.on("targetAvailable" /* TargetManagerEvent.TargetAvailable */, this.#onAttachedToTarget);
+        targetManagerEmitter.on("targetGone" /* TargetManagerEvent.TargetGone */, this.#onDetachedFromTarget);
+        targetManagerEmitter.on("targetChanged" /* TargetManagerEvent.TargetChanged */, this.#onTargetChanged);
+        targetManagerEmitter.on("targetDiscovered" /* TargetManagerEvent.TargetDiscovered */, this.#onTargetDiscovered);
         await this.#targetManager.initialize();
     }
     _detach() {
-        this.#connection.off(CDPSessionEvent.Disconnected, this.#emitDisconnected);
-        this.#targetManager.off("targetAvailable" /* TargetManagerEvent.TargetAvailable */, this.#onAttachedToTarget);
-        this.#targetManager.off("targetGone" /* TargetManagerEvent.TargetGone */, this.#onDetachedFromTarget);
-        this.#targetManager.off("targetChanged" /* TargetManagerEvent.TargetChanged */, this.#onTargetChanged);
-        this.#targetManager.off("targetDiscovered" /* TargetManagerEvent.TargetDiscovered */, this.#onTargetDiscovered);
+        this.#subscriptions.dispose();
     }
     process() {
         return this.#process ?? null;
@@ -19249,19 +22548,25 @@ class CdpBrowser extends Browser {
                 ((target) => {
                     return (target.type() === 'page' ||
                         target.type() === 'background_page' ||
-                        target.type() === 'webview');
+                        target.type() === 'webview' ||
+                        (this.#handleDevToolsAsPage &&
+                            target.type() === 'other' &&
+                            isDevToolsPageTarget(target.url())));
                 });
     }
     _getIsPageTargetCallback() {
         return this.#isPageTargetCallback;
     }
     async createBrowserContext(options = {}) {
-        const { proxyServer, proxyBypassList } = options;
+        const { proxyServer, proxyBypassList, downloadBehavior } = options;
         const { browserContextId } = await this.#connection.send('Target.createBrowserContext', {
             proxyServer,
             proxyBypassList: proxyBypassList && proxyBypassList.join(','),
         });
-        const context = new CdpBrowserContext(this.#connection, this, browserContextId);
+        const context = new CdpBrowserContext(this.#connection, this, browserContextId, this.logger);
+        if (downloadBehavior) {
+            await context.setDownloadBehavior(downloadBehavior);
+        }
         this.#contexts.set(browserContextId, context);
         return context;
     }
@@ -19291,16 +22596,16 @@ class CdpBrowser extends Browser {
         const createSession = (isAutoAttachEmulated) => {
             return this.#connection._createSession(targetInfo, isAutoAttachEmulated);
         };
-        const otherTarget = new OtherTarget(targetInfo, session, context, this.#targetManager, createSession);
-        if (targetInfo.url?.startsWith('devtools://')) {
-            return new DevToolsTarget(targetInfo, session, context, this.#targetManager, createSession, this.#defaultViewport ?? null);
+        const otherTarget = new OtherTarget(targetInfo, session, context, this.#targetManager, createSession, this.logger);
+        if (targetInfo.url && isDevToolsPageTarget(targetInfo.url)) {
+            return new DevToolsTarget(targetInfo, session, context, this.#targetManager, createSession, this.#defaultViewport ?? null, this.logger);
         }
         if (this.#isPageTargetCallback(otherTarget)) {
-            return new PageTarget(targetInfo, session, context, this.#targetManager, createSession, this.#defaultViewport ?? null);
+            return new PageTarget(targetInfo, session, context, this.#targetManager, createSession, this.#defaultViewport ?? null, this.logger);
         }
         if (targetInfo.type === 'service_worker' ||
             targetInfo.type === 'shared_worker') {
-            return new WorkerTarget(targetInfo, session, context, this.#targetManager, createSession);
+            return new WorkerTarget(targetInfo, session, context, this.#targetManager, createSession, this.logger);
         }
         return otherTarget;
     };
@@ -19332,13 +22637,25 @@ class CdpBrowser extends Browser {
     wsEndpoint() {
         return this.#connection.url();
     }
-    async newPage() {
-        return await this.#defaultContext.newPage();
+    async newPage(options) {
+        return await this.#defaultContext.newPage(options);
     }
-    async _createPageInContext(contextId) {
+    async _createPageInContext(contextId, options) {
+        const hasTargets = this.targets().filter(t => {
+            return t.browserContext().id === contextId;
+        }).length > 0;
+        const windowBounds = options?.type === 'window' ? options.windowBounds : undefined;
         const { targetId } = await this.#connection.send('Target.createTarget', {
             url: 'about:blank',
             browserContextId: contextId || undefined,
+            left: windowBounds?.left,
+            top: windowBounds?.top,
+            width: windowBounds?.width,
+            height: windowBounds?.height,
+            windowState: windowBounds?.windowState,
+            // Works around crbug.com/454825274.
+            newWindow: hasTargets && options?.type === 'window' ? true : undefined,
+            background: options?.background,
         });
         const target = (await this.waitForTarget(t => {
             return t._targetId === targetId;
@@ -19356,6 +22673,153 @@ class CdpBrowser extends Browser {
             throw new Error(`Failed to create a page for context (id = ${contextId})`);
         }
         return page;
+    }
+    async _createDevToolsPage(pageTargetId) {
+        const openDevToolsResponse = await this.#connection.send('Target.openDevTools', {
+            targetId: pageTargetId,
+        });
+        return await this._getDevToolsTargetPage(openDevToolsResponse.targetId);
+    }
+    async _getDevToolsTargetPage(devtoolsTargetId) {
+        const target = (await this.waitForTarget(t => {
+            return t._targetId === devtoolsTargetId;
+        }));
+        if (!target) {
+            throw new Error(`Missing target for DevTools page (id = ${devtoolsTargetId})`);
+        }
+        const initialized = (await target._initializedDeferred.valueOrThrow()) ===
+            InitializationStatus.SUCCESS;
+        if (!initialized) {
+            throw new Error(`Failed to create target for DevTools page (id = ${devtoolsTargetId})`);
+        }
+        const page = await target.page();
+        if (!page) {
+            throw new Error(`Failed to create a DevTools Page for target (id = ${devtoolsTargetId})`);
+        }
+        return page;
+    }
+    async _hasDevToolsTarget(pageTargetId) {
+        const response = await this.#connection.send('Target.getDevToolsTarget', {
+            targetId: pageTargetId,
+        });
+        return response.targetId;
+    }
+    async installExtension(path, options) {
+        const { id } = await this.#connection.send('Extensions.loadUnpacked', {
+            path,
+            enableInIncognito: options?.enabledInIncognito ?? false,
+        });
+        this.#extensions.delete(id);
+        return id;
+    }
+    async uninstallExtension(id) {
+        await this.#connection.send('Extensions.uninstall', { id });
+        // Currently sending the Extensions.uninstall command does not trigger
+        // the Target.targetDestroyed event for service workers. This causes
+        // flakiness in the extension tests.
+        // TODO(nroscino): Remove this once the event is correctly emitted.
+        const targetDestroyedPromises = [];
+        for (const [targetId, targetInfo] of this._targetManager()
+            .getDiscoveredTargetInfos()
+            .entries()) {
+            if (targetInfo.url.includes(id) && targetInfo.type === 'service_worker') {
+                this._targetManager().addToIgnoreTarget(targetId);
+                targetDestroyedPromises.push(new Promise(resolve => {
+                    return setTimeout(() => {
+                        this.#connection.emit('Target.targetDestroyed', {
+                            targetId: targetId,
+                        });
+                        resolve(null);
+                    }, 0);
+                }));
+            }
+        }
+        await Promise.all(targetDestroyedPromises);
+        this.#extensions.delete(id);
+    }
+    async installPWA(options) {
+        if (this.#hasNetworkRestrictions) {
+            throw new Error('PWA APIs are not supported when network restrictions are configured.');
+        }
+        await this.#connection.send('PWA.install', {
+            manifestId: options.manifestId,
+            installUrlOrBundleUrl: options.installUrlOrBundleUrl,
+        });
+        if (options.displayMode) {
+            await this.#connection.send('PWA.changeAppUserSettings', {
+                manifestId: options.manifestId,
+                displayMode: options.displayMode,
+            });
+        }
+        return options.manifestId;
+    }
+    async uninstallPWA(options) {
+        if (this.#hasNetworkRestrictions) {
+            throw new Error('PWA APIs are not supported when network restrictions are configured.');
+        }
+        await this.#connection.send('PWA.uninstall', {
+            manifestId: options.manifestId,
+        });
+    }
+    async launchPWA(options) {
+        if (this.#hasNetworkRestrictions) {
+            throw new Error('PWA APIs are not supported when network restrictions are configured.');
+        }
+        // `PWA.launch` resolves with the id of the launched *tab* target (see the
+        // CDP `PWA.LaunchResponse` docs). Tab targets sit above page targets in the
+        // target hierarchy and are not exposed through `browser.targets()`, so the
+        // returned id can't be awaited directly.
+        const { targetId: tabTargetId } = await this.#connection.send('PWA.launch', {
+            manifestId: options.manifestId,
+            url: options.url,
+        });
+        const target = (await this.waitForTarget(candidate => {
+            const tab = this.#targetManager.getAvailableTargets().get(tabTargetId);
+            if (tab?.type() !== 'tab') {
+                return false;
+            }
+            for (const child of tab._childTargets()) {
+                if (child === candidate) {
+                    return true;
+                }
+            }
+            return false;
+        }, { timeout: options.timeout }));
+        const page = await target.page();
+        if (!page) {
+            throw new Error(`Failed to create a page for the launched PWA (manifestId = ${options.manifestId})`);
+        }
+        return page;
+    }
+    async getPWAState(options) {
+        if (this.#hasNetworkRestrictions) {
+            throw new Error('PWA APIs are not supported when network restrictions are configured.');
+        }
+        const { badgeCount, fileHandlers } = await this.#connection.send('PWA.getOsAppState', { manifestId: options.manifestId });
+        return { badgeCount, fileHandlers };
+    }
+    async screens() {
+        const { screenInfos } = await this.#connection.send('Emulation.getScreenInfos');
+        return screenInfos;
+    }
+    async addScreen(params) {
+        const { screenInfo } = await this.#connection.send('Emulation.addScreen', params);
+        return screenInfo;
+    }
+    async removeScreen(screenId) {
+        return await this.#connection.send('Emulation.removeScreen', { screenId });
+    }
+    async getWindowBounds(windowId) {
+        const { bounds } = await this.#connection.send('Browser.getWindowBounds', {
+            windowId: Number(windowId),
+        });
+        return bounds;
+    }
+    async setWindowBounds(windowId, windowBounds) {
+        await this.#connection.send('Browser.setWindowBounds', {
+            windowId: Number(windowId),
+            bounds: windowBounds,
+        });
     }
     targets() {
         return Array.from(this.#targetManager.getAvailableTargets().values()).filter(target => {
@@ -19390,16 +22854,52 @@ class CdpBrowser extends Browser {
         this._detach();
         return Promise.resolve();
     }
+    /**
+     * @internal
+     */
+    get _connection() {
+        return this.#connection;
+    }
     get connected() {
         return !this.#connection._closed;
     }
-    #getVersion() {
-        return this.#connection.send('Browser.getVersion');
+    async #getVersion() {
+        if (!this.#version) {
+            this.#version = Deferred.create();
+            try {
+                this.#version.resolve(await this.#connection.send('Browser.getVersion'));
+            }
+            catch (error) {
+                this.#version.reject(error);
+            }
+        }
+        return await this.#version.valueOrThrow();
     }
     get debugInfo() {
         return {
             pendingProtocolErrors: this.#connection.getPendingProtocolErrors(),
         };
+    }
+    isNetworkEnabled() {
+        return this.#networkEnabled;
+    }
+    async extensions() {
+        const response = await this.#connection.send('Extensions.getExtensions');
+        const extensionsMap = new Map();
+        for (const currExtension of response.extensions) {
+            if (this.#extensions.has(currExtension.id)) {
+                extensionsMap.set(currExtension.id, this.#extensions.get(currExtension.id));
+            }
+            else {
+                const newExtension = new CdpExtension(currExtension.id, currExtension.version, currExtension.name, currExtension.path, currExtension.enabled, this, this.logger);
+                extensionsMap.set(currExtension.id, newExtension);
+            }
+        }
+        this.#extensions = extensionsMap;
+        return this.#extensions;
+    }
+    isIssuesEnabled() {
+        return this.#issuesEnabled;
     }
 }
 
@@ -19414,17 +22914,17 @@ class CdpBrowser extends Browser {
  *
  * @internal
  */
-async function _connectToCdpBrowser(connectionTransport, url, options) {
-    const { ignoreHTTPSErrors = false, defaultViewport = DEFAULT_VIEWPORT, targetFilter, _isPageTarget: isPageTarget, slowMo = 0, protocolTimeout, } = options;
-    const connection = new Connection(url, connectionTransport, slowMo, protocolTimeout);
-    const version = await connection.send('Browser.getVersion');
-    const product = version.product.toLowerCase().includes('firefox')
-        ? 'firefox'
-        : 'chrome';
+async function _connectToCdpBrowser(connectionTransport, url, options, logger) {
+    const { acceptInsecureCerts = false, networkEnabled = true, issuesEnabled = true, defaultViewport = DEFAULT_VIEWPORT, downloadBehavior, targetFilter, _isPageTarget: isPageTarget, slowMo = 0, protocolTimeout, handleDevToolsAsPage, idGenerator = createIncrementalIdGenerator(), blocklist, allowlist, } = options;
+    const log = options.logger ?? logger;
+    const connection = new Connection(url, connectionTransport, slowMo, protocolTimeout, 
+    /* rawErrors */ false, idGenerator, log);
     const { browserContextIds } = await connection.send('Target.getBrowserContexts');
-    const browser = await CdpBrowser._create(product, connection, browserContextIds, ignoreHTTPSErrors, defaultViewport, undefined, () => {
-        return connection.send('Browser.close').catch(debugError);
-    }, targetFilter, isPageTarget);
+    const browser = await CdpBrowser._create(connection, browserContextIds, acceptInsecureCerts, defaultViewport, downloadBehavior, undefined, () => {
+        return connection.send('Browser.close').catch(error => {
+            log?.(DEBUG_PREFIXES.error)?.(error);
+        });
+    }, targetFilter, isPageTarget, undefined, networkEnabled, issuesEnabled, handleDevToolsAsPage, blocklist, allowlist, log);
     return browser;
 }
 
@@ -21020,14 +24520,12 @@ for (const device of knownDevices) {
  * import {KnownDevices} from 'puppeteer';
  * const iPhone = KnownDevices['iPhone 15 Pro'];
  *
- * (async () => {
- *   const browser = await puppeteer.launch();
- *   const page = await browser.newPage();
- *   await page.emulate(iPhone);
- *   await page.goto('https://www.google.com');
- *   // other actions...
- *   await browser.close();
- * })();
+ * const browser = await puppeteer.launch();
+ * const page = await browser.newPage();
+ * await page.emulate(iPhone);
+ * await page.goto('https://www.google.com');
+ * // other actions...
+ * await browser.close();
  * ```
  *
  * @public
@@ -21047,17 +24545,21 @@ Object.freeze(knownDevicesByName);
  *
  * @internal
  */
-async function _connectToBiDiBrowser(connectionTransport, url, options) {
-    const { ignoreHTTPSErrors = false, defaultViewport = DEFAULT_VIEWPORT } = options;
-    const { bidiConnection, cdpConnection, closeCallback } = await getBiDiConnection(connectionTransport, url, options);
-    const BiDi = await import(/* webpackIgnore: true */ './bidi-Czw4_SYm.js');
+async function _connectToBiDiBrowser(connectionTransport, url, options, logger) {
+    const { acceptInsecureCerts = false, networkEnabled = true, issuesEnabled = true, defaultViewport = DEFAULT_VIEWPORT, } = options;
+    const { bidiConnection, cdpConnection, closeCallback } = await getBiDiConnection(connectionTransport, url, options, logger);
+    const BiDi = await import(/* webpackIgnore: true */ './bidi-CyYf8205.js');
     const bidiBrowser = await BiDi.BidiBrowser.create({
         connection: bidiConnection,
         cdpConnection,
         closeCallback,
         process: undefined,
         defaultViewport: defaultViewport,
-        ignoreHTTPSErrors: ignoreHTTPSErrors,
+        acceptInsecureCerts: acceptInsecureCerts,
+        networkEnabled,
+        issuesEnabled,
+        capabilities: options.capabilities,
+        logger,
     });
     return bidiBrowser;
 }
@@ -21068,11 +24570,11 @@ async function _connectToBiDiBrowser(connectionTransport, url, options) {
  * The method tries to connect to the browser using pure BiDi protocol, and falls back
  * to BiDi over CDP.
  */
-async function getBiDiConnection(connectionTransport, url, options) {
-    const BiDi = await import(/* webpackIgnore: true */ './bidi-Czw4_SYm.js');
-    const { ignoreHTTPSErrors = false, slowMo = 0, protocolTimeout } = options;
+async function getBiDiConnection(connectionTransport, url, options, logger) {
+    const BiDi = await import(/* webpackIgnore: true */ './bidi-CyYf8205.js');
+    const { slowMo = 0, protocolTimeout, idGenerator = createIncrementalIdGenerator(), } = options;
     // Try pure BiDi first.
-    const pureBidiConnection = new BiDi.BidiConnection(url, connectionTransport, slowMo, protocolTimeout);
+    const pureBidiConnection = new BiDi.BidiConnection(url, connectionTransport, idGenerator, slowMo, protocolTimeout, options.logger ?? logger);
     try {
         const result = await pureBidiConnection.send('session.status', {});
         if ('type' in result && result.type === 'success') {
@@ -21080,7 +24582,9 @@ async function getBiDiConnection(connectionTransport, url, options) {
             return {
                 bidiConnection: pureBidiConnection,
                 closeCallback: async () => {
-                    await pureBidiConnection.send('browser.close', {}).catch(debugError);
+                    await pureBidiConnection.send('browser.close', {}).catch(error => {
+                        logger?.(DEBUG_PREFIXES.error)?.(error);
+                    });
                 },
             };
         }
@@ -21094,20 +24598,21 @@ async function getBiDiConnection(connectionTransport, url, options) {
     // Unbind the connection to avoid memory leaks.
     pureBidiConnection.unbind();
     // Fall back to CDP over BiDi reusing the WS connection.
-    const cdpConnection = new Connection(url, connectionTransport, slowMo, protocolTimeout);
+    const cdpConnection = new Connection(url, connectionTransport, slowMo, protocolTimeout, 
+    /* rawErrors= */ true, idGenerator, options.logger ?? logger);
     const version = await cdpConnection.send('Browser.getVersion');
     if (version.product.toLowerCase().includes('firefox')) {
         throw new UnsupportedOperation('Firefox is not supported in BiDi over CDP mode.');
     }
-    const bidiOverCdpConnection = await BiDi.connectBidiOverCdp(cdpConnection, {
-        acceptInsecureCerts: ignoreHTTPSErrors,
-    });
+    const bidiOverCdpConnection = await BiDi.connectBidiOverCdp(cdpConnection, logger);
     return {
         cdpConnection,
         bidiConnection: bidiOverCdpConnection,
         closeCallback: async () => {
             // In case of BiDi over CDP, we need to close browser via CDP.
-            await cdpConnection.send('Browser.close').catch(debugError);
+            await cdpConnection.send('Browser.close').catch(error => {
+                logger?.(DEBUG_PREFIXES.error)?.(error);
+            });
         },
     };
 }
@@ -21120,7 +24625,7 @@ async function getBiDiConnection(connectionTransport, url, options) {
 const getWebSocketTransportClass = async () => {
     return isNode
         ? (await Promise.resolve().then(function () { return NodeWebSocketTransport$1; })).NodeWebSocketTransport
-        : (await import('./BrowserWebSocketTransport-D_zAGZMQ.js'))
+        : (await import('./BrowserWebSocketTransport-K6ogMQnV.js'))
             .BrowserWebSocketTransport;
 };
 /**
@@ -21129,52 +24634,121 @@ const getWebSocketTransportClass = async () => {
  *
  * @internal
  */
+function assertSupportedUrlRestrictions(options) {
+    if (options.blocklist && options.allowlist) {
+        throw new Error('Cannot specify both blocklist and allowlist');
+    }
+    if (options.protocol === 'webDriverBiDi' &&
+        (options.blocklist || options.allowlist)) {
+        throw new Error('blocklist and allowlist are only supported with the CDP protocol');
+    }
+    if (options.blocklist) {
+        for (const rule of options.blocklist) {
+            new Y(rule);
+        }
+    }
+    if (options.allowlist) {
+        for (const rule of options.allowlist) {
+            new Y(rule);
+        }
+    }
+}
+/**
+ * @internal
+ */
 async function _connectToBrowser(options) {
+    assertSupportedUrlRestrictions(options);
     const { connectionTransport, endpointUrl } = await getConnectionTransport(options);
     if (options.protocol === 'webDriverBiDi') {
-        const bidiBrowser = await _connectToBiDiBrowser(connectionTransport, endpointUrl, options);
+        const bidiBrowser = await _connectToBiDiBrowser(connectionTransport, endpointUrl, options, options.logger);
         return bidiBrowser;
     }
     else {
-        const cdpBrowser = await _connectToCdpBrowser(connectionTransport, endpointUrl, options);
+        const cdpBrowser = await _connectToCdpBrowser(connectionTransport, endpointUrl, options, options.logger);
         return cdpBrowser;
     }
 }
 /**
  * Establishes a websocket connection by given options and returns both transport and
  * endpoint url the transport is connected to.
+ * @internal
  */
 async function getConnectionTransport(options) {
-    const { browserWSEndpoint, browserURL, transport, headers = {} } = options;
-    assert(Number(!!browserWSEndpoint) + Number(!!browserURL) + Number(!!transport) ===
-        1, 'Exactly one of browserWSEndpoint, browserURL or transport must be passed to puppeteer.connect');
+    const { browserWSEndpoint, browserURL, channel, transport, headers = {}, } = options;
+    assert(Number(!!browserWSEndpoint) +
+        Number(!!browserURL) +
+        Number(!!transport) +
+        Number(!!channel) ===
+        1, 'Exactly one of browserWSEndpoint, browserURL, transport or channel must be passed to puppeteer.connect');
     if (transport) {
         return { connectionTransport: transport, endpointUrl: '' };
     }
     else if (browserWSEndpoint) {
         const WebSocketClass = await getWebSocketTransportClass();
-        const connectionTransport = await WebSocketClass.create(browserWSEndpoint, headers);
+        const connectionTransport = await WebSocketClass.create(browserWSEndpoint, headers, options.logger);
         return {
             connectionTransport: connectionTransport,
             endpointUrl: browserWSEndpoint,
         };
     }
     else if (browserURL) {
-        const connectionURL = await getWSEndpoint(browserURL);
+        const connectionURL = await getWSEndpoint(browserURL, headers);
         const WebSocketClass = await getWebSocketTransportClass();
-        const connectionTransport = await WebSocketClass.create(connectionURL);
+        const connectionTransport = await WebSocketClass.create(connectionURL, headers, options.logger);
         return {
             connectionTransport: connectionTransport,
             endpointUrl: connectionURL,
         };
     }
+    else if (options.channel && isNode) {
+        const { detectBrowserPlatform, resolveDefaultUserDataDir, Browser } = await import('@puppeteer/browsers');
+        const platform = detectBrowserPlatform();
+        if (!platform) {
+            throw new Error('Could not detect required browser platform');
+        }
+        const { convertPuppeteerChannelToBrowsersChannel } = await Promise.resolve().then(function () { return LaunchOptions; });
+        const { join } = await import('node:path');
+        const userDataDir = resolveDefaultUserDataDir(Browser.CHROME, platform, convertPuppeteerChannelToBrowsersChannel(options.channel));
+        const portPath = join(userDataDir, 'DevToolsActivePort');
+        try {
+            const fileContent = await environment.value.fs.promises.readFile(portPath, 'ascii');
+            const [rawPort, rawPath] = fileContent
+                .split('\n')
+                .map(line => {
+                return line.trim();
+            })
+                .filter(line => {
+                return !!line;
+            });
+            if (!rawPort || !rawPath) {
+                throw new Error(`Invalid DevToolsActivePort '${fileContent}' found`);
+            }
+            const port = parseInt(rawPort, 10);
+            if (isNaN(port) || port <= 0 || port > 65535) {
+                throw new Error(`Invalid port '${rawPort}' found`);
+            }
+            const browserWSEndpoint = `ws://localhost:${port}${rawPath}`;
+            const WebSocketClass = await getWebSocketTransportClass();
+            const connectionTransport = await WebSocketClass.create(browserWSEndpoint, headers, options.logger);
+            return {
+                connectionTransport: connectionTransport,
+                endpointUrl: browserWSEndpoint,
+            };
+        }
+        catch (error) {
+            throw new Error(`Could not find DevToolsActivePort for ${options.channel} at ${portPath}`, {
+                cause: error,
+            });
+        }
+    }
     throw new Error('Invalid connection options');
 }
-async function getWSEndpoint(browserURL) {
+async function getWSEndpoint(browserURL, headers) {
     const endpointURL = new URL('/json/version', browserURL);
     try {
         const result = await globalThis.fetch(endpointURL.toString(), {
             method: 'GET',
+            headers,
         });
         if (!result.ok) {
             throw new Error(`HTTP ${result.statusText}`);
@@ -21226,7 +24800,9 @@ class Puppeteer {
      * @example
      *
      * ```
-     * puppeteer.registerCustomQueryHandler('text', { … });
+     * import {Puppeteer}, puppeteer from 'puppeteer';
+     *
+     * Puppeteer.registerCustomQueryHandler('text', { … });
      * const aHandle = await page.$('text/…');
      * ```
      *
@@ -21265,7 +24841,7 @@ class Puppeteer {
     /**
      * @internal
      */
-    _changedProduct = false;
+    _changedBrowsers = false;
     /**
      * @internal
      */
@@ -21282,7 +24858,11 @@ class Puppeteer {
      * @returns Promise which resolves to browser instance.
      */
     connect(options) {
-        return _connectToBrowser(options);
+        const withLogger = {
+            logger: debug,
+            ...options,
+        };
+        return _connectToBrowser(withLogger);
     }
 }
 
@@ -21295,9 +24875,9 @@ class Puppeteer {
  * @internal
  */
 const PUPPETEER_REVISIONS = Object.freeze({
-    chrome: '127.0.6533.88',
-    'chrome-headless-shell': '127.0.6533.88',
-    firefox: 'latest',
+    chrome: '152.0.7977.42',
+    'chrome-headless-shell': '152.0.7977.42',
+    firefox: 'stable_153.0.4',
 });
 
 /**
@@ -21309,12 +24889,11 @@ const PUPPETEER_REVISIONS = Object.freeze({
  * @internal
  */
 class NodeWebSocketTransport {
-    static create(url, headers) {
+    static create(url, headers, logger) {
         return new Promise((resolve, reject) => {
             const ws = new NodeWebSocket(url, [], {
                 followRedirects: true,
                 perMessageDeflate: false,
-                // @ts-expect-error https://github.com/websockets/ws/blob/master/doc/ws.md#new-websocketaddress-protocols-options
                 allowSynchronousEvents: false,
                 maxPayload: 256 * 1024 * 1024, // 256Mb
                 headers: {
@@ -21323,16 +24902,18 @@ class NodeWebSocketTransport {
                 },
             });
             ws.addEventListener('open', () => {
-                return resolve(new NodeWebSocketTransport(ws));
+                return resolve(new NodeWebSocketTransport(ws, logger));
             });
             ws.addEventListener('error', reject);
         });
     }
     #ws;
+    #logger;
     onmessage;
     onclose;
-    constructor(ws) {
+    constructor(ws, logger) {
         this.#ws = ws;
+        this.#logger = logger;
         this.#ws.addEventListener('message', event => {
             if (this.onmessage) {
                 this.onmessage.call(null, event.data);
@@ -21343,8 +24924,10 @@ class NodeWebSocketTransport {
                 this.onclose.call(null);
             }
         });
-        // Silently ignore all errors - we don't know what to do with them.
-        this.#ws.addEventListener('error', () => { });
+        // Silently log all errors - we don't know what to do with them.
+        this.#ws.addEventListener('error', err => {
+            this.#logger?.(DEBUG_PREFIXES.error)?.(err);
+        });
     }
     send(message) {
         this.#ws.send(message);
@@ -21355,8 +24938,8 @@ class NodeWebSocketTransport {
 }
 
 var NodeWebSocketTransport$1 = /*#__PURE__*/Object.freeze({
-  __proto__: null,
-  NodeWebSocketTransport: NodeWebSocketTransport
+    __proto__: null,
+    NodeWebSocketTransport: NodeWebSocketTransport
 });
 
 /**
@@ -21365,17 +24948,19 @@ var NodeWebSocketTransport$1 = /*#__PURE__*/Object.freeze({
 class PipeTransport {
     #pipeWrite;
     #subscriptions = new DisposableStack();
+    #logger;
     #isClosed = false;
-    #pendingMessage = '';
+    #pendingMessage = [];
     onclose;
     onmessage;
-    constructor(pipeWrite, pipeRead) {
+    constructor(pipeWrite, pipeRead, logger) {
         this.#pipeWrite = pipeWrite;
+        this.#logger = logger;
         const pipeReadEmitter = this.#subscriptions.use(
         // NodeJS event emitters don't support `*` so we need to typecast
         // As long as we don't use it we should be OK.
-        new EventEmitter(pipeRead));
-        pipeReadEmitter.on('data', (buffer) => {
+        new EventEmitter(pipeRead, logger));
+        pipeReadEmitter.on('data', buffer => {
             return this.#dispatch(buffer);
         });
         pipeReadEmitter.on('close', () => {
@@ -21383,12 +24968,16 @@ class PipeTransport {
                 this.onclose.call(null);
             }
         });
-        pipeReadEmitter.on('error', debugError);
+        pipeReadEmitter.on('error', err => {
+            this.#logger?.(DEBUG_PREFIXES.error)?.(err);
+        });
         const pipeWriteEmitter = this.#subscriptions.use(
         // NodeJS event emitters don't support `*` so we need to typecast
         // As long as we don't use it we should be OK.
-        new EventEmitter(pipeRead));
-        pipeWriteEmitter.on('error', debugError);
+        new EventEmitter(pipeWrite));
+        pipeWriteEmitter.on('error', err => {
+            this.#logger?.(DEBUG_PREFIXES.error)?.(err);
+        });
     }
     send(message) {
         assert(!this.#isClosed, '`PipeTransport` is closed.');
@@ -21397,25 +24986,29 @@ class PipeTransport {
     }
     #dispatch(buffer) {
         assert(!this.#isClosed, '`PipeTransport` is closed.');
-        let end = buffer.indexOf('\0');
-        if (end === -1) {
-            this.#pendingMessage += buffer.toString();
+        this.#pendingMessage.push(buffer);
+        if (buffer.indexOf('\0') === -1) {
             return;
         }
-        const message = this.#pendingMessage + buffer.toString(undefined, 0, end);
-        if (this.onmessage) {
-            this.onmessage.call(null, message);
-        }
-        let start = end + 1;
-        end = buffer.indexOf('\0', start);
+        const concatBuffer = Buffer.concat(this.#pendingMessage);
+        let start = 0;
+        let end = concatBuffer.indexOf('\0');
         while (end !== -1) {
-            if (this.onmessage) {
-                this.onmessage.call(null, buffer.toString(undefined, start, end));
-            }
+            const message = concatBuffer.toString(undefined, start, end);
+            setImmediate(() => {
+                if (this.onmessage) {
+                    this.onmessage.call(null, message);
+                }
+            });
             start = end + 1;
-            end = buffer.indexOf('\0', start);
+            end = concatBuffer.indexOf('\0', start);
         }
-        this.#pendingMessage = buffer.toString(undefined, start);
+        if (start >= concatBuffer.length) {
+            this.#pendingMessage = [];
+        }
+        else {
+            this.#pendingMessage = [concatBuffer.subarray(start)];
+        }
     }
     close() {
         this.#isClosed = true;
@@ -21429,12 +25022,28 @@ class PipeTransport {
  * SPDX-License-Identifier: Apache-2.0
  */
 /**
+ * @internal
+ */
+function getBrowserTypeDisplayName(browserType) {
+    switch (browserType) {
+        case Browser$1.FIREFOX:
+        case Browser$1.CHROME:
+            return browserType.charAt(0).toUpperCase() + browserType.slice(1);
+        default:
+            return browserType;
+    }
+}
+/**
  * Describes a launcher - a class that is able to create and launch a browser instance.
  *
  * @public
  */
-class ProductLauncher {
-    #product;
+class BrowserLauncher {
+    #browser;
+    #logger;
+    /**
+     * @internal
+     */
     /**
      * @internal
      */
@@ -21442,20 +25051,40 @@ class ProductLauncher {
     /**
      * @internal
      */
-    actualBrowserRevision;
+    constructor(puppeteer, browser, logger) {
+        this.puppeteer = puppeteer;
+        this.#browser = browser;
+        this.#logger = logger;
+    }
     /**
      * @internal
      */
-    constructor(puppeteer, product) {
-        this.puppeteer = puppeteer;
-        this.#product = product;
+    get logger() {
+        return this.#logger;
     }
-    get product() {
-        return this.#product;
+    get browser() {
+        return this.#browser;
     }
     async launch(options = {}) {
-        const { dumpio = false, env = process.env, handleSIGINT = true, handleSIGTERM = true, handleSIGHUP = true, ignoreHTTPSErrors = false, defaultViewport = DEFAULT_VIEWPORT, slowMo = 0, timeout = 30000, waitForInitialPage = true, protocolTimeout, protocol, } = options;
-        const launchArgs = await this.computeLaunchArguments(options);
+        options.logger ??= this.#logger;
+        const { dumpio = false, enableExtensions = false, extensionsEnabledInIncognito = [], env = process.env, handleSIGINT = true, handleSIGTERM = true, handleSIGHUP = true, acceptInsecureCerts = false, networkEnabled = true, issuesEnabled = true, defaultViewport = DEFAULT_VIEWPORT, downloadBehavior, slowMo = 0, timeout = 30000, waitForInitialPage = true, protocolTimeout, handleDevToolsAsPage, idGenerator = createIncrementalIdGenerator(), blocklist, allowlist, } = options;
+        let { protocol } = options;
+        // Default to 'webDriverBiDi' for Firefox.
+        if (this.#browser === 'firefox' && protocol === undefined) {
+            protocol = 'webDriverBiDi';
+        }
+        assertSupportedUrlRestrictions({
+            allowlist,
+            blocklist,
+            protocol,
+        });
+        if (this.#browser === 'firefox' && protocol === 'cdp') {
+            throw new Error('Connecting to Firefox using CDP is no longer supported');
+        }
+        const launchArgs = await this.computeLaunchArguments({
+            ...options,
+            protocol,
+        });
         if (!existsSync(launchArgs.executablePath)) {
             throw new Error(`Browser was not found at the configured executablePath (${launchArgs.executablePath})`);
         }
@@ -21465,12 +25094,10 @@ class ProductLauncher {
                 isTemp: launchArgs.isTempUserDataDir,
             });
         };
-        if (this.#product === 'firefox' &&
-            protocol !== 'webDriverBiDi' &&
-            this.puppeteer.configuration.logLevel === 'warn') {
-            console.warn(`Chrome DevTools Protocol (CDP) support for Firefox is deprecated in Puppeteer ` +
-                `and it will be eventually removed. ` +
-                `Use WebDriver BiDi instead (see https://pptr.dev/webdriver-bidi#get-started).`);
+        if (this.#browser === 'firefox' &&
+            protocol === 'webDriverBiDi' &&
+            usePipe) {
+            throw new Error('Pipe connections are not supported with Firefox and WebDriver BiDi');
         }
         const browserProcess = launch$1({
             executablePath: launchArgs.executablePath,
@@ -21482,6 +25109,8 @@ class ProductLauncher {
             env,
             pipe: usePipe,
             onExit: onProcessExit,
+            signal: options.signal,
+            logger: options.logger,
         });
         let browser;
         let cdpConnection;
@@ -21494,13 +25123,16 @@ class ProductLauncher {
             await this.closeBrowser(browserProcess, cdpConnection);
         };
         try {
-            if (this.#product === 'firefox' && protocol === 'webDriverBiDi') {
+            if (this.#browser === 'firefox') {
                 browser = await this.createBiDiBrowser(browserProcess, browserCloseCallback, {
                     timeout,
                     protocolTimeout,
                     slowMo,
                     defaultViewport,
-                    ignoreHTTPSErrors,
+                    acceptInsecureCerts,
+                    networkEnabled,
+                    idGenerator,
+                    logger: options.logger,
                 });
             }
             else {
@@ -21509,6 +25141,8 @@ class ProductLauncher {
                         timeout,
                         protocolTimeout,
                         slowMo,
+                        idGenerator,
+                        logger: options.logger,
                     });
                 }
                 else {
@@ -21516,38 +25150,55 @@ class ProductLauncher {
                         timeout,
                         protocolTimeout,
                         slowMo,
+                        idGenerator,
+                        logger: options.logger,
                     });
                 }
                 if (protocol === 'webDriverBiDi') {
                     browser = await this.createBiDiOverCdpBrowser(browserProcess, cdpConnection, browserCloseCallback, {
                         defaultViewport,
-                        ignoreHTTPSErrors,
+                        acceptInsecureCerts,
+                        networkEnabled,
+                        issuesEnabled,
+                        logger: options.logger,
                     });
                 }
                 else {
-                    browser = await CdpBrowser._create(this.product, cdpConnection, [], ignoreHTTPSErrors, defaultViewport, browserProcess.nodeProcess, browserCloseCallback, options.targetFilter);
+                    browser = await CdpBrowser._create(cdpConnection, [], acceptInsecureCerts, defaultViewport, downloadBehavior, browserProcess.nodeProcess, browserCloseCallback, options.targetFilter, undefined, undefined, networkEnabled, issuesEnabled, handleDevToolsAsPage, blocklist, allowlist, options.logger);
                 }
             }
         }
         catch (error) {
             void browserCloseCallback();
+            const logs = browserProcess.getRecentLogs().join('\n');
+            if (logs.includes('Failed to create a ProcessSingleton for your profile directory') ||
+                // On Windows we will not get logs due to the singleton process handover. See
+                // https://source.chromium.org/chromium/chromium/src/+/main:chrome/browser/process_singleton_win.cc;l=46;drc=fc7952f0422b5073515a205a04ec9c3a1ae81658
+                (process.platform === 'win32' &&
+                    existsSync(join(launchArgs.userDataDir, 'lockfile')))) {
+                throw new Error(`The browser is already running for ${launchArgs.userDataDir}. Use a different \`userDataDir\` or stop the running browser first.`);
+            }
+            if (logs.includes('Missing X server') && options.headless === false) {
+                throw new Error(`Missing X server to start the headful browser. Either set headless to true or use xvfb-run to run your Puppeteer script.`);
+            }
             if (error instanceof TimeoutError$1) {
                 throw new TimeoutError(error.message);
             }
             throw error;
         }
+        if (Array.isArray(enableExtensions)) {
+            await Promise.all([
+                enableExtensions.map(path => {
+                    return browser.installExtension(path, {
+                        enabledInIncognito: extensionsEnabledInIncognito.includes(path),
+                    });
+                }),
+            ]);
+        }
         if (waitForInitialPage) {
             await this.waitForPageTarget(browser, timeout);
         }
         return browser;
-    }
-    /**
-     * Set only for Firefox, after the launcher resolves the `latest` revision to
-     * the actual revision.
-     * @internal
-     */
-    getActualBrowserRevision() {
-        return this.actualBrowserRevision;
     }
     /**
      * @internal
@@ -21560,7 +25211,7 @@ class ProductLauncher {
                 await browserProcess.hasClosed();
             }
             catch (error) {
-                debugError(error);
+                this.#logger?.(DEBUG_PREFIXES.error)?.(error);
                 await browserProcess.close();
             }
         }
@@ -21590,8 +25241,9 @@ class ProductLauncher {
      */
     async createCdpSocketConnection(browserProcess, opts) {
         const browserWSEndpoint = await browserProcess.waitForLineOutput(CDP_WEBSOCKET_ENDPOINT_REGEX, opts.timeout);
-        const transport = await NodeWebSocketTransport.create(browserWSEndpoint);
-        return new Connection(browserWSEndpoint, transport, opts.slowMo, opts.protocolTimeout);
+        const transport = await NodeWebSocketTransport.create(browserWSEndpoint, undefined, opts.logger);
+        return new Connection(browserWSEndpoint, transport, opts.slowMo, opts.protocolTimeout, 
+        /* rawErrors */ false, opts.idGenerator, opts.logger);
     }
     /**
      * @internal
@@ -21600,24 +25252,29 @@ class ProductLauncher {
         // stdio was assigned during start(), and the 'pipe' option there adds the
         // 4th and 5th items to stdio array
         const { 3: pipeWrite, 4: pipeRead } = browserProcess.nodeProcess.stdio;
-        const transport = new PipeTransport(pipeWrite, pipeRead);
-        return new Connection('', transport, opts.slowMo, opts.protocolTimeout);
+        const transport = new PipeTransport(pipeWrite, pipeRead, opts.logger);
+        return new Connection('', transport, opts.slowMo, opts.protocolTimeout, 
+        /* rawErrors */ false, opts.idGenerator, opts.logger);
     }
     /**
      * @internal
      */
-    async createBiDiOverCdpBrowser(browserProcess, connection, closeCallback, opts) {
-        const BiDi = await import(/* webpackIgnore: true */ './bidi-Czw4_SYm.js');
-        const bidiConnection = await BiDi.connectBidiOverCdp(connection, {
-            acceptInsecureCerts: opts.ignoreHTTPSErrors ?? false,
-        });
+    async createBiDiOverCdpBrowser(browserProcess, cdpConnection, closeCallback, opts) {
+        const bidiOnly = process.env['PUPPETEER_WEBDRIVER_BIDI_ONLY'] === 'true';
+        const BiDi = await import(/* webpackIgnore: true */ './bidi-CyYf8205.js');
+        const bidiConnection = await BiDi.connectBidiOverCdp(cdpConnection, opts.logger);
         return await BiDi.BidiBrowser.create({
             connection: bidiConnection,
-            cdpConnection: connection,
+            // Do not provide CDP connection to Browser, if BiDi-only mode is enabled. This
+            // would restrict Browser to use only BiDi endpoint.
+            cdpConnection: bidiOnly ? undefined : cdpConnection,
             closeCallback,
             process: browserProcess.nodeProcess,
             defaultViewport: opts.defaultViewport,
-            ignoreHTTPSErrors: opts.ignoreHTTPSErrors,
+            acceptInsecureCerts: opts.acceptInsecureCerts,
+            networkEnabled: opts.networkEnabled,
+            issuesEnabled: opts.issuesEnabled,
+            logger: opts.logger,
         });
     }
     /**
@@ -21625,36 +25282,41 @@ class ProductLauncher {
      */
     async createBiDiBrowser(browserProcess, closeCallback, opts) {
         const browserWSEndpoint = (await browserProcess.waitForLineOutput(WEBDRIVER_BIDI_WEBSOCKET_ENDPOINT_REGEX, opts.timeout)) + '/session';
-        const transport = await NodeWebSocketTransport.create(browserWSEndpoint);
-        const BiDi = await import(/* webpackIgnore: true */ './bidi-Czw4_SYm.js');
-        const bidiConnection = new BiDi.BidiConnection(browserWSEndpoint, transport, opts.slowMo, opts.protocolTimeout);
+        const transport = await NodeWebSocketTransport.create(browserWSEndpoint, undefined, opts.logger);
+        const BiDi = await import(/* webpackIgnore: true */ './bidi-CyYf8205.js');
+        const bidiConnection = new BiDi.BidiConnection(browserWSEndpoint, transport, opts.idGenerator, opts.slowMo, opts.protocolTimeout, opts.logger);
         return await BiDi.BidiBrowser.create({
             connection: bidiConnection,
             closeCallback,
             process: browserProcess.nodeProcess,
             defaultViewport: opts.defaultViewport,
-            ignoreHTTPSErrors: opts.ignoreHTTPSErrors,
+            acceptInsecureCerts: opts.acceptInsecureCerts,
+            networkEnabled: opts.networkEnabled ?? true,
+            issuesEnabled: opts.issuesEnabled ?? true,
+            logger: opts.logger,
         });
     }
     /**
      * @internal
      */
-    getProfilePath() {
-        return join(this.puppeteer.configuration.temporaryDirectory ?? tmpdir(), `puppeteer_dev_${this.product}_profile-`);
+    async getProfilePath() {
+        const config = await this.puppeteer.configuration();
+        return join(config.temporaryDirectory ?? tmpdir(), `puppeteer_dev_${this.browser}_profile-`);
     }
     /**
      * @internal
      */
-    resolveExecutablePath(headless) {
-        let executablePath = this.puppeteer.configuration.executablePath;
+    async resolveExecutablePath(headless, validatePath = true) {
+        const config = await this.puppeteer.configuration();
+        let executablePath = config.executablePath;
         if (executablePath) {
-            if (!existsSync(executablePath)) {
+            if (validatePath && !existsSync(executablePath)) {
                 throw new Error(`Tried to find the browser at the configured path (${executablePath}), but no executable was found.`);
             }
             return executablePath;
         }
-        function productToBrowser(product, headless) {
-            switch (product) {
+        function puppeteerBrowserToInstalledBrowser(browser, headless) {
+            switch (browser) {
                 case 'chrome':
                     if (headless === 'shell') {
                         return Browser$1.CHROMEHEADLESSSHELL;
@@ -21665,31 +25327,53 @@ class ProductLauncher {
             }
             return Browser$1.CHROME;
         }
+        const browserType = puppeteerBrowserToInstalledBrowser(this.browser, headless);
+        const defaultDownloadPath = await this.puppeteer.defaultDownloadPath();
+        const browserVersion = await this.puppeteer.browserVersion();
         executablePath = computeExecutablePath({
-            cacheDir: this.puppeteer.defaultDownloadPath,
-            browser: productToBrowser(this.product, headless),
-            buildId: this.puppeteer.browserRevision,
+            cacheDir: defaultDownloadPath,
+            browser: browserType,
+            buildId: browserVersion,
         });
-        if (!existsSync(executablePath)) {
-            if (this.puppeteer.configuration.browserRevision) {
-                throw new Error(`Tried to find the browser at the configured path (${executablePath}) for revision ${this.puppeteer.browserRevision}, but no executable was found.`);
+        if (validatePath && !existsSync(executablePath)) {
+            const configVersion = config?.[this.browser]?.version;
+            if (configVersion) {
+                throw new Error(`Tried to find the browser at the configured path (${executablePath}) for version ${configVersion}, but no executable was found.`);
             }
-            switch (this.product) {
-                case 'chrome':
-                    throw new Error(`Could not find Chrome (ver. ${this.puppeteer.browserRevision}). This can occur if either\n` +
-                        ' 1. you did not perform an installation before running the script (e.g. `npx puppeteer browsers install chrome`) or\n' +
-                        ` 2. your cache path is incorrectly configured (which is: ${this.puppeteer.configuration.cacheDirectory}).\n` +
-                        'For (2), check out our guide on configuring puppeteer at https://pptr.dev/guides/configuration.');
-                case 'firefox':
-                    throw new Error(`Could not find Firefox (rev. ${this.puppeteer.browserRevision}). This can occur if either\n` +
-                        ' 1. you did not perform an installation for Firefox before running the script (e.g. `npx puppeteer browsers install firefox`) or\n' +
-                        ` 2. your cache path is incorrectly configured (which is: ${this.puppeteer.configuration.cacheDirectory}).\n` +
-                        'For (2), check out our guide on configuring puppeteer at https://pptr.dev/guides/configuration.');
-            }
+            throw new Error(`Could not find ${getBrowserTypeDisplayName(browserType)} (ver. ${browserVersion}). This can occur if either\n` +
+                ` 1. you did not perform an installation before running the script (e.g. \`npx puppeteer browsers install ${browserType}\`) or\n` +
+                ` 2. your cache path is incorrectly configured (which is: ${config.cacheDirectory}).\n` +
+                'For (2), check out our guide on configuring puppeteer at https://pptr.dev/guides/configuration.');
         }
         return executablePath;
     }
 }
+
+/**
+ * @license
+ * Copyright 2020 Google Inc.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+/**
+ * @internal
+ */
+function convertPuppeteerChannelToBrowsersChannel(channel) {
+    switch (channel) {
+        case 'chrome':
+            return ChromeReleaseChannel.STABLE;
+        case 'chrome-dev':
+            return ChromeReleaseChannel.DEV;
+        case 'chrome-beta':
+            return ChromeReleaseChannel.BETA;
+        case 'chrome-canary':
+            return ChromeReleaseChannel.CANARY;
+    }
+}
+
+var LaunchOptions = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    convertPuppeteerChannelToBrowsersChannel: convertPuppeteerChannelToBrowsersChannel
+});
 
 /**
  * @license
@@ -21705,7 +25389,7 @@ const rmOptions = {
  * @internal
  */
 async function rm(path) {
-    await fs$1.promises.rm(path, rmOptions);
+    await fs.promises.rm(path, rmOptions);
 }
 
 /**
@@ -21716,12 +25400,13 @@ async function rm(path) {
 /**
  * @internal
  */
-class ChromeLauncher extends ProductLauncher {
-    constructor(puppeteer) {
-        super(puppeteer, 'chrome');
+class ChromeLauncher extends BrowserLauncher {
+    constructor(puppeteer, logger) {
+        super(puppeteer, 'chrome', logger);
     }
-    launch(options = {}) {
-        if (this.puppeteer.configuration.logLevel === 'warn' &&
+    async launch(options = {}) {
+        const config = await this.puppeteer.configuration();
+        if (config.logLevel === 'warn' &&
             process.platform === 'darwin' &&
             process.arch === 'x64') {
             const cpus = os.cpus();
@@ -21736,7 +25421,7 @@ class ChromeLauncher extends ProductLauncher {
                 ].join('\n  '));
             }
         }
-        return super.launch(options);
+        return await super.launch(options);
     }
     /**
      * @internal
@@ -21769,20 +25454,27 @@ class ChromeLauncher extends ProductLauncher {
         let isTempUserDataDir = false;
         // Check for the user data dir argument, which will always be set even
         // with a custom directory specified via the userDataDir option.
-        let userDataDirIndex = chromeArguments.findIndex(arg => {
+        const userDataDirIndex = chromeArguments.findIndex(arg => {
             return arg.startsWith('--user-data-dir');
         });
+        let userDataDir;
         if (userDataDirIndex < 0) {
             isTempUserDataDir = true;
-            chromeArguments.push(`--user-data-dir=${await mkdtemp(this.getProfilePath())}`);
-            userDataDirIndex = chromeArguments.length - 1;
+            const profilePath = await this.getProfilePath();
+            userDataDir = await mkdtemp(profilePath);
+            chromeArguments.push(`--user-data-dir=${userDataDir}`);
         }
-        const userDataDir = chromeArguments[userDataDirIndex].split('=', 2)[1];
-        assert(typeof userDataDir === 'string', '`--user-data-dir` is malformed');
+        else {
+            const parsedUserDataDir = chromeArguments[userDataDirIndex].split('=', 2)[1];
+            assert(typeof parsedUserDataDir === 'string', '`--user-data-dir` is malformed');
+            userDataDir = parsedUserDataDir;
+        }
         let chromeExecutable = executablePath;
         if (!chromeExecutable) {
             assert(channel || !this.puppeteer._isPuppeteerCore, `An \`executablePath\` or \`channel\` must be specified for \`puppeteer-core\``);
-            chromeExecutable = this.executablePath(channel, options.headless ?? true);
+            chromeExecutable = channel
+                ? await this.executablePath(channel)
+                : await this.resolveExecutablePath(options.headless ?? true);
         }
         return {
             executablePath: chromeExecutable,
@@ -21800,7 +25492,7 @@ class ChromeLauncher extends ProductLauncher {
                 await rm(path);
             }
             catch (error) {
-                debugError(error);
+                this.logger(DEBUG_PREFIXES.error)?.(error);
                 throw error;
             }
         }
@@ -21812,25 +25504,6 @@ class ChromeLauncher extends ProductLauncher {
             removeMatchingFlags(options.args, '--disable-features');
         }
         const turnOnExperimentalFeaturesForTesting = process.env['PUPPETEER_TEST_EXPERIMENTAL_CHROME_FEATURES'] === 'true';
-        // Merge default disabled features with user-provided ones, if any.
-        const disabledFeatures = [
-            'Translate',
-            // AcceptCHFrame disabled because of crbug.com/1348106.
-            'AcceptCHFrame',
-            'MediaRouter',
-            'OptimizationHints',
-            ...(turnOnExperimentalFeaturesForTesting
-                ? []
-                : [
-                    // https://crbug.com/1492053
-                    'ProcessPerSiteUpToMainFrameThreshold',
-                    // https://github.com/puppeteer/puppeteer/issues/10715
-                    'IsolateSandboxedIframes',
-                ]),
-            ...userDisabledFeatures,
-        ].filter(feature => {
-            return feature !== '';
-        });
         const userEnabledFeatures = getFeatures('--enable-features', options.args);
         if (options.args && userEnabledFeatures.length > 0) {
             removeMatchingFlags(options.args, '--enable-features');
@@ -21843,6 +25516,32 @@ class ChromeLauncher extends ProductLauncher {
         ].filter(feature => {
             return feature !== '';
         });
+        // Merge default disabled features with user-provided ones, if any.
+        const disabledFeatures = [
+            'Translate',
+            // AcceptCHFrame disabled because of crbug.com/1348106.
+            'AcceptCHFrame',
+            'MediaRouter',
+            'OptimizationHints',
+            'WebUIReloadButton',
+            'WebUIOmniboxPopup',
+            'WebUIOmniboxAimPopup',
+            ...(turnOnExperimentalFeaturesForTesting
+                ? []
+                : [
+                    // https://crbug.com/1492053
+                    'ProcessPerSiteUpToMainFrameThreshold',
+                    // https://github.com/puppeteer/puppeteer/issues/10715
+                    'IsolateSandboxedIframes',
+                ]),
+            ...userDisabledFeatures,
+        ]
+            .filter(feature => {
+            return feature !== '';
+        })
+            .filter(disabledFeature => {
+            return !enabledFeatures.includes(disabledFeature);
+        });
         const chromeArguments = [
             '--allow-pre-commit-input',
             '--disable-background-networking',
@@ -21851,10 +25550,9 @@ class ChromeLauncher extends ProductLauncher {
             '--disable-breakpad',
             '--disable-client-side-phishing-detection',
             '--disable-component-extensions-with-background-pages',
-            '--disable-component-update',
+            '--disable-crash-reporter', // No crash reporting in CfT.
             '--disable-default-apps',
             '--disable-dev-shm-usage',
-            '--disable-extensions',
             '--disable-hang-monitor',
             '--disable-infobars',
             '--disable-ipc-flooding-protection',
@@ -21865,8 +25563,8 @@ class ChromeLauncher extends ProductLauncher {
             '--disable-sync',
             '--enable-automation',
             '--export-tagged-pdf',
-            '--generate-pdf-document-outline',
             '--force-color-profile=srgb',
+            '--generate-pdf-document-outline',
             '--metrics-recording-only',
             '--no-first-run',
             '--password-store=basic',
@@ -21876,15 +25574,23 @@ class ChromeLauncher extends ProductLauncher {
         ].filter(arg => {
             return arg !== '';
         });
-        const { devtools = false, headless = !devtools, args = [], userDataDir, } = options;
+        const { devtools = false, headless = !devtools, args = [], userDataDir, enableExtensions = false, } = options;
+        if (process.env['PUPPETEER_DANGEROUS_NO_SANDBOX'] === 'true' &&
+            !args.includes('--no-sandbox')) {
+            chromeArguments.push('--no-sandbox');
+        }
         if (userDataDir) {
-            chromeArguments.push(`--user-data-dir=${path.resolve(userDataDir)}`);
+            // If absolute (for any platform) path is given, we should not resolve it.
+            chromeArguments.push(`--user-data-dir=${path.posix.isAbsolute(userDataDir) || path.win32.isAbsolute(userDataDir) ? userDataDir : path.resolve(userDataDir)}`);
         }
         if (devtools) {
             chromeArguments.push('--auto-open-devtools-for-tabs');
         }
         if (headless) {
             chromeArguments.push(headless === 'shell' ? '--headless' : '--headless=new', '--hide-scrollbars', '--mute-audio');
+        }
+        if (!enableExtensions) {
+            chromeArguments.push('--disable-extensions');
         }
         if (args.every(arg => {
             return arg.startsWith('-');
@@ -21894,7 +25600,7 @@ class ChromeLauncher extends ProductLauncher {
         chromeArguments.push(...args);
         return chromeArguments;
     }
-    executablePath(channel, headless) {
+    async executablePath(channel, validatePath = true) {
         if (channel) {
             return computeSystemExecutablePath({
                 browser: Browser$1.CHROME,
@@ -21902,20 +25608,8 @@ class ChromeLauncher extends ProductLauncher {
             });
         }
         else {
-            return this.resolveExecutablePath(headless);
+            return await this.resolveExecutablePath(undefined, validatePath);
         }
-    }
-}
-function convertPuppeteerChannelToBrowsersChannel(channel) {
-    switch (channel) {
-        case 'chrome':
-            return ChromeReleaseChannel.STABLE;
-        case 'chrome-dev':
-            return ChromeReleaseChannel.DEV;
-        case 'chrome-beta':
-            return ChromeReleaseChannel.BETA;
-        case 'chrome-canary':
-            return ChromeReleaseChannel.CANARY;
     }
 }
 /**
@@ -21931,12 +25625,19 @@ function convertPuppeteerChannelToBrowsersChannel(channel) {
  * @internal
  */
 function getFeatures(flag, options = []) {
+    const prefix = flag.endsWith('=') ? flag : `${flag}=`;
     return options
         .filter(s => {
-        return s.startsWith(flag.endsWith('=') ? flag : `${flag}=`);
+        return s.startsWith(prefix);
     })
-        .map(s => {
-        return s.split(new RegExp(`${flag}=\\s*`))[1]?.trim();
+        .flatMap(s => {
+        return s
+            .substring(s.indexOf('=') + 1)
+            .trim()
+            .split(',')
+            .map(feature => {
+            return feature.trim();
+        });
     })
         .filter(s => {
         return s;
@@ -21949,10 +25650,10 @@ function getFeatures(flag, options = []) {
  * @internal
  */
 function removeMatchingFlags(array, flag) {
-    const regex = new RegExp(`^${flag}=.*`);
+    const prefix = flag.endsWith('=') ? flag : `${flag}=`;
     let i = 0;
     while (i < array.length) {
-        if (regex.test(array[i])) {
+        if (array[i].startsWith(prefix)) {
             array.splice(i, 1);
         }
         else {
@@ -21970,34 +25671,16 @@ function removeMatchingFlags(array, flag) {
 /**
  * @internal
  */
-class FirefoxLauncher extends ProductLauncher {
-    constructor(puppeteer) {
-        super(puppeteer, 'firefox');
+class FirefoxLauncher extends BrowserLauncher {
+    constructor(puppeteer, logger) {
+        super(puppeteer, 'firefox', logger);
     }
-    static getPreferences(extraPrefsFirefox, protocol) {
+    static getPreferences(extraPrefsFirefox) {
         return {
             ...extraPrefsFirefox,
-            ...(protocol === 'webDriverBiDi'
-                ? {
-                    // Only enable the WebDriver BiDi protocol
-                    'remote.active-protocols': 1,
-                }
-                : {
-                    // Do not close the window when the last tab gets closed
-                    'browser.tabs.closeWindowWithLastTab': false,
-                    // Prevent various error message on the console
-                    // jest-puppeteer asserts that no error message is emitted by the console
-                    'network.cookie.cookieBehavior': 0,
-                    // Temporarily force disable BFCache in parent (https://bit.ly/bug-1732263)
-                    'fission.bfcacheInParent': false,
-                    // Only enable the CDP protocol
-                    'remote.active-protocols': 2,
-                }),
             // Force all web content to use a single content process. TODO: remove
             // this once Firefox supports mouse event dispatch from the main frame
-            // context. Once this happens, webContentIsolationStrategy should only
-            // be set for CDP. See
-            // https://bugzilla.mozilla.org/show_bug.cgi?id=1773393
+            // context. See https://bugzilla.mozilla.org/show_bug.cgi?id=1773393.
             'fission.webContentIsolationStrategy': 0,
         };
     }
@@ -22043,13 +25726,14 @@ class FirefoxLauncher extends ProductLauncher {
             isTempUserDataDir = false;
         }
         else {
-            userDataDir = await mkdtemp(this.getProfilePath());
+            const profilePath = await this.getProfilePath();
+            userDataDir = await mkdtemp(profilePath);
             firefoxArguments.push('--profile');
             firefoxArguments.push(userDataDir);
         }
         await createProfile(Browser$1.FIREFOX, {
             path: userDataDir,
-            preferences: FirefoxLauncher.getPreferences(extraPrefsFirefox, options.protocol),
+            preferences: FirefoxLauncher.getPreferences(extraPrefsFirefox),
         });
         let firefoxExecutable;
         if (this.puppeteer._isPuppeteerCore || executablePath) {
@@ -22057,7 +25741,7 @@ class FirefoxLauncher extends ProductLauncher {
             firefoxExecutable = executablePath;
         }
         else {
-            firefoxExecutable = this.executablePath();
+            firefoxExecutable = await this.executablePath(undefined);
         }
         return {
             isTempUserDataDir,
@@ -22075,40 +25759,36 @@ class FirefoxLauncher extends ProductLauncher {
                 await rm(userDataDir);
             }
             catch (error) {
-                debugError(error);
+                this.logger(DEBUG_PREFIXES.error)?.(error);
                 throw error;
             }
         }
         else {
             try {
-                // When an existing user profile has been used remove the user
-                // preferences file and restore possibly backuped preferences.
-                await unlink(path.join(userDataDir, 'user.js'));
-                const prefsBackupPath = path.join(userDataDir, 'prefs.js.puppeteer');
-                if (fs$1.existsSync(prefsBackupPath)) {
-                    const prefsPath = path.join(userDataDir, 'prefs.js');
-                    await unlink(prefsPath);
-                    await rename(prefsBackupPath, prefsPath);
+                const backupSuffix = '.puppeteer';
+                const backupFiles = ['prefs.js', 'user.js'];
+                const results = await Promise.allSettled(backupFiles.map(async (file) => {
+                    const prefsBackupPath = path.join(userDataDir, file + backupSuffix);
+                    if (fs.existsSync(prefsBackupPath)) {
+                        const prefsPath = path.join(userDataDir, file);
+                        await unlink(prefsPath);
+                        await rename(prefsBackupPath, prefsPath);
+                    }
+                }));
+                for (const result of results) {
+                    if (result.status === 'rejected') {
+                        throw result.reason;
+                    }
                 }
             }
             catch (error) {
-                debugError(error);
+                this.logger(DEBUG_PREFIXES.error)?.(error);
             }
         }
     }
-    executablePath() {
-        // replace 'latest' placeholder with actual downloaded revision
-        if (this.puppeteer.browserRevision === 'latest') {
-            const cache = new Cache(this.puppeteer.defaultDownloadPath);
-            const installedFirefox = cache.getInstalledBrowsers().find(browser => {
-                return (browser.platform === detectBrowserPlatform() &&
-                    browser.browser === Browser$1.FIREFOX);
-            });
-            if (installedFirefox) {
-                this.actualBrowserRevision = installedFirefox.buildId;
-            }
-        }
-        return this.resolveExecutablePath();
+    async executablePath(_, validatePath = true) {
+        return await this.resolveExecutablePath(undefined, 
+        /* validatePath=*/ validatePath);
     }
     defaultArgs(options = {}) {
         const { devtools = false, headless = !devtools, args = [], userDataDir = null, } = options;
@@ -22151,7 +25831,7 @@ class FirefoxLauncher extends ProductLauncher {
  * fetching and downloading browsers.
  *
  * If you're using Puppeteer in a Node environment, this is the class you'll get
- * when you run `require('puppeteer')` (or the equivalent ES `import`).
+ * when you run `import puppeteer from 'puppeteer'`.
  *
  * @remarks
  * The most common method to use is {@link PuppeteerNode.launch | launch}, which
@@ -22166,13 +25846,11 @@ class FirefoxLauncher extends ProductLauncher {
  * ```ts
  * import puppeteer from 'puppeteer';
  *
- * (async () => {
- *   const browser = await puppeteer.launch();
- *   const page = await browser.newPage();
- *   await page.goto('https://www.google.com');
- *   // other actions...
- *   await browser.close();
- * })();
+ * const browser = await puppeteer.launch();
+ * const page = await browser.newPage();
+ * await page.goto('https://www.google.com');
+ * // other actions...
+ * await browser.close();
  * ```
  *
  * Once you have created a `page` you have access to a large API to interact
@@ -22182,16 +25860,9 @@ class FirefoxLauncher extends ProductLauncher {
  * @public
  */
 class PuppeteerNode extends Puppeteer {
-    #_launcher;
-    #lastLaunchedProduct;
-    /**
-     * @internal
-     */
-    defaultBrowserRevision;
-    /**
-     * @internal
-     */
-    configuration = {};
+    #launcher;
+    #lastLaunchedBrowser;
+    configuration;
     /**
      * @internal
      */
@@ -22201,14 +25872,10 @@ class PuppeteerNode extends Puppeteer {
         if (configuration) {
             this.configuration = configuration;
         }
-        switch (this.configuration.defaultProduct) {
-            case 'firefox':
-                this.defaultBrowserRevision = PUPPETEER_REVISIONS.firefox;
-                break;
-            default:
-                this.configuration.defaultProduct = 'chrome';
-                this.defaultBrowserRevision = PUPPETEER_REVISIONS.chrome;
-                break;
+        else {
+            this.configuration = () => {
+                return Promise.resolve({});
+            };
         }
         this.connect = this.connect.bind(this);
         this.launch = this.launch.bind(this);
@@ -22223,6 +25890,7 @@ class PuppeteerNode extends Puppeteer {
      * @returns Promise which resolves to browser instance.
      */
     connect(options) {
+        options.logger ??= debug;
         return super.connect(options);
     }
     /**
@@ -22261,46 +25929,46 @@ class PuppeteerNode extends Puppeteer {
      *
      * @param options - Options to configure launching behavior.
      */
-    launch(options = {}) {
-        const { product = this.defaultProduct } = options;
-        this.#lastLaunchedProduct = product;
-        return this.#launcher.launch(options);
-    }
-    /**
-     * @internal
-     */
-    get #launcher() {
-        if (this.#_launcher &&
-            this.#_launcher.product === this.lastLaunchedProduct) {
-            return this.#_launcher;
+    async launch(options = {}) {
+        options.logger ??= debug;
+        const { browser = await this.defaultBrowser() } = options;
+        this.#lastLaunchedBrowser = browser;
+        if (!['chrome', 'firefox'].includes(browser)) {
+            throw new Error(`Unknown product: ${browser}`);
         }
-        switch (this.lastLaunchedProduct) {
+        this.#launcher = this.#getLauncher(browser, options.logger);
+        return await this.#launcher.launch(options);
+    }
+    #getLauncher(browser, logger) {
+        if (this.#launcher && this.#launcher.browser === browser) {
+            return this.#launcher;
+        }
+        switch (browser) {
             case 'chrome':
-                this.defaultBrowserRevision = PUPPETEER_REVISIONS.chrome;
-                this.#_launcher = new ChromeLauncher(this);
-                break;
+                return new ChromeLauncher(this, logger);
             case 'firefox':
-                this.defaultBrowserRevision = PUPPETEER_REVISIONS.firefox;
-                this.#_launcher = new FirefoxLauncher(this);
-                break;
+                return new FirefoxLauncher(this, logger);
             default:
-                throw new Error(`Unknown product: ${this.#lastLaunchedProduct}`);
+                throw new Error(`Unknown product: ${browser}`);
         }
-        return this.#_launcher;
     }
-    /**
-     * The default executable path.
-     */
-    executablePath(channel) {
-        return this.#launcher.executablePath(channel);
+    async executablePath(optsOrChannel) {
+        if (optsOrChannel === undefined) {
+            return await this.#getLauncher(await this.lastLaunchedBrowser(), debug).executablePath(undefined, /* validatePath= */ false);
+        }
+        if (typeof optsOrChannel === 'string') {
+            return await this.#getLauncher('chrome', debug).executablePath(optsOrChannel, 
+            /* validatePath= */ false);
+        }
+        return await this.#getLauncher(optsOrChannel.browser ?? (await this.lastLaunchedBrowser()), optsOrChannel.logger ?? debug).resolveExecutablePath(optsOrChannel.headless, /* validatePath= */ false);
     }
     /**
      * @internal
      */
-    get browserRevision() {
-        return (this.#_launcher?.getActualBrowserRevision() ??
-            this.configuration.browserRevision ??
-            this.defaultBrowserRevision);
+    async browserVersion() {
+        const config = await this.configuration();
+        const lastLaunched = await this.lastLaunchedBrowser();
+        return config?.[lastLaunched]?.version ?? PUPPETEER_REVISIONS[lastLaunched];
     }
     /**
      * The default download path for puppeteer. For puppeteer-core, this
@@ -22308,41 +25976,32 @@ class PuppeteerNode extends Puppeteer {
      *
      * @internal
      */
-    get defaultDownloadPath() {
-        return this.configuration.cacheDirectory;
+    async defaultDownloadPath() {
+        const config = await this.configuration();
+        return config.cacheDirectory;
     }
     /**
      * The name of the browser that was last launched.
      */
-    get lastLaunchedProduct() {
-        return this.#lastLaunchedProduct ?? this.defaultProduct;
+    async lastLaunchedBrowser() {
+        return this.#lastLaunchedBrowser ?? (await this.defaultBrowser());
     }
     /**
      * The name of the browser that will be launched by default. For
      * `puppeteer`, this is influenced by your configuration. Otherwise, it's
      * `chrome`.
      */
-    get defaultProduct() {
-        return this.configuration.defaultProduct ?? 'chrome';
-    }
-    /**
-     * @deprecated Do not use as this field as it does not take into account
-     * multiple browsers of different types. Use
-     * {@link PuppeteerNode.defaultProduct | defaultProduct} or
-     * {@link PuppeteerNode.lastLaunchedProduct | lastLaunchedProduct}.
-     *
-     * @returns The name of the browser that is under automation.
-     */
-    get product() {
-        return this.#launcher.product;
+    async defaultBrowser() {
+        const config = await this.configuration();
+        return config.defaultBrowser ?? 'chrome';
     }
     /**
      * @param options - Set of configurable options to set on the browser.
      *
-     * @returns The default flags that Chromium will be launched with.
+     * @returns The default arguments that the browser will be launched with.
      */
-    defaultArgs(options = {}) {
-        return this.#launcher.defaultArgs(options);
+    async defaultArgs(options = {}) {
+        return this.#getLauncher(options.browser ?? (await this.lastLaunchedBrowser()), options.logger ?? debug).defaultArgs(options);
     }
     /**
      * Removes all non-current Firefox and Chrome binaries in the cache directory
@@ -22363,11 +26022,11 @@ class PuppeteerNode extends Puppeteer {
         if (!platform) {
             throw new Error('The current platform is not supported.');
         }
-        const cacheDir = this.configuration.cacheDirectory;
+        const config = await this.configuration();
+        const cacheDir = config.cacheDirectory;
         const installedBrowsers = await getInstalledBrowsers({
             cacheDir,
         });
-        const product = this.configuration.defaultProduct;
         const puppeteerBrowsers = [
             {
                 product: 'chrome',
@@ -22381,11 +26040,10 @@ class PuppeteerNode extends Puppeteer {
             },
         ];
         // Resolve current buildIds.
-        for (const item of puppeteerBrowsers) {
-            item.currentBuildId = await resolveBuildId(item.browser, platform, (product === item.product
-                ? this.configuration.browserRevision
-                : null) || PUPPETEER_REVISIONS[item.product]);
-        }
+        await Promise.all(puppeteerBrowsers.map(async (item) => {
+            const tag = config?.[item.product]?.version ?? PUPPETEER_REVISIONS[item.product];
+            item.currentBuildId = await resolveBuildId(item.browser, platform, tag);
+        }));
         const currentBrowserBuilds = new Set(puppeteerBrowsers.map(browser => {
             return `${browser.browser}_${browser.currentBuildId}`;
         }));
@@ -22456,7 +26114,30 @@ var __setFunctionName = (undefined && undefined.__setFunctionName) || function (
 };
 const CRF_VALUE = 30;
 const DEFAULT_FPS = 30;
-const debugFfmpeg = debug$1('puppeteer:ffmpeg');
+/**
+ * Computes how many encoder frames to emit for a captured frame that spans
+ * `[previousTimestamp, timestamp]`, so that the cumulative number of emitted
+ * frames tracks a constant-`fps` grid anchored at `startTimestamp`.
+ *
+ * Counting each interval independently with
+ * `Math.round(fps * (timestamp - previousTimestamp))` is wrong when frames are
+ * captured faster than `fps`: every sub-`1/fps` interval still rounds up to a
+ * whole frame, so the emitted frame count grows with the capture rate instead
+ * of staying at `fps * duration`, which stretches playback (and, for very high
+ * capture rates, the per-interval value rounds down to 0 and frames are
+ * dropped). Differencing the rounded cumulative position keeps the total at
+ * `Math.round(fps * (lastTimestamp - startTimestamp))`, independent of the
+ * capture rate.
+ *
+ * Timestamps are in seconds (CDP `Page.screencastFrame` metadata timestamps).
+ *
+ * @internal
+ */
+function countFrames(startTimestamp, previousTimestamp, timestamp, fps) {
+    const end = Math.round((timestamp - startTimestamp) * fps);
+    const start = Math.round((previousTimestamp - startTimestamp) * fps);
+    return Math.max(0, end - start);
+}
 /**
  * @public
  */
@@ -22484,18 +26165,52 @@ let ScreenRecorder = (() => {
         #process;
         #controller = new AbortController();
         #lastFrame;
+        #fps;
+        #logger;
         /**
          * @internal
          */
-        constructor(page, width, height, { speed, scale, crop, format, path } = {}) {
+        constructor(page, width, height, { ffmpegPath, speed, scale, crop, format, fps, loop, delay, quality, colors, path, overwrite, } = {}, logger) {
             super({ allowHalfOpen: false });
-            path ??= 'ffmpeg';
+            this.#logger = logger;
+            ffmpegPath ??= 'ffmpeg';
+            format ??= 'webm';
+            fps ??= DEFAULT_FPS;
+            // Maps 0 to -1 as ffmpeg maps 0 to infinity.
+            loop ||= -1;
+            delay ??= -1;
+            quality ??= CRF_VALUE;
+            colors ??= 256;
+            overwrite ??= true;
+            this.#fps = fps;
             // Tests if `ffmpeg` exists.
-            const { error } = spawnSync(path);
+            const { error } = spawnSync(ffmpegPath);
             if (error) {
                 throw error;
             }
-            this.#process = spawn(path, 
+            const filters = [
+                `crop='min(${width},iw):min(${height},ih):0:0'`,
+                `pad=${width}:${height}:0:0`,
+            ];
+            if (speed) {
+                filters.push(`setpts=${1 / speed}*PTS`);
+            }
+            if (crop) {
+                filters.push(`crop=${crop.width}:${crop.height}:${crop.x}:${crop.y}`);
+            }
+            if (scale) {
+                filters.push(`scale=iw*${scale}:-1:flags=lanczos`);
+            }
+            const formatArgs = this.#getFormatArgs(format, fps, loop, delay, quality, colors);
+            const vf = formatArgs.indexOf('-vf');
+            if (vf !== -1) {
+                filters.push(formatArgs.splice(vf, 2).at(-1) ?? '');
+            }
+            // Ensure provided output directory path exists.
+            if (path) {
+                fs.mkdirSync(dirname(path), { recursive: overwrite });
+            }
+            this.#process = spawn(ffmpegPath, 
             // See https://trac.ffmpeg.org/wiki/Encode/VP9 for more information on flags.
             [
                 ['-loglevel', 'error'],
@@ -22513,35 +26228,41 @@ let ScreenRecorder = (() => {
                     'nobuffer',
                 ],
                 // Forces input to be read from standard input, and forces png input
-                // image format.
-                ['-f', 'image2pipe', '-c:v', 'png', '-i', 'pipe:0'],
-                // Overwrite output and no audio.
-                ['-y', '-an'],
+                // image format. `-framerate` is an input option and must appear before
+                // `-i`; otherwise ffmpeg ignores it and the image2pipe demuxer falls
+                // back to its default 25fps, stretching the output timeline relative to
+                // the frames we feed it at `fps`.
+                // prettier-ignore
+                ['-framerate', `${fps}`, '-f', 'image2pipe', '-vcodec', 'png', '-i', 'pipe:0'],
+                // No audio
+                ['-an'],
                 // This drastically reduces stalling when cpu is overbooked. By default
                 // VP9 tries to use all available threads?
                 ['-threads', '1'],
-                // Specifies the frame rate we are giving ffmpeg.
-                ['-framerate', `${DEFAULT_FPS}`],
-                // Specifies the encoding and format we are using.
-                this.#getFormatArgs(format ?? 'webm'),
                 // Disable bitrate.
                 ['-b:v', '0'],
-                // Filters to ensure the images are piped correctly.
-                [
-                    '-vf',
-                    `${speed ? `setpts=${1 / speed}*PTS,` : ''}crop='min(${width},iw):min(${height},ih):0:0',pad=${width}:${height}:0:0${crop ? `,crop=${crop.width}:${crop.height}:${crop.x}:${crop.y}` : ''}${scale ? `,scale=iw*${scale}:-1` : ''}`,
-                ],
+                // Specifies the encoding and format we are using.
+                formatArgs,
+                // Filters to ensure the images are piped correctly,
+                // combined with any format-specific filters.
+                ['-vf', filters.join()],
+                // Overwrite output, or exit immediately if file already exists.
+                [overwrite ? '-y' : '-n'],
                 'pipe:1',
             ].flat(), { stdio: ['pipe', 'pipe', 'pipe'] });
             this.#process.stdout.pipe(this);
             this.#process.stderr.on('data', (data) => {
-                debugFfmpeg(data.toString('utf8'));
+                this.#logger?.(DEBUG_PREFIXES.ffmpeg)?.(data.toString('utf8'));
             });
             this.#page = page;
             const { client } = this.#page.mainFrame();
             client.once(CDPSessionEvent.Disconnected, () => {
-                void this.stop().catch(debugError);
+                void this.stop().catch(err => {
+                    this.#logger?.(DEBUG_PREFIXES.error)?.(err);
+                });
             });
+            // Anchor for the constant-fps grid; set to the first frame's timestamp.
+            let startTimestamp;
             this.#lastFrame = lastValueFrom(fromEmitterEvent(client, 'Page.screencastFrame').pipe(tap(event => {
                 void client.send('Page.screencastFrameAck', {
                     sessionId: event.sessionId,
@@ -22554,35 +26275,63 @@ let ScreenRecorder = (() => {
                     timestamp: event.metadata.timestamp,
                 };
             }), bufferCount(2, 1), concatMap(([{ timestamp: previousTimestamp, buffer }, { timestamp }]) => {
-                return from(Array(Math.round(DEFAULT_FPS * Math.max(timestamp - previousTimestamp, 0))).fill(buffer));
+                startTimestamp ??= previousTimestamp;
+                return from(Array(countFrames(startTimestamp, previousTimestamp, timestamp, fps)).fill(buffer));
             }), map(buffer => {
                 void this.#writeFrame(buffer);
                 return [buffer, performance.now()];
             }), takeUntil(fromEvent(this.#controller.signal, 'abort'))), { defaultValue: [Buffer.from([]), performance.now()] });
         }
-        #getFormatArgs(format) {
+        #getFormatArgs(format, fps, loop, delay, quality, colors) {
+            const libvpx = [
+                ['-vcodec', 'vp9'],
+                // Sets the quality. Lower the better.
+                ['-crf', `${quality}`],
+                // Sets the quality and how efficient the compression will be.
+                [
+                    '-deadline',
+                    'realtime',
+                    '-cpu-used',
+                    `${Math.min(os.cpus().length / 2, 8)}`,
+                ],
+            ];
             switch (format) {
                 case 'webm':
                     return [
-                        // Sets the codec to use.
-                        ['-c:v', 'vp9'],
+                        ...libvpx,
                         // Sets the format
                         ['-f', 'webm'],
-                        // Sets the quality. Lower the better.
-                        ['-crf', `${CRF_VALUE}`],
-                        // Sets the quality and how efficient the compression will be.
-                        ['-deadline', 'realtime', '-cpu-used', '8'],
                     ].flat();
                 case 'gif':
+                    fps = DEFAULT_FPS === fps ? 20 : 'source_fps';
+                    if (loop === Infinity) {
+                        loop = 0;
+                    }
+                    if (delay !== -1) {
+                        // ms to cs
+                        delay /= 10;
+                    }
                     return [
                         // Sets the frame rate and uses a custom palette generated from the
                         // input.
                         [
                             '-vf',
-                            'fps=5,split[s0][s1];[s0]palettegen=stats_mode=diff[p];[s1][p]paletteuse',
+                            `fps=${fps},split[s0][s1];[s0]palettegen=stats_mode=diff:max_colors=${colors}[p];[s1][p]paletteuse=dither=bayer`,
                         ],
+                        // Sets the number of times to loop playback.
+                        ['-loop', `${loop}`],
+                        // Sets the delay between iterations of a loop.
+                        ['-final_delay', `${delay}`],
                         // Sets the format
                         ['-f', 'gif'],
+                    ].flat();
+                case 'mp4':
+                    return [
+                        ...libvpx,
+                        // Fragment file during stream to avoid errors.
+                        ['-movflags', 'hybrid_fragmented'],
+                        // Sets the format
+                        ['-f', 'mp4'],
                     ].flat();
             }
         }
@@ -22597,11 +26346,13 @@ let ScreenRecorder = (() => {
                 return;
             }
             // Stopping the screencast will flush the frames.
-            await this.#page._stopScreencast().catch(debugError);
+            await this.#page._stopScreencast().catch(err => {
+                this.#logger?.(DEBUG_PREFIXES.error)?.(err);
+            });
             this.#controller.abort();
             // Repeat the last frame for the remaining frames.
             const [buffer, timestamp] = await this.#lastFrame;
-            await Promise.all(Array(Math.max(1, Math.round((DEFAULT_FPS * (performance.now() - timestamp)) / 1000)))
+            await Promise.all(Array(Math.max(1, Math.round((this.#fps * (performance.now() - timestamp)) / 1000)))
                 .fill(buffer)
                 .map(this.#writeFrame.bind(this)));
             // Close stdin to notify FFmpeg we are done.
@@ -22610,25 +26361,20 @@ let ScreenRecorder = (() => {
                 this.#process.once('close', resolve);
             });
         }
-        /**
-         * @internal
-         */
         async [(_private_writeFrame_decorators = [guarded()], _stop_decorators = [guarded()], asyncDisposeSymbol)]() {
             await this.stop();
+            await super[asyncDisposeSymbol]();
         }
     };
 })();
-
-var ScreenRecorder$1 = /*#__PURE__*/Object.freeze({
-  __proto__: null,
-  ScreenRecorder: ScreenRecorder
-});
 
 /**
  * @license
  * Copyright 2017 Google Inc.
  * SPDX-License-Identifier: Apache-2.0
  */
+// Set up Node-specific environment dependencies before importing other modules.
+environment.value.ScreenRecorder = ScreenRecorder;
 /**
  * @public
  */
@@ -22694,4 +26440,4 @@ window.onConnectClick = async () => {
   }
 };
 
-export { firstValueFrom as $, AsyncIterableUtil as A, SOURCE_URL_REGEX as B, CDPSession as C, Deferred as D, EventEmitter as E, Frame as F, of as G, HTTPResponse as H, combineLatest as I, JSHandle as J, fromEmitterEvent as K, LazyArg as L, map as M, first as N, raceWith as O, ProtocolError as P, timeout as Q, Realm as R, SecurityDetails as S, TargetCloseError as T, UnsupportedOperation as U, Accessibility as V, WebWorker as W, ConsoleMessage as X, defer as Y, filter as Z, isErrorLike as _, CallbackRegistry as a, switchMap as a0, delayWhen as a1, fromAbortSignal as a2, throwIfDetached as a3, Keyboard as a4, Mouse as a5, MouseButton as a6, Touchscreen as a7, Page as a8, EmulationManager as a9, Tracing as aa, Coverage as ab, parsePDFOptions as ac, from as ad, bubble as ae, evaluationString as af, Target as ag, TargetType as ah, WEB_PERMISSION_TO_PROTOCOL_PERMISSION as ai, BrowserContext as aj, Browser as ak, assert as b, debug as c, debugError as d, DisposableStack as e, disposeSymbol as f, Dialog as g, ElementHandle as h, inertIfDisposed as i, interpolateFunction as j, invokeAtMostOnceForArguments as k, HTTPRequest as l, handleError as m, STATUS_TEXTS as n, isPlainObject as o, isRegExp as p, isDate as q, TimeoutError as r, stringifyFunction as s, throwIfDisposed as t, PuppeteerURL as u, ARIAQueryHandler as v, scriptInjector as w, getSourceUrlComment as x, getSourcePuppeteerURLIfAvailable as y, isString as z };
+export { map as $, AsyncIterableUtil as A, ConsoleMessage as B, CDPSession as C, DEBUG_PREFIXES as D, EventEmitter as E, TimeoutError as F, PuppeteerURL as G, HTTPResponse as H, InterceptResolutionAction as I, JSHandle as J, ARIAQueryHandler as K, scriptInjector as L, getSourceUrlComment as M, getSourcePuppeteerURLIfAvailable as N, LazyArg as O, ProtocolError as P, SOURCE_URL_REGEX as Q, Realm as R, SecurityDetails as S, TargetCloseError as T, UnsupportedOperation as U, WebWorker as V, WebWorkerEvent as W, Frame as X, of as Y, combineLatest as Z, fromEmitterEvent as _, Deferred as a, first as a0, raceWith as a1, timeout as a2, Accessibility as a3, defer as a4, filter as a5, isErrorLike as a6, firstValueFrom as a7, race as a8, switchMap as a9, delayWhen as aa, fromAbortSignal as ab, throwIfDetached as ac, Keyboard as ad, Mouse as ae, MouseButton as af, Touchscreen as ag, TouchError as ah, Page as ai, EmulationManager as aj, Tracing as ak, Coverage as al, parsePDFOptions as am, from as an, FileChooser as ao, bubble as ap, evaluationString as aq, Target as ar, TargetType as as, WEB_PERMISSION_TO_PROTOCOL_PERMISSION as at, BrowserContext as au, Browser as av, CallbackRegistry as b, ConnectionClosedError as c, DeviceRequestPrompt as d, DisposableStack as e, disposeSymbol as f, assert as g, isString as h, inertIfDisposed as i, ElementHandle as j, environment as k, bindIsolatedHandle as l, Dialog as m, stringifyFunction as n, interpolateFunction as o, normalizeHeaderValue as p, invokeAtMostOnceForArguments as q, HTTPRequest as r, stringToTypedArray as s, throwIfDisposed as t, stringToBase64 as u, handleError as v, STATUS_TEXTS as w, isPlainObject as x, isRegExp as y, isDate as z };
