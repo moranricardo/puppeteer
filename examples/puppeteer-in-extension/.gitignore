@@ -1,2 +1,12 @@
-out
-node_modules
+out/
+node_modules/
+
+# Sistema operativo y cachés
+.DS_Store
+Thumbs.db
+*.tmp
+*.log
+
+# IDEs
+.vscode/
+.idea/
