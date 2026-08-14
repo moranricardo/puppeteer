@@ -16,4 +16,4 @@ jobs:
       - uses: googleapis/release-please-action@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          search-depth: 50
+          release-type: node
