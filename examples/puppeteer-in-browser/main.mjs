@@ -1,23 +1,28 @@
-/**
- * @license
- * Copyright 2024 Google Inc.
- * SPDX-License-Identifier: Apache-2.0
- */
+import {connect} from 'puppeteer-core/lib/esm/puppeteer/puppeteer-core-browser.js';
 
-// TODO: can rollup find the browser entrypoint?
+window.onConnectClick = async () => {
+  const input = document.getElementById('chrome-mobile-es-419') || document.getElementById('ws');
+  const url = input ? input.value : '';
+  const output = document.getElementById('output');
 
-import puppeteer from 'puppeteer-core/lib/esm/puppeteer/puppeteer-core-browser.js';
+  if (!url) {
+    console.error('No WebSocket URL provided');
+    if (output) output.textContent = 'Error: No WebSocket URL provided';
+    return;
+  }
 
-async function onConnectClick() {
-  const wsUrl = document.querySelector('#ws').value;
-
-  const browser = await puppeteer.connect({
-    browserWSEndpoint: wsUrl,
-  });
-
-  alert('Browser has ' + (await browser.pages()).length + ' pages');
-
-  browser.disconnect();
-}
-
-globalThis.onConnectClick = onConnectClick;
+  try {
+    const browser = await connect({
+      browserWSEndpoint: url,
+    });
+    const page = await browser.newPage();
+    await page.goto('https://example.com');
+    const title = await page.title();
+    console.log('Page title:', title);
+    if (output) output.textContent = `Connected! Title: ${title}`;
+    await browser.disconnect();
+  } catch (err) {
+    console.error('Connection failed:', err);
+    if (output) output.textContent = `Error: ${err.message}`;
+  }
+};

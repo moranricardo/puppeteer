@@ -1,10 +1,25 @@
 <!doctype html>
-<script
-  type="module"
-  src="out/main.min.js"
-></script>
-<label>
-  <span>WebSocket URL</span>
-  <input id="ws" />
-</label>
-<button onclick="onConnectClick()">Connect</button>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Puppeteer in Browser Example</title>
+    <script type="module" src="out/main.min.js"></script>
+  </head>
+  <body>
+    <main>
+      <h1>Puppeteer in Browser</h1>
+      <form id="connect-form" onsubmit="event.preventDefault(); window.onConnectClick && window.onConnectClick();">
+        <label for="chrome-mobile-es-419">WebSocket URL:</label>
+        <input
+          id="chrome-mobile-es-419"
+          type="text"
+          placeholder="ws://127.0.0.1:9222/devtools/browser/..."
+          required
+        />
+        <button type="submit">Connect</button>
+      </form>
+      <pre id="output"></pre>
+    </main>
+  </body>
+</html>
