@@ -24,19 +24,26 @@ globalThis.testConnect = async url => {
     chrome.tabs.onUpdated.addListener(listener);
   });
 
-  const browser = await connect({
-    transport: await ExtensionTransport.connectTab(tab.id),
-  });
-  const [page] = await browser.pages();
-  const title = await page.evaluate(() => {
-    return document.title;
-  });
-  const frame = await page.waitForFrame(frame => {
-    return frame.url().endsWith('iframe.html');
-  });
-  const frameTitle = await frame.evaluate(() => {
-    return document.title;
-  });
-  await page.waitForNetworkIdle();
-  return title + '|' + frameTitle;
+  let browser;
+  try {
+    browser = await connect({
+      transport: await ExtensionTransport.connectTab(tab.id),
+    });
+    const [page] = await browser.pages();
+    const title = await page.evaluate(() => {
+      return document.title;
+    });
+    const frame = await page.waitForFrame(frame => {
+      return frame.url().endsWith('iframe.html');
+    });
+    const frameTitle = await frame.evaluate(() => {
+      return document.title;
+    });
+    await page.waitForNetworkIdle();
+    return title + '|' + frameTitle;
+  } finally {
+    if (browser) {
+      await browser.disconnect();
+    }
+  }
 };
