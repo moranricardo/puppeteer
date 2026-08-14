@@ -1,8 +1,12 @@
-# Puppeteer Architecture Overview
+---
+sidebar_position: 8
+---
 
-This document describes the structural hierarchy of objects, execution contexts, and communication protocols within Puppeteer.
+# Visión General de la Arquitectura de Puppeteer
 
-## Object Hierarchy Diagram
+Este documento describe la jerarquía estructural de objetos, los contextos de ejecución y los protocolos de comunicación dentro de Puppeteer.
+
+## Diagrama de la Jerarquía de Objetos
 
 ```mermaid
 graph TD
@@ -27,11 +31,11 @@ graph TD
     F1 -.-> EC_Ext[Extension ExecutionContexts]
 ```
 
-## Hierarchy Breakdown
+## Desglose de la Jerarquía
 
-- **Puppeteer**: Primary entry point. Communicates with the browser instance over Chrome DevTools Protocol (CDP) or WebDriver BiDi.
-- **Browser**: Represents the running browser process (Chrome, Chromium, or Firefox).
-- **BrowserContext**: Isolated browser sessions (similar to Incognito windows) with independent cookies, cache, and storage.
-- **Page**: Individual browser tabs or pages running within a `BrowserContext`.
-- **Frame**: Structural targets within a `Page`, representing the main document or embedded `iframes`.
-- **ExecutionContext**: Isolated JavaScript execution environments where scripts run (frames, web workers, or browser extension scripts).
+- **Puppeteer**: Punto de entrada principal. Se comunica con la instancia del navegador mediante Chrome DevTools Protocol (CDP) o WebDriver BiDi.
+- **Browser**: Representa el proceso del navegador en ejecución (Chrome, Chromium o Firefox).
+- **BrowserContext**: Sesiones de navegador aisladas (similares a las ventanas de incógnito) con cookies, caché y almacenamiento independientes.
+- **Page**: Pestañas o páginas individuales del navegador que se ejecutan dentro de un `BrowserContext`.
+- **Frame**: Objetivos estructurales dentro de una `Page`, que representan el documento principal o los `iframes` incrustados.
+- **ExecutionContext**: Entornos aislados de ejecución de JavaScript donde se ejecutan los scripts (frames, web workers o scripts de extensiones del navegador).
