@@ -1,8 +1,31 @@
-node_modules/
-scripts/tmp.json
-.env
+# Directorios de compilación y salida (Bundlers / Rollup)
+out/
+dist/
+build/
+.cache/
 
-# Python bytecode
-__pycache__/
-*.pyc
-docs/API_COMPLETA.txt
+# Dependencias de Node.js
+node_modules/
+
+# Logs y depuración
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Variables de entorno y credenciales
+.env
+.env.local
+.env.*.local
+
+# Archivos del sistema operativo y editores
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.vscode/
+.idea/
+
+# Cachés de navegadores y Puppeteer
+.puppeteercrc.cjs
+.cache/puppeteer
