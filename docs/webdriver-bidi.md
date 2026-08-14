@@ -1,48 +1,41 @@
-# WebDriver BiDi support
+---
+sidebar_position: 5
+---
 
-[WebDriver BiDi](https://w3c.github.io/webdriver-bidi/) is a new
-cross-browser automation protocol currently under development, aiming to
-combine the best of both WebDriver “Classic” and CDP. WebDriver BiDi
-enables bi-directional communication, making it fast by default, and it
-comes packed with low-level control.
+# Soporte para WebDriver BiDi
 
-## Automate with Chrome and Firefox
+[WebDriver BiDi](https://w3c.github.io/webdriver-bidi/) es un nuevo protocolo de automatización entre navegadores en desarrollo que busca combinar lo mejor de WebDriver "Classic" y CDP. WebDriver BiDi permite la comunicación bidireccional, lo que lo hace rápido por defecto e incluye control de bajo nivel.
 
-Puppeteer supports WebDriver BiDi automation with Chrome and Firefox.
-When launching Firefox with Puppeteer, the WebDriver BiDi Protocol is
-enabled by default. When launching Chrome, CDP is still used by default
-since not all CDP features are supported by WebDriver BiDi yet. If a
-certain Puppeteer feature is not supported over WebDriver BiDi yet,
-[`UnsupportedOperation`](https://pptr.dev/api/puppeteer.unsupportedoperation)
-error is thrown. Also see the lists below on what is supported with
-WebDriver BiDi.
+## Automatización con Chrome y Firefox
 
-## Get started
+Puppeteer admite la automatización con WebDriver BiDi para Chrome y Firefox. Al iniciar Firefox con Puppeteer, el protocolo WebDriver BiDi está habilitado por defecto. Al iniciar Chrome, CDP se sigue utilizando por defecto, ya que no todas las funciones de CDP están soportadas por WebDriver BiDi. Si una función específica de Puppeteer aún no es compatible, se lanzará un error [`UnsupportedOperation`](https://pptr.dev/api/puppeteer.unsupportedoperation). Consulta las listas a continuación para conocer las características soportadas.
 
-Below is an example of launching Firefox or Chrome with WebDriver BiDi:
+## Primeros pasos
+
+A continuación se muestra un ejemplo para iniciar Firefox o Chrome con WebDriver BiDi:
 
 ```ts
 import puppeteer from 'puppeteer';
 
 const firefoxBrowser = await puppeteer.launch({
-  browser: 'firefox', // WebDriver BiDi is used by default.
+  browser: 'firefox', // WebDriver BiDi se usa por defecto.
 });
 const page = await firefoxBrowser.newPage();
-...
+// ...
 await firefoxBrowser.close();
 
 const chromeBrowser = await puppeteer.launch({
   browser: 'chrome',
-  protocol: 'webDriverBiDi', // CDP would be used by default for Chrome.
+  protocol: 'webDriverBiDi', // CDP se usaría por defecto en Chrome.
 });
 const page = await chromeBrowser.newPage();
-...
+// ...
 await chromeBrowser.close();
 ```
 
-## Puppeteer features not supported over WebDriver BiDi
+## Funciones de Puppeteer no soportadas aún en WebDriver BiDi
 
-- Various emulations
+- Varias emulaciones:
   - Page.emulate()
   - Page.emulateCPUThrottling()
   - Page.emulateIdleState()
@@ -51,16 +44,16 @@ await chromeBrowser.close();
   - Page.emulateVisionDeficiency()
   - Page.setBypassCSP()
 
-- CDP-specific features
+- Características específicas de CDP:
   - HTTPRequest.client()
   - HTTPRequest.resourceType()
   - Page.createCDPSession()
 
-- Accessibility
-- Coverage
-- Tracing
+- Accesibilidad
+- Cobertura (Coverage)
+- Trazado (Tracing)
 
-- Other methods:
+- Otros métodos:
   - Frame.waitForDevicePrompt()
   - HTTPResponse.buffer()
   - HTTPResponse.content()
@@ -83,51 +76,51 @@ await chromeBrowser.close();
   - Page.waitForDevicePrompt()
   - PageEvent.popup
 
-## Puppeteer features fully supported over WebDriver BiDi
+## Funciones de Puppeteer totalmente soportadas en WebDriver BiDi
 
-- Browser automation
+- Automatización del navegador:
   - Browser.close()
   - Browser.userAgent()
   - Browser.version()
   - Puppeteer.launch()
 
-- Page automation
-  - Frame.goto() (except `referer` and `referrerPolicy`)
-  - Page 'popup' event
+- Automatización de páginas:
+  - Frame.goto() (excepto `referer` y `referrerPolicy`)
+  - Evento 'popup' de Page
   - Page.bringToFront()
   - Page.cookies()
   - Page.deleteCookie()
   - Page.goBack()
   - Page.goForward()
-  - Page.goto (except `referer` and `referrerPolicy`)
-  - Page.reload (except for `ignoreCache` parameter)
+  - Page.goto (excepto `referer` y `referrerPolicy`)
+  - Page.reload (excepto el parámetro `ignoreCache`)
   - Page.setCacheEnabled()
   - Page.setCookie()
   - Page.setExtraHTTPHeaders()
   - Page.setGeolocation()
-  - Page.setViewport (`width`, `height`, `deviceScaleFactor` only)
+  - Page.setViewport (solo `width`, `height`, `deviceScaleFactor`)
   - Page.waitForFileChooser()
   - Page.workers()
   - PageEvent.WorkerCreated
   - PageEvent.WorkerDestroyed
   - Target.opener()
 
-- [Script evaluation](https://pptr.dev/guides/evaluate-javascript):
+- [Evaluación de scripts](https://pptr.dev/guides/evaluate-javascript):
   - JSHandle.evaluate()
   - JSHandle.evaluateHandle()
   - Page.evaluate()
   - Page.evaluateOnNewDocument()
   - Page.exposeFunction()
 
-- [Selectors](https://pptr.dev/guides/query-selectors) and [locators](https://pptr.dev/guides/locators) except for ARIA:
+- [Selectores](https://pptr.dev/guides/query-selectors) y [localizadores](https://pptr.dev/guides/locators) (excepto ARIA):
   - Page.$
   - Page.$$
   - Page.$$eval
   - Page.$eval
   - Page.waitForSelector
-  - Page.locator() and all locator APIs
+  - Page.locator() y todas sus APIs relacionadas
 
-- Input
+- Entrada de usuario (Input):
   - ElementHandle.click
   - ElementHandle.uploadFile
   - Keyboard.down
@@ -135,32 +128,32 @@ await chromeBrowser.close();
   - Keyboard.sendCharacter
   - Keyboard.type
   - Keyboard.up
-  - Mouse events (except for dedicated drag'n'drop API methods)
+  - Eventos de ratón (excepto métodos dedicados a drag and drop)
   - Page.tap
-  - TouchScreen.\*
+  - TouchScreen.*
 
-- JavaScript dialog interception
+- Intercepción de diálogos JavaScript:
   - page.on('dialog')
-  - Dialog.\*
+  - Dialog.*
 
-- Screenshots (not all parameters are supported)
-  - Page.screenshot (supported parameters are `clip`, `encoding`, `fullPage`)
+- Capturas de pantalla (parámetros soportados: `clip`, `encoding`, `fullPage`)
+  - Page.screenshot
 
-- PDF generation (not all parameters are supported)
-  - Page.pdf (only `format`, `height`, `landscape`, `margin`, `pageRanges`, `printBackground`, `scale`, `width` are supported)
-  - Page.createPDFStream (only `format`, `height`, `landscape`, `margin`, `pageRanges`, `printBackground`, `scale`, `width` are supported)
+- Generación de PDF (parámetros soportados: `format`, `height`, `landscape`, `margin`, `pageRanges`, `printBackground`, `scale`, `width`)
+  - Page.pdf
+  - Page.createPDFStream
 
-- Permissions
+- Permisos:
   - BrowserContext.clearPermissionOverrides()
   - BrowserContext.overridePermissions()
 
-- Various emulations
+- Varias emulaciones:
   - Page.emulateTimezone()
   - Page.isJavaScriptEnabled()
   - Page.setJavaScriptEnabled()
 
-- [Request interception](https://pptr.dev/guides/request-interception)
-  - HTTPRequest.abort() (no custom error support)
+- [Intercepción de peticiones](https://pptr.dev/guides/request-interception):
+  - HTTPRequest.abort()
   - HTTPRequest.abortErrorReason()
   - HTTPRequest.continue()
   - HTTPRequest.continueRequestOverrides()
@@ -174,8 +167,7 @@ await chromeBrowser.close();
   - Page.setRequestInterception()
   - Page.setUserAgent()
 
-## See also
+## Véase también
 
-- [WebDriver BiDi - The future of cross-browser automation](https://developer.chrome.com/articles/webdriver-bidi/)
-- [WebDriver BiDi: 2023 status update](https://developer.chrome.com/blog/webdriver-bidi-2023/)
-- [Puppeteer Support for the Cross-Browser WebDriver BiDi Standard](https://hacks.mozilla.org/2023/12/puppeteer-webdriver-bidi/)
+- [WebDriver BiDi - El futuro de la automatización multinavegador](https://developer.chrome.com/articles/webdriver-bidi/)
+- [Soporte de Puppeteer para el estándar WebDriver BiDi](https://hacks.mozilla.org/2023/12/puppeteer-webdriver-bidi/)
