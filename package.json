@@ -1,32 +1,18 @@
 {
-  "name": "ra-pulse-orchestrator",
+  "name": "puppeteer-in-browser",
   "version": "1.0.0",
-  "description": "Orquestador ligero de Automatización para Ciclo de Ra",
+  "description": "",
   "main": "index.js",
-  "type": "commonjs",
   "scripts": {
-    "start": "node index.js",
-    "test": "echo \"✅ Mocks locales validados\""
-  },
-  "dependencies": {
-    "@google/generative-ai": "^0.24.1",
-    "puppeteer-core": "^25.7.0",
-    "rollup": "^4.62.4"
-  },
-  "directories": {
-    "doc": "docs",
-    "example": "examples",
-    "test": "test"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/moranricardo/puppeteer.git"
+    "build": "npx rimraf out && rollup -c && terser out/main.js --compress --mangle --output out/main.min.js && gzip -k --best -r -f out"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/moranricardo/puppeteer/issues"
-  },
-  "homepage": "https://github.com/moranricardo/puppeteer#readme"
+  "license": "MIT",
+  "devDependencies": {
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "rimraf": "^6.0.1",
+    "rollup": "^4.59.0",
+    "terser": "^5.30.4"
+  }
 }
