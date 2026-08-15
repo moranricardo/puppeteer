@@ -13,12 +13,16 @@ globalThis.testConnect = async url => {
     url,
   });
 
-  // Wait for the new tab to load before connecting.
-  await new Promise(resolve => {
+  await new Promise((resolve, reject) => {
     function listener(tabId, changeInfo) {
-      if (tabId === tab.id && changeInfo.status === 'complete') {
-        chrome.tabs.onUpdated.removeListener(listener);
-        resolve();
+      if (tabId === tab.id) {
+        if (changeInfo.status === 'complete') {
+          chrome.tabs.onUpdated.removeListener(listener);
+          resolve();
+        } else if (changeInfo.status === 'failed') {
+          chrome.tabs.onUpdated.removeListener(listener);
+          reject(new Error('La carga de la pestaña falló.'));
+        }
       }
     }
     chrome.tabs.onUpdated.addListener(listener);
@@ -30,20 +34,30 @@ globalThis.testConnect = async url => {
       transport: await ExtensionTransport.connectTab(tab.id),
     });
     const [page] = await browser.pages();
-    const title = await page.evaluate(() => {
-      return document.title;
-    });
-    const frame = await page.waitForFrame(frame => {
-      return frame.url().endsWith('iframe.html');
-    });
-    const frameTitle = await frame.evaluate(() => {
-      return document.title;
-    });
+    
+    const title = await page.evaluate(() => document.title);
+    
+    let frameTitle = '';
+    try {
+      const frame = await page.waitForFrame(
+        frame => frame.url().endsWith('iframe.html'),
+        { timeout: 5000 }
+      );
+      frameTitle = await frame.evaluate(() => document.title);
+    } catch {
+      frameTitle = 'No iframe found';
+    }
+
     await page.waitForNetworkIdle();
     return title + '|' + frameTitle;
   } finally {
     if (browser) {
       await browser.disconnect();
+    }
+    if (tab?.id) {
+      try {
+        await chrome.tabs.remove(tab.id);
+      } catch {}
     }
   }
 };

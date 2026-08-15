@@ -1,10 +1,19 @@
 {
-  "name": "Puppeteer in extension",
-  "version": "1.0",
   "manifest_version": 3,
+  "name": "Puppeteer in extension",
+  "version": "1.0.0",
+  "description": "Ejecuta y prueba Puppeteer directamente dentro de una extensión de navegador usando Manifest V3.",
   "background": {
     "service_worker": "background.js",
     "type": "module"
   },
-  "permissions": ["debugger", "background"]
+  "permissions": [
+    "debugger",
+    "background",
+    "tabs"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "minimum_chrome_version": "110"
 }

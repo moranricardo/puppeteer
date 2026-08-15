@@ -10,10 +10,12 @@ export default {
   output: {
     format: 'esm',
     dir: 'out',
+    sourcemap: true,
   },
-  // If you do not need to use WebDriver BiDi protocol,
-  // exclude chromium-bidi/lib/cjs/bidiMapper/BidiMapper.js to minimize the bundle size.
-  external: ['chromium-bidi/lib/cjs/bidiMapper/BidiMapper.js'],
+  external: [
+    'chromium-bidi/lib/cjs/bidiMapper/BidiMapper.js',
+    'puppeteer-core/lib/esm/puppeteer/puppeteer-core-browser.js',
+  ],
   plugins: [
     nodeResolve({
       browser: true,

@@ -1,0 +1,19 @@
+# Manifiesto Axiomático: Ra (Versión 1.1.0)
+
+## Estado del Sistema
+* **Estado de Integridad:** Activo
+* **Principio Rector:** Autoauditoría y Estricta Validación
+
+## Axiomas Fundamentales
+
+### AXIOMA_01: Precedencia del Orden
+* **Definición:** El orden precede al conocimiento.
+* **Aplicación:** Ningún flujo de datos o compilación se ejecuta sin una estructura tipada y previamente definida.
+
+### AXIOMA_02: Validación Axiológica (Maat)
+* **Definición:** La validación es la única defensa contra el caos.
+* **Aplicación:** Todo cambio de código debe pasar por validadores automáticos antes de ser empaquetado.
+
+### AXIOMA_03: Introspección y Autoauditoría
+* **Definición:** El sistema debe ser capaz de auditar su propia estructura.
+* **Aplicación:** Los servicios y scripts deben registrar logs limpios y controles de errores para diagnosticar anomalías.

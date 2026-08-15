@@ -1,13 +1,19 @@
 {
   "name": "puppeteer-in-extension",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Ejemplo y extensión de prueba para automatizar navegadores con Puppeteer en Manifest V3.",
+  "main": "background.js",
   "scripts": {
-    "build": "rollup -c && cp manifest.json out/"
+    "clean": "rm -rf out",
+    "build": "npm run clean && rollup -c && cp manifest.json playground.html iframe.html out/"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "puppeteer",
+    "chrome-extension",
+    "automation",
+    "manifest-v3"
+  ],
+  "author": "Ricardo Moran Maldonado",
   "license": "MIT",
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^15.2.3",
