@@ -1,0 +1,7 @@
+{ "packages": { 
+    "packages/puppeteer": {}, 
+    "packages/puppeteer-core": {}, 
+    "packages/ng-schematics": {}, 
+    "packages/browsers": {}
+  }
+}
