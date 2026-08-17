@@ -23,14 +23,14 @@ def verificar_integridad():
         mensaje = f"⚠️ ALERTA CRÍTICA: Pulso al {salud_valor}%. Estado: {salud_estado}."
         print(mensaje)
         recordar(mensaje, tipo="alerta")
-        
+
         emergency_log = obtener_ruta_log_emergencia()
         try:
             with open(emergency_log, "a", encoding="utf-8") as f:
                 f.write(mensaje + "\n")
         except Exception as e:
             print(f"[-] ERROR escribiendo log de emergencia: {e}")
-            
+
         return False
     else:
         recordar(f"✅ Chequeo de salud exitoso: {salud_valor}%", tipo="salud")
