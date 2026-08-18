@@ -37,6 +37,7 @@ except ImportError:
                 return ruta
         return None
 
+# Exclusiones relativas al repositorio
 EXCLUSIONES_DEFAULT = [
     BASE_DIR / 'ra',
     BASE_DIR / 'logs',
@@ -79,7 +80,6 @@ def verificar_integridad(manifest_path: Optional[str] = None, quiet: bool = Fals
         return False
 
     if not quiet:
-        # Prevención de error para versiones de Python < 3.9
         try:
             ruta_mostrar = m_path.relative_to(BASE_DIR)
         except ValueError:
@@ -121,11 +121,21 @@ def verificar_integridad(manifest_path: Optional[str] = None, quiet: bool = Fals
         if not ruta_str or not hash_esperado:
             continue
 
-        ruta_abs = Path(ruta_str).expanduser()
-        if not ruta_abs.is_absolute():
+        ruta_target = Path(ruta_str).expanduser()
+
+        # Si viene una ruta absoluta de otro entorno, intentar adaptarla a BASE_DIR
+        if ruta_target.is_absolute():
+            # Si el archivo existe directamente local bajo BASE_DIR con el mismo nombre/subruta
+            posible_local = BASE_DIR / ruta_target.name
+            if posible_local.exists():
+                ruta_abs = posible_local
+            else:
+                ruta_abs = ruta_target
+        else:
             ruta_abs = BASE_DIR / ruta_str
 
-        if any(ruta_abs == ex or ex in ruta_abs.parents for ex in EXCLUSIONES_DEFAULT):
+        # Filtrar si la ruta coincide con exclusiones predeterminadas o si su nombre es un directorio/archivo excluido (ej: 'ra')
+        if any(ruta_abs == ex or ex in ruta_abs.parents or ruta_abs.name == ex.name for ex in EXCLUSIONES_DEFAULT):
             continue
 
         if not ruta_abs.is_file():
@@ -136,10 +146,9 @@ def verificar_integridad(manifest_path: Optional[str] = None, quiet: bool = Fals
 
         hash_actual = calcular_hash(ruta_abs)
         
-        # Comparación segura ignorando mayúsculas/minúsculas y validando que no sea None
         if not hash_actual or str(hash_actual).lower() != str(hash_esperado).lower():
             if not quiet:
-                print(f"🚨 [ALERTA DE SEGURIDAD] Integridad comprometida en: {ruta_str}")
+                print(f"🚨 [ALERTA DE SEGURIDAD] Integridad compromised en: {ruta_str}")
                 print(f"   ├─ Esperado: {hash_esperado}")
                 print(f"   └─ Actual:   {hash_actual}")
             errores_hallados += 1
