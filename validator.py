@@ -6,9 +6,10 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, Any, Optional
 
+# Directorio raíz del proyecto (relativo al script)
 BASE_DIR = Path(__file__).resolve().parent
 LOG_PATH = BASE_DIR / "knowledge" / "consciencia_log.jsonl"
-SD_FLAG_PATH = Path("/storage/emulated/0/puppeteer_sd_storage/system_status.txt")
+FLAG_PATH = BASE_DIR / "logs" / "system_status.txt"
 
 try:
     from signer import calcular_hash, buscar_manifiesto
@@ -37,24 +38,23 @@ except ImportError:
                 return ruta
         return None
 
-# Exclusiones relativas al repositorio
+# Exclusiones relativas para archivos temporales y ejecuciones internas del repositorio
 EXCLUSIONES_DEFAULT = [
-    BASE_DIR / 'ra',
     BASE_DIR / 'logs',
     BASE_DIR / 'tmp'
 ]
 
 def actualizar_bandera_dispositivo(estado_txt: str) -> None:
-    """Actualiza la bandera de estado en el almacenamiento externo."""
+    """Actualiza la bandera de estado de forma local en el repositorio."""
     try:
-        SD_FLAG_PATH.parent.mkdir(parents=True, exist_ok=True)
-        with open(SD_FLAG_PATH, 'w', encoding='utf-8') as f:
+        FLAG_PATH.parent.mkdir(parents=True, exist_ok=True)
+        with open(FLAG_PATH, 'w', encoding='utf-8') as f:
             f.write(estado_txt)
     except Exception:
         pass
 
 def registrar_evento(tipo: str, mensaje: str, detalles: Dict[str, Any]) -> None:
-    """Registra eventos de integridad para consumo de Synthesiser.py."""
+    """Registra eventos de integridad para el historial del sistema."""
     record = {
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "modulo": "validator",
@@ -123,19 +123,19 @@ def verificar_integridad(manifest_path: Optional[str] = None, quiet: bool = Fals
 
         ruta_target = Path(ruta_str).expanduser()
 
-        # Si viene una ruta absoluta de otro entorno, intentar adaptarla a BASE_DIR
+        # Resolución Agnóstica de Rutas:
+        # Si la ruta es absoluta (generada en otro entorno), busca coincidencia relativa dentro de BASE_DIR.
         if ruta_target.is_absolute():
-            # Si el archivo existe directamente local bajo BASE_DIR con el mismo nombre/subruta
             posible_local = BASE_DIR / ruta_target.name
-            if posible_local.exists():
+            if posible_local.is_file():
                 ruta_abs = posible_local
             else:
                 ruta_abs = ruta_target
         else:
             ruta_abs = BASE_DIR / ruta_str
 
-        # Filtrar si la ruta coincide con exclusiones predeterminadas o si su nombre es un directorio/archivo excluido (ej: 'ra')
-        if any(ruta_abs == ex or ex in ruta_abs.parents or ruta_abs.name == ex.name for ex in EXCLUSIONES_DEFAULT):
+        # Filtrar exclusiones genéricas de trabajo/logs
+        if any(ruta_abs == ex or ex in ruta_abs.parents for ex in EXCLUSIONES_DEFAULT):
             continue
 
         if not ruta_abs.is_file():
@@ -148,7 +148,7 @@ def verificar_integridad(manifest_path: Optional[str] = None, quiet: bool = Fals
         
         if not hash_actual or str(hash_actual).lower() != str(hash_esperado).lower():
             if not quiet:
-                print(f"🚨 [ALERTA DE SEGURIDAD] Integridad compromised en: {ruta_str}")
+                print(f"🚨 [ALERTA DE SEGURIDAD] Integridad comprometida en: {ruta_str}")
                 print(f"   ├─ Esperado: {hash_esperado}")
                 print(f"   └─ Actual:   {hash_actual}")
             errores_hallados += 1
