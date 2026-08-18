@@ -1,19 +1,26 @@
 {
   "name": "puppeteer-in-browser",
   "version": "1.0.0",
-  "description": "",
+  "description": "Automatización con Puppeteer ejecutándose en el navegador",
   "main": "index.js",
   "scripts": {
-    "build": "npx rimraf out && rollup -c && gzip -k --best -r -f out"
+    "clean": "rimraf out",
+    "build": "npm run clean && rollup -c && gzip -k --best -r -f out"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "puppeteer",
+    "extension",
+    "automation",
+    "rollup"
+  ],
+  "author": "Ricardo Moran Maldonado",
   "license": "MIT",
   "devDependencies": {
-    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-commonjs": "^29.0.3",
+    "@rollup/plugin-node-resolve": "^15.3.1",
     "@rollup/plugin-terser": "^0.4.4",
-    "rimraf": "^6.0.1",
-    "rollup": "^4.59.0",
+    "rimraf": "^6.1.3",
+    "rollup": "^4.62.4",
     "terser": "^5.30.4"
   }
 }

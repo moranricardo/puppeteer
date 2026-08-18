@@ -1,5 +1,6 @@
-git add 
-.release-please-manifest.json git 
-commit -m "chore: conservar rutas de 
-paquetes en manifiesto de 
-release-please" git push origin main
+{
+  "packages/puppeteer": "0.0.0",
+  "packages/puppeteer-core": "0.0.0",
+  "packages/ng-schematics": "0.0.0",
+  "packages/browsers": "0.0.0"
+}

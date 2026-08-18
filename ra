@@ -1,14 +1,31 @@
 #!/bin/bash
-export PYTHONPATH=$PYTHONPATH:~/bot-factory/core
+
+# Detecta el directorio actual del proyecto de forma dinámica
+PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+export PYTHONPATH="$PYTHONPATH:$PROJECT_DIR"
+
 case "$1" in
     apply)
-        python3 ~/bot-factory/core/executor.py "$2"
-        python3 ~/bot-factory/core/validator.py
+        if [ -z "$2" ]; then
+            echo "Error: Debes especificar un argumento para apply."
+            echo "Uso: ra apply <archivo_o_parametro>"
+            exit 1
+        fi
+        echo "--> Ejecutando aplicador..."
+        python3 "$PROJECT_DIR/validator.py" "$2"
+        echo "--> Ejecutando validador..."
+        python3 "$PROJECT_DIR/validator.py"
         ;;
     status)
-        python3 ~/bot-factory/core/validator.py
+        echo "--> Verificando estado del sistema..."
+        python3 "$PROJECT_DIR/validator.py"
+        ;;
+    build)
+        echo "--> Compilando proyecto..."
+        npm run build
         ;;
     *)
-        echo "Uso: ra {apply|status}"
+        echo "Uso: ra {apply <arg>|status|build}"
+        exit 1
         ;;
 esac
