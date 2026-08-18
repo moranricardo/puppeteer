@@ -1,20 +1,20 @@
 {
-    "archivos": [
-        {
-            "path": "/data/data/com.termux/files/home/bot-factory/core/memory.py",
-            "hash": "cf9772d9d1de9a9f0462da6af38f39a4451b8a9e56874d8464b76aa74679ba6c"
-        },
-        {
-            "path": "/data/data/com.termux/files/home/bot-factory/core/health.py",
-            "hash": "542296b35e8dd115db8662709a6bb9434c86b6e70e08401016f3944536cfde09"
-        },
-        {
-            "path": "/data/data/com.termux/files/home/bot-factory/ra",
-            "hash": "31a9156ffbce90f2f45ad92cfa3c95b1c30c2fe398c953a25aa85b4a5a03a16b"
-        },
-        {
-            "path": "/data/data/com.termux/files/home/bot-factory/knowledge/axiomas_ra.txt",
-            "hash": "ff14a8635d70514722a50741e2ef1e1e569f51ffac0d14dbb80db166d4462052"
-        }
-    ]
+  "archivos": [
+    {
+      "path": "/data/data/com.termux/files/home/bot-factory/core/memory.py",
+      "hash": "cf9772d9d1de9a9f0462da6af38f39a4451b8a9e56874d8464b76aa74679ba6c"
+    },
+    {
+      "path": "/data/data/com.termux/files/home/bot-factory/core/health.py",
+      "hash": "542296b35e8dd115db8662709a6bb9434c86b6e70e08401016f3944536cfde09"
+    },
+    {
+      "path": "ra",
+      "hash": "aff0cae7d6b982d352a4472dfcef77b9478d5b467c698ec0d709546527108fba"
+    },
+    {
+      "path": "/data/data/com.termux/files/home/bot-factory/knowledge/axiomas_ra.txt",
+      "hash": "ff14a8635d70514722a50741e2ef1e1e569f51ffac0d14dbb80db166d4462052"
+    }
+  ]
 }
