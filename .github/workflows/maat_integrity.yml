@@ -1,0 +1,37 @@
+name: Integridad y Automatizacion MAAT
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # Se ejecuta automáticamente todos los días a medianoche (UTC)
+    - cron: '0 0 * * *'
+  workflow_dispatch: # Permite ejecutarlo manualmente desde la web de GitHub
+
+jobs:
+  validate-and-run:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Clonar Repositorio
+      uses: actions/checkout@v4
+
+    - name: Configurar Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Instalar Dependencias
+      run: |
+        python -m pip install --upgrade pip
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+    - name: Validar ADN Sistémico
+      run: |
+        python validator.py
+
+    - name: Ejecutar Tareas de Automatizacion
+      run: |
+        python main.py
