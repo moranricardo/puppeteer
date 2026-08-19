@@ -1,1 +1,22 @@
-{}
+{
+    "validator.py": {
+        "sha256": "200fbc89bbd5124f900a71ff81350466f1a87333d7265ab48220cf423e782740",
+        "description": "Componente vital validator.py"
+    },
+    "signer.py": {
+        "sha256": "283a399cf7539a5d9a2cc01677bf6433d1f851f23661893ea53be9257478270c",
+        "description": "Componente vital signer.py"
+    },
+    "watcher.py": {
+        "sha256": "7ff4f0fcece0dfe37c11e6cb05c275c8f1fe0ffbb10bf060a2bea5594cbdb13c",
+        "description": "Componente vital watcher.py"
+    },
+    "main.py": {
+        "sha256": "d6a2463cad94ca2e7fa0ab6ffa548c8bc1e84bbd4cafa7b3f7282719ffc5a844",
+        "description": "Componente vital main.py"
+    },
+    "ra": {
+        "sha256": "aff0cae7d6b982d352a4472dfcef77b9478d5b467c698ec0d709546527108fba",
+        "description": "Componente vital ra"
+    }
+}
